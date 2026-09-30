@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rolzzo · Cotizador Online</title>
+<meta name="description" content="Demo interactiva: cotizador de cortinas a medida con vista previa, órdenes de corte automáticas, seguimiento del pedido y panel de ventas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: night-indigo hero (darkness is the brand's promise) with a daylight accent; tabs float over it; the configurator pairs a live window preview with the step list */
+:root{
+  --night:#12172e; --indigo:#232b5e; --indigo-2:#313c80; --day:#ffc94d; --day-soft:#fff4d6;
+  --paper:#f5f4f1; --surface:#ffffff; --ink:#161a28; --muted:#646a7c; --line:#e3e2de;
+  --ok:#1c9a5e; --ok-soft:#e1f4ea; --warn:#c77e08; --warn-soft:#fdf0d8; --info:#3057c8; --info-soft:#e5ebfb;
+  --display:"Urbanist","Segoe UI",Arial,sans-serif; --body:"Manrope","Segoe UI",Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:18px; --shadow:0 1px 2px rgba(18,23,46,.05),0 12px 30px rgba(18,23,46,.08);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--day);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+
+/* hero */
+.hero{background:radial-gradient(1200px 400px at 85% -10%,rgba(255,201,77,.18),transparent 60%),linear-gradient(170deg,var(--night),var(--indigo) 70%,var(--indigo-2));color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:12px;background:#fff;position:relative;overflow:hidden}
+.mark:before{content:"";position:absolute;left:7px;right:7px;top:7px;height:18px;background:var(--night);border-radius:3px}
+.mark:after{content:"";position:absolute;left:7px;right:7px;top:27px;height:3px;background:var(--day);border-radius:2px}
+.brand b{font-family:var(--display);font-size:20px;letter-spacing:.3px;display:block;line-height:1}
+.brand small{color:#b9bfe6;font-size:12px}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px;color:#dfe3ff;white-space:nowrap}
+.hero-body{padding-block:10px 96px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5vw,50px);line-height:1.04;letter-spacing:-.6px;margin:0 0 12px;max-width:17ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--day)}
+.hero p{color:#cdd2f3;max-width:60ch;margin:0;font-size:16px}
+.proof{display:flex;gap:22px;flex-wrap:wrap}
+.proof div{min-width:110px}
+.proof b{font-family:var(--display);font-size:30px;color:#fff;display:block;line-height:1}
+.proof span{font-size:12.5px;color:#b9bfe6}
+.tabbar{margin-top:-60px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;display:flex;flex-wrap:wrap;gap:4px;position:relative}
+.tab{flex:1 1 170px;font-family:var(--display);font-weight:700;font-size:16px;border:0;border-radius:13px;background:transparent;color:var(--muted);padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab svg{width:19px;height:19px}
+.tab:hover{background:var(--paper);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--night);color:#fff}
+main{padding-block:26px 44px}
+
+/* controls */
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
+.h2{font-family:var(--display);font-weight:800;font-size:23px;margin:0 0 4px;letter-spacing:-.2px}
+.btn{font-family:var(--body);font-weight:700;font-size:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:11px 16px;cursor:pointer}
+.btn:hover{border-color:var(--indigo-2)}
+.btn.dark{background:var(--night);border-color:var(--night);color:#fff}
+.btn.dark:hover{background:var(--indigo)}
+.btn.sun{background:var(--day);border-color:var(--day);color:var(--night)}
+.btn.small{font-size:13px;padding:6px 12px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:block;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+input[type=text],input[type=number],select{font-family:var(--body);font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.warn{background:var(--warn-soft);color:#9a5f00} .chip.info{background:var(--info-soft);color:var(--info)} .chip.sun{background:var(--day-soft);color:#8a6200}
+
+/* configurator */
+.config{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;align-items:start}
+.preview{position:sticky;top:16px}
+.stage{background:linear-gradient(180deg,#ece9e3,#e2ded6);border-radius:14px;padding:18px;display:grid;place-items:center;position:relative}
+.stage svg{width:100%;max-width:440px;height:auto;display:block}
+.stage-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}
+.seg{display:inline-flex;background:var(--paper);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;font-family:var(--body);font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:999px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--night);color:#fff}
+.range{display:flex;align-items:center;gap:10px;flex:1;min-width:180px}
+.range input{flex:1;accent-color:var(--indigo-2)}
+.lightmeter{margin-top:12px;background:var(--paper);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.lightmeter .bar{flex:1;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--night),var(--indigo-2) 30%,var(--day));position:relative}
+.lightmeter .bar i{position:absolute;top:-5px;width:4px;height:18px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.lightmeter b{font-family:var(--display);font-size:20px;min-width:56px;text-align:right}
+.steps{display:grid;gap:14px}
+.step h3{font-family:var(--display);font-weight:800;font-size:17px;margin:0 0 10px;display:flex;gap:10px;align-items:center}
+.step h3 span{width:24px;height:24px;border-radius:50%;background:var(--night);color:#fff;font-size:12.5px;display:grid;place-items:center;flex:none}
+.prods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.prod{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:10px 12px;text-align:left;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.prod b{display:block;font-size:14px}
+.prod small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+.prod[aria-pressed="true"]{border-color:var(--night);box-shadow:inset 0 0 0 1px var(--night);background:#f7f8fd}
+.prod .tagx{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:800;color:#8a6200;background:var(--day-soft);border-radius:6px;padding:1px 6px}
+.dims{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.unit{position:relative}.unit input{padding-right:40px}.unit em{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--muted);font-size:13px;font-weight:700}
+.warnbox{margin-top:8px;font-size:13px;border-radius:10px;padding:8px 12px;background:var(--warn-soft);color:#7a4c00}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:44px;height:44px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--line);cursor:pointer;position:relative}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--night)}
+.swname{font-size:13px;color:var(--muted);margin-top:6px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:9px 14px;cursor:pointer;font-family:var(--body);font-weight:700;font-size:14px;color:var(--ink)}
+.opt small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.opt[aria-pressed="true"]{border-color:var(--night);background:#f7f8fd}
+.pricebox{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+.big{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;letter-spacing:-.5px}
+.cart{margin-top:24px}
+.cart-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.cart-row:last-child{border-bottom:0}
+.thumb{width:44px;height:44px;border-radius:10px;border:1px solid var(--line)}
+.cart-row .x{background:none;border:0;color:var(--muted);font-size:20px;cursor:pointer}
+.checkout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:14px}
+.totals{display:grid;gap:4px;justify-items:end;margin-top:14px}
+.totals div{display:flex;gap:16px;font-size:14px}.totals div span{color:var(--muted)}
+
+/* workshop */
+.sheets{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.sheet{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.sheet-h{background:var(--night);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.sheet-h b{font-family:var(--display);font-size:16px}
+.sheet table{width:100%;border-collapse:collapse;font-size:13.5px}
+.sheet td{padding:7px 16px;border-bottom:1px solid var(--line)}
+.sheet td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
+.sheet tr:last-child td{border-bottom:0}
+.sheet .foot{padding:10px 16px;background:#fafaf8;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.barcode{height:26px;width:120px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px)}
+.orderbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+
+/* tracking */
+.track{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
+.timeline{list-style:none;margin:0;padding:0;position:relative}
+.timeline li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;padding-bottom:22px;position:relative}
+.timeline li:before{content:"";position:absolute;left:16px;top:30px;bottom:0;width:2px;background:var(--line)}
+.timeline li:last-child:before{display:none}
+.dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--paper);color:var(--muted);font-weight:800;font-size:13px;border:2px solid var(--line);position:relative;z-index:1}
+.timeline li.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.timeline li.now .dot{background:var(--day);border-color:var(--day);color:var(--night)}
+.timeline li.done:before{background:var(--ok)}
+.timeline b{display:block;font-size:15px}
+.timeline span{font-size:13.5px;color:var(--muted)}
+
+/* panel */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
+.kpi b{display:block;font-family:var(--display);font-size:32px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted);font-weight:700}
+.kanban-wrap{overflow-x:auto;margin-bottom:22px}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;min-width:1040px}
+.col{background:#ebeae6;border-radius:14px;padding:10px}
+.col h4{margin:2px 4px 10px;font-family:var(--display);font-size:15px;display:flex;justify-content:space-between}
+.col h4 span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.ocard{background:var(--surface);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 2px rgba(18,23,46,.06);font-size:13px}
+.ocard b{font-size:13.5px}
+.ocard.new{outline:2.5px solid var(--day)}
+.ocard .btn{margin-top:8px;width:100%}
+.lost{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow-x:auto}
+.lost table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+.lost th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:#fafaf8;border-bottom:1px solid var(--line)}
+.lost td{padding:11px 14px;border-bottom:1px solid var(--line)}
+.lost tr:last-child td{border-bottom:0}
+
+footer{border-top:1px solid var(--line);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .container{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+footer b{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--night);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:700;max-width:calc(100% - 32px);box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:20}
+@media (prefers-reduced-motion:no-preference){#curtain,#curtain-shadow{transition:height .35s ease}.tab,.btn,.prod,.opt{transition:background .15s,border-color .15s,color .15s}}
+@media (max-width:960px){.config,.track{grid-template-columns:minmax(0,1fr)}.preview{position:static}.hero-body{grid-template-columns:minmax(0,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.prods{grid-template-columns:repeat(2,minmax(0,1fr))}.checkout{grid-template-columns:minmax(0,1fr)}.tab{flex-basis:45%;font-size:14.5px;padding:10px 6px}.card{padding:18px}.cart-row{grid-template-columns:40px minmax(0,1fr) auto}.cart-row .x{grid-column:3}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container topbar">
+    <div class="brand"><div class="mark" aria-hidden="true"></div><div><b>ROLZZO</b><small>Cortinas a medida · San Miguel, Santiago</small></div></div>
+    <span class="pill">Demo · precios de ejemplo</span>
+  </div>
+  <div class="container hero-body">
+    <div>
+      <h1>Cotiza tu cortina a medida <em>en un minuto</em></h1>
+      <p>El cliente ingresa las medidas de cada ventana, elige tela, color y motorización, ve cómo queda y el precio al instante. Cuando confirma, el taller recibe la orden de corte lista y el cliente sigue su pedido hasta que llega por Starken.</p>
+    </div>
+    <div class="proof"><div><b>+7.000</b><span>hogares en Chile</span></div><div><b>5 años</b><span>de garantía</span></div><div><b>24/7</b><span>cotizaciones online</span></div></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabbar" role="tablist">
+    <button class="tab" role="tab" id="t-cfg" aria-selected="true" data-pane="p-cfg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 8h18M8 8v13"/></svg>Cotizador</button>
+    <button class="tab" role="tab" id="t-shop" aria-selected="false" data-pane="p-shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l12 18M18 3L6 21"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/></svg>Orden de taller</button>
+    <button class="tab" role="tab" id="t-trk" aria-selected="false" data-pane="p-trk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 7h13v10H1zM14 11h5l3 3v3h-8"/><circle cx="5" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>Seguimiento</button>
+    <button class="tab" role="tab" id="t-pnl" aria-selected="false" data-pane="p-pnl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Panel de ventas</button>
+  </div>
+</div>
+
+<main class="container">
+<!-- CONFIGURATOR -->
+<section id="p-cfg" role="tabpanel" aria-labelledby="t-cfg">
+  <div class="config">
+    <div class="card preview">
+      <div class="stage">
+        <svg id="scene" viewBox="0 0 440 340" role="img" aria-label="Vista previa de la cortina en la ventana"></svg>
+      </div>
+      <div class="stage-tools">
+        <div class="seg" role="group" aria-label="Luz exterior"><button type="button" data-sky="day" aria-pressed="true">☀ Día</button><button type="button" data-sky="night" aria-pressed="false">☾ Noche</button></div>
+        <label class="range"><span class="note">Subir</span><input type="range" id="drop" min="0" max="100" value="82" aria-label="Subir o bajar la cortina"><span class="note">Bajar</span></label>
+      </div>
+      <div class="lightmeter"><span class="note" style="min-width:92px">Luz que entra</span><div class="bar"><i id="lm-i"></i></div><b id="lm-v">5%</b></div>
+      <p class="note" style="margin:10px 2px 0" id="scene-cap"></p>
+    </div>
+
+    <div class="card">
+      <div class="steps">
+        <div class="step">
+          <h3><span>1</span>Elige el sistema</h3>
+          <div class="prods" id="prods"></div>
+        </div>
+        <div class="step">
+          <h3><span>2</span>Medidas de la ventana</h3>
+          <div class="dims">
+            <div><label class="f" for="w">Ancho</label><div class="unit"><input type="number" id="w" min="30" max="340" value="160"><em>cm</em></div></div>
+            <div><label class="f" for="h">Alto</label><div class="unit"><input type="number" id="h" min="30" max="300" value="180"><em>cm</em></div></div>
+            <div><label class="f" for="room">Ambiente</label><select id="room"><option>Dormitorio principal</option><option>Living</option><option>Comedor</option><option>Dormitorio niños</option><option>Oficina</option><option>Cocina</option></select></div>
+          </div>
+          <div class="warnbox" id="dimwarn" hidden></div>
+        </div>
+        <div class="step">
+          <h3><span>3</span>Color de la tela</h3>
+          <div class="swatches" id="swatches"></div>
+          <div class="swname" id="swname"></div>
+        </div>
+        <div class="step">
+          <h3><span>4</span>Accionamiento</h3>
+          <div class="opts" id="drive"></div>
+        </div>
+        <div class="step">
+          <h3><span>5</span>Terminación</h3>
+          <div class="opts" id="cenefa"></div>
+        </div>
+      </div>
+      <div class="pricebox">
+        <div><div class="note" id="p-desc"></div><div class="big mono" id="p-val"></div><div class="note">IVA incluido</div></div>
+        <button class="btn dark" id="add" type="button">Agregar esta ventana</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card cart">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div><h2 class="h2">Tu cotización</h2><div class="note">Puedes agregar todas las ventanas de la casa y comprar en un solo pedido.</div></div>
+      <span class="chip sun" id="cart-count"></span>
+    </div>
+    <div id="cart"></div>
+    <div class="checkout">
+      <div><label class="f" for="cname">Nombre</label><input type="text" id="cname" value="Camila Fuentes"></div>
+      <div><label class="f" for="comuna">Comuna / región</label><select id="comuna"></select></div>
+      <div><label class="f" for="deliv">Entrega</label><select id="deliv"></select></div>
+    </div>
+    <div class="totals" id="totals"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px">
+      <button class="btn" type="button" data-toast="La cotización se envía en PDF al correo y por WhatsApp del cliente (demo).">Enviarme la cotización</button>
+      <button class="btn sun" id="buy" type="button">Confirmar y pagar</button>
+    </div>
+  </div>
+</section>
+
+<!-- WORKSHOP -->
+<section id="p-shop" role="tabpanel" aria-labelledby="t-shop" hidden>
+  <div class="orderbar">
+    <div><h2 class="h2" id="shop-title"></h2><div class="note" id="shop-sub"></div></div>
+    <select id="shop-sel" aria-label="Elegir pedido" style="max-width:320px"></select>
+  </div>
+  <div class="sheets" id="sheets"></div>
+  <p class="note" style="margin-top:14px">Los descuentos de corte (tela, tubo, contrapeso, cadena) son reglas de ejemplo: en el sistema real se configuran con las medidas de su taller.</p>
+</section>
+
+<!-- TRACKING -->
+<section id="p-trk" role="tabpanel" aria-labelledby="t-trk" hidden>
+  <div class="track">
+    <div class="card">
+      <h2 class="h2">Sigue tu pedido</h2>
+      <p class="note" style="margin-top:0">El cliente entra con su número de pedido, sin tener que escribir para preguntar.</p>
+      <label class="f" for="trk-sel">N° de pedido</label>
+      <select id="trk-sel"></select>
+      <div id="trk-info" style="margin-top:16px"></div>
+    </div>
+    <div class="card"><ul class="timeline" id="timeline"></ul></div>
+  </div>
+</section>
+
+<!-- PANEL -->
+<section id="p-pnl" role="tabpanel" aria-labelledby="t-pnl" hidden>
+  <div class="kpis" id="kpis"></div>
+  <h2 class="h2" style="margin-bottom:10px">Producción</h2>
+  <div class="kanban-wrap"><div class="kanban" id="kanban"></div></div>
+  <h2 class="h2">Cotizaciones sin cerrar</h2>
+  <p class="note" style="margin-top:0">Clientes que cotizaron y no compraron. Un recordatorio a tiempo recupera muchas de estas ventas.</p>
+  <div class="lost"><table><thead><tr><th>Cliente</th><th>Cotizó</th><th>Ventanas</th><th>Monto</th><th>Hace</th><th></th></tr></thead><tbody id="lost"></tbody></table></div>
+</section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · desarrollo de software desde Argentina</span><span>Precios, clientes y pedidos de ejemplo</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const clp=n=>'$'+Math.round(n).toLocaleString('es-CL');
+  let tt; const toast=m=>{const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,3400);};
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');if(b)toast(b.dataset.toast);});
+
+  const PRODUCTS=[
+    {id:'bk',name:'Roller Blackout',desc:'Bloquea la luz',m2:32990,trans:2,type:'solid'},
+    {id:'sc',name:'Roller Screen',desc:'Luz y privacidad, con vista',m2:29990,trans:30,type:'screen'},
+    {id:'duo',name:'Roller Dúo',desc:'Regula día y noche con franjas',m2:39990,trans:35,type:'duo'},
+    {id:'dual',name:'Roller Dual SC+BK',desc:'Dos telas: screen y blackout',m2:54990,trans:1,type:'dual'},
+    {id:'dark',name:'Dark Roller',desc:'100% oscuridad con guías laterales',m2:69990,trans:0,type:'dark',tag:'Exclusivo'},
+    {id:'bee',name:'BeeBlack',desc:'Oscuridad real y bloqueo de insectos',m2:79990,trans:0,type:'dark',tag:'Exclusivo'}
+  ];
+  const COLORS=[['Blanco','#f3f2ee'],['Hueso','#e6dccb'],['Lino','#cfc1a6'],['Gris perla','#b7b9bd'],['Grafito','#4a4e56'],['Negro','#1d1e21']];
+  const DRIVES=[{id:'cad-d',name:'Cadena derecha',sub:'Incluida',p:0},{id:'cad-i',name:'Cadena izquierda',sub:'Incluida',p:0},{id:'motor',name:'Motorizada',sub:'Control remoto + Alexa / Google Home · +'+clp(149990),p:149990}];
+  const CENEFAS=[{id:'none',name:'Sin cenefa',sub:'Mecanismo a la vista',p:0},{id:'oval',name:'Cenefa ovalada',sub:clp(12990)+' por metro',p:12990},{id:'sq',name:'Cenefa cuadrada',sub:clp(12990)+' por metro',p:12990}];
+  const PLACES=[['San Miguel','RM'],['Providencia','RM'],['Las Condes','RM'],['Ñuñoa','RM'],['Maipú','RM'],['Puente Alto','RM'],['Viña del Mar · Valparaíso','V'],['Concepción · Biobío','VIII'],['Rancagua · O\'Higgins','VI'],['La Serena · Coquimbo','IV'],['Antofagasta','II'],['Temuco · Araucanía','IX'],['Puerto Montt · Los Lagos','X']];
+  const STARKEN={V:9990,VI:9990,VIII:14990,IV:14990,IX:16990,X:18990,II:19990};
+
+  let cfg={prod:'bk',w:160,h:180,color:3,drive:'cad-d',cen:'none',room:'Dormitorio principal'}, sky='day';
+  const P=id=>PRODUCTS.find(p=>p.id===id);
+  const priceOf=c=>{const p=P(c.prod);const area=Math.max(1,c.w*c.h/10000);let t=area*p.m2;t+=DRIVES.find(d=>d.id===c.drive).p;const ce=CENEFAS.find(x=>x.id===c.cen);t+=ce.p*(c.w/100);return Math.round(t/10)*10;};
+
+  // step UIs
+  function renderProds(){
+    $('#prods').innerHTML=PRODUCTS.map(p=>`<button type="button" class="prod" data-p="${p.id}" aria-pressed="${p.id===cfg.prod}"><b>${p.name}</b><small>${p.desc}</small><small class="mono">${clp(p.m2)} / m²</small>${p.tag?`<span class="tagx">${p.tag}</span>`:''}</button>`).join('');
+    $('#prods').querySelectorAll('.prod').forEach(b=>b.onclick=()=>{cfg.prod=b.dataset.p;update();});
+  }
+  function renderSw(){
+    $('#swatches').innerHTML=COLORS.map((c,i)=>`<button type="button" class="sw" style="background:${c[1]}" data-c="${i}" aria-pressed="${i===cfg.color}" aria-label="${c[0]}" title="${c[0]}"></button>`).join('');
+    $('#swatches').querySelectorAll('.sw').forEach(b=>b.onclick=()=>{cfg.color=+b.dataset.c;update();});
+    $('#swname').textContent='Color: '+COLORS[cfg.color][0];
+  }
+  function renderOpts(el,list,key){
+    $(el).innerHTML=list.map(o=>`<button type="button" class="opt" data-o="${o.id}" aria-pressed="${o.id===cfg[key]}">${o.name}<small>${o.sub}</small></button>`).join('');
+    $(el).querySelectorAll('.opt').forEach(b=>b.onclick=()=>{cfg[key]=b.dataset.o;update();});
+  }
+  ['w','h'].forEach(id=>$('#'+id).addEventListener('input',()=>{cfg[id]=Math.max(0,+$('#'+id).value||0);update(false);}));
+  $('#room').onchange=e=>cfg.room=e.target.value;
+  $('#drop').oninput=drawScene;
+  document.querySelectorAll('[data-sky]').forEach(b=>b.onclick=()=>{sky=b.dataset.sky;document.querySelectorAll('[data-sky]').forEach(x=>x.setAttribute('aria-pressed',x===b));drawScene();});
+
+  function validate(){
+    const msgs=[];
+    if(cfg.w<30||cfg.h<30) msgs.push('La medida mínima es 30 × 30 cm.');
+    if(cfg.w>340) msgs.push('El ancho máximo de un roller es 340 cm. Para ventanales más anchos te recomendamos el sistema Oscuranti o dividir en dos cortinas.');
+    else if(cfg.w>300) msgs.push('Sobre 300 cm usamos tubo reforzado. Un asesor confirmará la medida.');
+    if(cfg.h>300) msgs.push('El alto máximo es 300 cm.');
+    $('#dimwarn').hidden=!msgs.length; $('#dimwarn').textContent=msgs.join(' ');
+    const ok=cfg.w>=30&&cfg.h>=30&&cfg.w<=340&&cfg.h<=300; $('#add').disabled=!ok; return ok;
+  }
+
+  // scene
+  function drawScene(){
+    const p=P(cfg.prod), col=COLORS[cfg.color][1];
+    const drop=+$('#drop').value/100;
+    const maxW=300,maxH=250; const s=Math.min(maxW/Math.max(cfg.w,30),maxH/Math.max(cfg.h,30));
+    const W=Math.max(60,Math.min(maxW,cfg.w*s)),H=Math.max(60,Math.min(maxH,cfg.h*s));
+    const x=(440-W)/2,y=40+(250-H)/2;
+    const day=sky==='day';
+    const cur=H*drop;
+    let fabric='';
+    if(p.type==='solid'||p.type==='dark') fabric=`<rect id="curtain" x="${x}" y="${y}" width="${W}" height="${cur}" fill="${col}"/>`;
+    if(p.type==='screen') fabric=`<rect id="curtain" x="${x}" y="${y}" width="${W}" height="${cur}" fill="${col}" opacity=".62"/><rect x="${x}" y="${y}" width="${W}" height="${cur}" fill="url(#weave)"/>`;
+    if(p.type==='duo'){const bands=[];for(let yy=0;yy<cur;yy+=16){bands.push(`<rect x="${x}" y="${y+yy}" width="${W}" height="${Math.min(9,cur-yy)}" fill="${col}"/>`);bands.push(`<rect x="${x}" y="${y+yy+9}" width="${W}" height="${Math.max(0,Math.min(7,cur-yy-9))}" fill="${col}" opacity=".35"/>`);}fabric=`<g id="curtain">${bands.join('')}</g>`;}
+    if(p.type==='dual') fabric=`<rect id="curtain" x="${x}" y="${y}" width="${W}" height="${cur}" fill="${col}"/><rect x="${x}" y="${y}" width="${W}" height="${Math.min(cur,8)}" fill="#000" opacity=".12"/>`;
+    const rails=p.type==='dark'?`<rect x="${x-9}" y="${y-4}" width="7" height="${H+8}" rx="2" fill="#6d6f75"/><rect x="${x+W+2}" y="${y-4}" width="7" height="${H+8}" rx="2" fill="#6d6f75"/>`:'';
+    const cen=cfg.cen==='none'?`<rect x="${x-4}" y="${y-14}" width="${W+8}" height="12" rx="6" fill="#9a9ca3"/>`:cfg.cen==='oval'?`<rect x="${x-10}" y="${y-22}" width="${W+20}" height="22" rx="11" fill="#e9e8e4" stroke="#c9c7c1"/>`:`<rect x="${x-10}" y="${y-22}" width="${W+20}" height="22" rx="2" fill="#e9e8e4" stroke="#c9c7c1"/>`;
+    const chain=cfg.drive==='motor'?`<g transform="translate(${x+W-16},${y+cur+6})"><rect width="22" height="14" rx="3" fill="${day?'#2a2f3a':'#e8e8e8'}" opacity=".0"/></g>`:`<line x1="${cfg.drive==='cad-d'?x+W-8:x+8}" y1="${y}" x2="${cfg.drive==='cad-d'?x+W-8:x+8}" y2="${y+H*0.7}" stroke="#8f9197" stroke-width="2" stroke-dasharray="2 2"/>`;
+    const skyG=day?`<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ec5f2"/><stop offset="1" stop-color="#d9eefc"/></linearGradient>`:`<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1026"/><stop offset="1" stop-color="#27306b"/></linearGradient>`;
+    const outside=day?`<circle cx="${x+W*0.75}" cy="${y+H*0.28}" r="18" fill="#ffd45c"/><path d="M${x} ${y+H*0.78} L${x+W*0.22} ${y+H*0.55} L${x+W*0.38} ${y+H*0.7} L${x+W*0.6} ${y+H*0.45} L${x+W} ${y+H*0.72} L${x+W} ${y+H} L${x} ${y+H} Z" fill="#6c8fa8" opacity=".55"/><path d="M${x+W*0.6} ${y+H*0.45} l10 8 -6 0 -4 -3 -4 4 -5 -1z" fill="#fff" opacity=".8"/>`:`<circle cx="${x+W*0.72}" cy="${y+H*0.26}" r="13" fill="#f3efd9"/><circle cx="${x+W*0.72+6}" cy="${y+H*0.26-4}" r="12" fill="#141a36"/><circle cx="${x+W*0.2}" cy="${y+H*0.2}" r="1.4" fill="#fff"/><circle cx="${x+W*0.4}" cy="${y+H*0.34}" r="1.1" fill="#fff"/><circle cx="${x+W*0.55}" cy="${y+H*0.15}" r="1.2" fill="#fff"/>`;
+    const light=Math.round((1-drop)*100+drop*p.trans);
+    const glow=day?`<path d="M${x} ${y+H} L${x+W} ${y+H} L${x+W+50} 335 L${x-50} 335 Z" fill="#fff3c4" opacity="${(light/100)*0.55}"/>`:'';
+    $('#scene').innerHTML=`<defs>${skyG}<pattern id="weave" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="none"/><circle cx="1" cy="1" r=".7" fill="#000" opacity=".14"/></pattern><clipPath id="win"><rect x="${x}" y="${y}" width="${W}" height="${H}"/></clipPath></defs>
+      ${glow}
+      <rect x="${x-12}" y="${y-12}" width="${W+24}" height="${H+24}" rx="4" fill="#fbfaf7" stroke="#d4d1ca"/>
+      <rect x="${x}" y="${y}" width="${W}" height="${H}" fill="url(#sky)"/>
+      <g clip-path="url(#win)">${outside}<line x1="${x+W/2}" y1="${y}" x2="${x+W/2}" y2="${y+H}" stroke="#fbfaf7" stroke-width="5"/></g>
+      <g clip-path="url(#win)">${fabric}</g>
+      ${p.type!=='duo'?`<rect x="${x}" y="${y+cur-5}" width="${W}" height="5" rx="2" fill="#5d6068"/>`:''}
+      ${rails}${cen}${chain}
+      <text x="220" y="330" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="12" fill="${day?'#6b6f7b':'#c9cde6'}">${cfg.w} × ${cfg.h} cm</text>`;
+    document.querySelector('.stage').style.background=day?'':'linear-gradient(180deg,#3a3f58,#2a2e44)';
+    $('#lm-i').style.left=light+'%'; $('#lm-v').textContent=light+'%';
+    $('#scene-cap').textContent=`${p.name} · ${COLORS[cfg.color][0]} · ${DRIVES.find(d=>d.id===cfg.drive).name}${cfg.cen!=='none'?' · '+CENEFAS.find(c=>c.id===cfg.cen).name:''}`;
+  }
+
+  function update(rerender=true){
+    if(rerender){renderProds();renderSw();renderOpts('#drive',DRIVES,'drive');renderOpts('#cenefa',CENEFAS,'cen');}
+    validate(); drawScene();
+    const area=Math.max(1,cfg.w*cfg.h/10000);
+    $('#p-desc').textContent=`${area.toFixed(2).replace('.',',')} m² facturables`;
+    $('#p-val').textContent=clp(priceOf(cfg));
+  }
+
+  // cart
+  let cart=[
+    {prod:'sc',w:240,h:200,color:1,drive:'motor',cen:'oval',room:'Living'}
+  ].map(c=>({...c,price:priceOf(c)}));
+  $('#add').onclick=()=>{if(!validate())return;cart.push({...cfg,price:priceOf(cfg)});renderCart();toast(`Ventana agregada: ${cfg.room} · ${P(cfg.prod).name}`);};
+  $('#comuna').innerHTML=PLACES.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join('');
+  function fillDeliv(){const reg=PLACES[+$('#comuna').value][1];
+    $('#deliv').innerHTML=reg==='RM'?`<option value="inst">Instalación a domicilio (RM)</option><option value="retiro">Retiro en showroom · San Miguel</option>`:`<option value="starken">Despacho Starken a ${PLACES[+$('#comuna').value][0]}</option><option value="retiro">Retiro en showroom · San Miguel</option>`;renderCart();}
+  $('#comuna').onchange=fillDeliv; $('#deliv').onchange=()=>renderCart();
+  function shipping(){const reg=PLACES[+$('#comuna').value][1],d=$('#deliv').value;if(d==='retiro')return[0,'Retiro en showroom'];if(d==='inst')return[14990*cart.length,'Instalación ('+cart.length+' ventana'+(cart.length>1?'s':'')+')'];return[STARKEN[reg]||14990,'Despacho Starken'];}
+  function renderCart(){
+    $('#cart').innerHTML=cart.length?cart.map((c,i)=>{const p=P(c.prod);return `<div class="cart-row"><div class="thumb" style="background:${COLORS[c.color][1]}"></div><div><b>${esc(c.room)}</b> · ${p.name}<div class="note">${c.w} × ${c.h} cm · ${COLORS[c.color][0]} · ${DRIVES.find(d=>d.id===c.drive).name}${c.cen!=='none'?' · '+CENEFAS.find(x=>x.id===c.cen).name:''}</div></div><b class="mono">${clp(c.price)}</b><button class="x" type="button" data-rm="${i}" aria-label="Quitar ventana">×</button></div>`;}).join(''):'<p class="note">Aún no agregas ventanas.</p>';
+    $('#cart').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.rm,1);renderCart();});
+    const sub=cart.reduce((s,c)=>s+c.price,0),[sh,shl]=shipping();
+    $('#totals').innerHTML=`<div><span>Cortinas</span><b class="mono">${clp(sub)}</b></div><div><span>${shl}</span><b class="mono">${sh?clp(sh):'Sin costo'}</b></div><div style="font-size:18px"><span>Total</span><b class="mono">${clp(sub+sh)}</b></div>`;
+    $('#cart-count').textContent=cart.length+' ventana'+(cart.length!==1?'s':'');
+    $('#buy').disabled=!cart.length;
+  }
+
+  // orders
+  const STAGES=['Pedido recibido','En corte','En armado','Control de calidad','Despachado / instalación'];
+  let orderSeq=10457;
+  const orders=[
+    {no:'RZ-10451',client:'Rodrigo Valdés',place:'Concepción · Biobío',deliv:'starken',stage:4,items:[{prod:'bk',w:140,h:160,color:4,drive:'cad-d',cen:'none',room:'Dormitorio principal'},{prod:'bk',w:90,h:120,color:4,drive:'cad-i',cen:'none',room:'Dormitorio niños'}],ot:'Starken OT 781204551'},
+    {no:'RZ-10453',client:'Francisca Soto',place:'Providencia',deliv:'inst',stage:3,items:[{prod:'duo',w:200,h:220,color:1,drive:'motor',cen:'sq',room:'Living'}]},
+    {no:'RZ-10454',client:'Hotel Bellavista (ejemplo)',place:'Viña del Mar · Valparaíso',deliv:'starken',stage:2,items:[{prod:'dark',w:120,h:150,color:5,drive:'cad-d',cen:'sq',room:'Habitación 201'},{prod:'dark',w:120,h:150,color:5,drive:'cad-d',cen:'sq',room:'Habitación 202'},{prod:'dark',w:120,h:150,color:5,drive:'cad-d',cen:'sq',room:'Habitación 203'}]},
+    {no:'RZ-10455',client:'Matías Rojas',place:'Las Condes',deliv:'inst',stage:1,items:[{prod:'dual',w:180,h:200,color:3,drive:'motor',cen:'oval',room:'Dormitorio principal'}]},
+    {no:'RZ-10456',client:'Javiera Muñoz',place:'Temuco · Araucanía',deliv:'starken',stage:1,items:[{prod:'bee',w:110,h:140,color:2,drive:'cad-d',cen:'none',room:'Dormitorio'}]},
+    {no:'RZ-10457',client:'Ignacio Pérez',place:'Maipú',deliv:'retiro',stage:0,items:[{prod:'sc',w:160,h:180,color:0,drive:'cad-i',cen:'none',room:'Oficina'}]}
+  ];
+  orders.forEach(o=>o.items.forEach(i=>i.price=priceOf(i)));
+  let lastNew=null;
+  $('#buy').onclick=()=>{
+    if(!cart.length)return;
+    const place=PLACES[+$('#comuna').value][0];
+    const o={no:'RZ-'+(++orderSeq),client:$('#cname').value||'Cliente',place,deliv:$('#deliv').value,stage:0,items:cart.map(c=>({...c})),isNew:true};
+    orders.push(o); lastNew=o.no; cart=[]; renderCart();
+    fillOrderSelects(o.no); renderShop(); renderTrack(); renderPanel();
+    toast(`Pago recibido · Pedido ${o.no} creado y enviado al taller`);
+    show('t-shop'); window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  // cut rules (example)
+  function cut(i){
+    const motor=i.drive==='motor', dual=i.prod==='dual', dark=P(i.prod).type==='dark';
+    const tube=i.w<=180?38:i.w<=260?45:63;
+    const rows=[
+      ['Tela'+(dual?' (x2: screen + blackout)':''), (i.w-(motor?4:3.5)).toFixed(1)+' × '+(i.h+25)+' cm'],
+      ['Tubo Ø'+tube+' mm', (i.w-2.8).toFixed(1)+' cm'],
+      ['Contrapeso', (i.w-4).toFixed(1)+' cm'],
+      motor?['Motor','Tubular Ø'+(tube>=45?45:35)+' · WiFi']:['Cadena ('+(i.drive==='cad-d'?'derecha':'izquierda')+')', Math.round(i.h*0.66)+' cm'],
+    ];
+    if(dark) rows.push(['Guías laterales','2 × '+(i.h+2)+' cm']);
+    if(i.cen!=='none') rows.push(['Cenefa '+(i.cen==='oval'?'ovalada':'cuadrada'),(i.w+1)+' cm']);
+    rows.push(['Color', COLORS[i.color][0]]);
+    return rows;
+  }
+  function fillOrderSelects(sel){
+    const opts=orders.slice().reverse().map(o=>`<option value="${o.no}">${o.no} · ${esc(o.client)}</option>`).join('');
+    $('#shop-sel').innerHTML=opts; $('#trk-sel').innerHTML=opts;
+    if(sel){$('#shop-sel').value=sel;$('#trk-sel').value=sel;}
+  }
+  $('#shop-sel').onchange=renderShop; $('#trk-sel').onchange=renderTrack;
+  const O=no=>orders.find(o=>o.no===no);
+  function renderShop(){
+    const o=O($('#shop-sel').value);
+    $('#shop-title').textContent=`Pedido ${o.no}${o.isNew?' · recién ingresado':''}`;
+    $('#shop-sub').textContent=`${o.client} · ${o.place} · ${o.items.length} cortina${o.items.length>1?'s':''} · Etapa: ${STAGES[o.stage]}`;
+    $('#sheets').innerHTML=o.items.map((i,k)=>`<div class="sheet"><div class="sheet-h"><b>${k+1}/${o.items.length} · ${esc(i.room)}</b><span class="chip sun">${P(i.prod).name}</span></div>
+      <table><tr><td>Medida terminada</td><td>${i.w} × ${i.h} cm</td></tr>${cut(i).map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+      <div class="foot"><span class="mono">${o.no}-${k+1}</span><div class="barcode" aria-hidden="true"></div></div></div>`).join('');
+  }
+
+  function renderTrack(){
+    const o=O($('#trk-sel').value); const total=o.items.reduce((s,i)=>s+i.price,0);
+    const last=o.deliv==='starken'?'Despachado por Starken':o.deliv==='inst'?'Instalación agendada':'Listo para retiro';
+    const labels=['Pedido recibido y pagado','En corte','En armado','Control de calidad',last];
+    const details=['Recibimos tu pago. Tu pedido ya está en la cola de producción.','Estamos cortando tela, tubo y contrapeso a tu medida.','Armamos el mecanismo'+(o.items.some(i=>i.drive==='motor')?' y configuramos el motor':'')+'.','Probamos cada cortina antes de embalarla.',o.deliv==='starken'?(o.ot||'Recibirás el número de OT de Starken por correo y WhatsApp.'):o.deliv==='inst'?'Te confirmamos día y hora de instalación por WhatsApp.':'Te avisamos cuando puedas retirar en Segunda Avenida 1562, San Miguel.'];
+    $('#trk-info').innerHTML=`<p style="margin:0 0 4px"><b>${esc(o.client)}</b></p><p class="note" style="margin:0">${esc(o.place)} · ${o.items.length} cortina${o.items.length>1?'s':''} · ${clp(total)}</p><p style="margin:10px 0 0"><span class="chip ${o.stage===4?'ok':'info'}">${labels[o.stage]}</span></p>`;
+    $('#timeline').innerHTML=labels.map((l,i)=>`<li class="${i<o.stage?'done':i===o.stage?'now':''}"><div class="dot">${i<o.stage?'✓':i+1}</div><div><b>${l}</b><span>${details[i]}</span></div></li>`).join('');
+  }
+
+  function renderPanel(){
+    const month=orders.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.price,0),0)+18450000;
+    const count=orders.length+74;
+    $('#kpis').innerHTML=`<div class="kpi"><b>43</b><span>Cotizaciones online hoy</span></div><div class="kpi"><b>${Math.round(count/220*100)}%</b><span>Cotizaciones que compran</span></div><div class="kpi"><b style="font-size:26px">${clp(month)}</b><span>Ventas del mes</span></div><div class="kpi"><b style="font-size:26px">${clp(month/count)}</b><span>Ticket promedio</span></div>`;
+    $('#kanban').innerHTML=STAGES.map((s,si)=>{const list=orders.filter(o=>o.stage===si);return `<div class="col"><h4>${s}<span>${list.length}</span></h4>${list.map(o=>`<div class="ocard ${o.no===lastNew?'new':''}"><b>${o.no}</b> · ${esc(o.client)}<div class="note">${esc(o.place)} · ${o.items.length} cortina${o.items.length>1?'s':''}</div>${si<4?`<button class="btn small" type="button" data-adv="${o.no}">Avanzar →</button>`:''}</div>`).join('')}</div>`;}).join('');
+    $('#kanban').querySelectorAll('[data-adv]').forEach(b=>b.onclick=()=>{const o=O(b.dataset.adv);o.stage=Math.min(4,o.stage+1);
+      if(o.stage===4&&o.deliv==='starken'&&!o.ot) o.ot='Starken OT 7812'+Math.floor(10000+Math.random()*89999);
+      toast(`${o.no} → ${STAGES[o.stage]} · el cliente recibe el aviso por WhatsApp`);renderPanel();renderTrack();renderShop();});
+    const lost=[['Constanza Araya','Roller Blackout',3,389970,'2 días'],['Felipe Contreras','Roller Dúo motorizada',1,312490,'3 días'],['Daniela Morales','Dark Roller',2,418600,'5 días'],['Sebastián Tapia','Roller Screen',4,356800,'1 semana']];
+    $('#lost').innerHTML=lost.map(l=>`<tr><td><b>${l[0]}</b></td><td>${l[1]}</td><td>${l[2]}</td><td class="mono">${clp(l[3])}</td><td>${l[4]}</td><td><button class="btn small" type="button" data-toast="Recordatorio enviado a ${l[0]} por WhatsApp con su cotización (demo).">Recordar por WhatsApp</button></td></tr>`).join('');
+  }
+
+  // tabs
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.id));
+  function show(id){document.querySelectorAll('.tab').forEach(t=>{const on=t.id===id;t.setAttribute('aria-selected',on);document.getElementById(t.dataset.pane).hidden=!on;});}
+
+  // boot
+  update(); fillDeliv(); renderCart(); fillOrderSelects(); $('#trk-sel').value='RZ-10453'; renderShop(); renderTrack(); renderPanel();
+})();
+</script>
+</body>
+</html>
