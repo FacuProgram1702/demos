@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solution Pest · Sistema de Visitas</title>
+<meta name="description" content="Demo interactiva: app del técnico, constancias automáticas, panel de oficina y portal del cliente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: app-style top bar + deep petrol hero, tabs as a floating segmented control, each pane one working screen of the system */
+:root{
+  --petrol:#0c3b40; --petrol-2:#0f5257; --petrol-3:#13686b;
+  --green:#18a55f; --green-dark:#0f8249; --green-soft:#e3f6ec;
+  --lime:#b9f06a;
+  --bg:#eef3f2; --surface:#ffffff; --ink:#10252a; --muted:#5f7478; --line:#dbe5e4;
+  --amber:#d98a08; --amber-soft:#fff3dc; --red:#d64532; --red-soft:#fde7e3; --blue:#2a74c9; --blue-soft:#e3eefb;
+  --doc:#ffffff; --doc-ink:#14222a;
+  --font:"Plus Jakarta Sans","Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:14px; --shadow:0 1px 2px rgba(12,59,64,.06),0 8px 24px rgba(12,59,64,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1160px;margin:0 auto;padding-inline:16px}
+
+/* top bar + hero */
+.top{background:var(--petrol);color:#fff;padding-top:env(safe-area-inset-top,0px)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--lime),var(--green));display:grid;place-items:center;color:var(--petrol);font-weight:800;font-size:15px;letter-spacing:.5px}
+.brand b{display:block;font-size:16px;line-height:1.1}
+.brand small{display:block;font-size:12px;color:#a9cfcc}
+.demo-pill{font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;color:#d6efec;white-space:nowrap}
+.hero{background:linear-gradient(180deg,var(--petrol) 0%,var(--petrol-2) 100%);color:#fff;padding-block:18px 78px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);font-weight:800;line-height:1.08;letter-spacing:-.5px;margin:0 0 10px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--lime)}
+.hero p{color:#c7e3e0;max-width:64ch;margin:0 0 18px;font-size:16px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 14px 6px 6px;font-size:13.5px;color:#e6f4f2}
+.flow li span{width:22px;height:22px;border-radius:50%;background:var(--lime);color:var(--petrol);font-weight:800;font-size:12px;display:grid;place-items:center}
+
+/* tabs */
+.tabbar{margin-top:-52px;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px;display:flex;flex-wrap:wrap;gap:4px;position:relative}
+.tab{flex:1 1 150px;font-family:var(--font);font-size:15px;font-weight:700;border:0;border-radius:10px;background:transparent;color:var(--muted);padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab svg{width:18px;height:18px;flex:none}
+.tab:hover{background:var(--bg);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--petrol);color:#fff}
+main{padding-block:24px 40px}
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+
+/* controls */
+.btn{font-family:var(--font);font-weight:700;font-size:14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer}
+.btn:hover{border-color:var(--petrol-3)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 16px rgba(24,165,95,.28)}
+.btn.primary:hover{background:var(--green-dark)}
+.btn.small{font-size:13px;padding:6px 12px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+label.f{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+input[type=text],input[type=number],select,textarea{font-family:var(--font);font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%}
+input[type=file]{font-family:var(--font);font-size:13px;max-width:100%}
+textarea{min-height:64px;resize:vertical}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--green-soft);color:var(--green-dark)}
+.chip.warn{background:var(--amber-soft);color:#a86500}
+.chip.bad{background:var(--red-soft);color:var(--red)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel-title{font-size:22px;font-weight:800;margin:0 0 4px;letter-spacing:-.2px}
+
+/* technician */
+.tech{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:32px;align-items:start}
+.phone{background:#0b1e21;border-radius:40px;padding:10px;box-shadow:0 24px 50px rgba(12,59,64,.25)}
+.screen{background:var(--bg);border-radius:31px;overflow:hidden}
+.app-head{background:linear-gradient(135deg,var(--green),var(--petrol-3));color:#fff;padding:14px 18px 16px}
+.app-head .status{display:flex;justify-content:space-between;font-size:12px;opacity:.85;margin-bottom:10px}
+.app-head .who{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:800;font-size:13px}
+.app-head h2{margin:0;font-size:18px;font-weight:800;line-height:1.2}
+.app-head small{font-size:12.5px;opacity:.85}
+.app-body{padding:14px}
+.app-body h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 8px}
+.route{display:grid;gap:8px;margin-bottom:14px}
+.stop{display:flex;gap:10px;align-items:center;justify-content:space-between;text-align:left;width:100%;background:var(--surface);border:2px solid transparent;border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink);font-family:var(--font);box-shadow:0 1px 2px rgba(12,59,64,.06)}
+.stop[aria-pressed="true"]{border-color:var(--green)}
+.stop small{display:block;color:var(--muted);font-size:12px}
+.stop b{font-weight:700;font-size:14px}
+.card{background:var(--surface);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(12,59,64,.06)}
+.card > h3{margin-bottom:10px}
+#v-title{font-size:17px;font-weight:800;margin:0 0 2px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.stations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.st{border:0;border-radius:10px;padding:7px 4px;text-align:center;cursor:pointer;font-family:var(--font);color:#fff}
+.st .n{font-family:var(--mono);font-size:12px;font-weight:600;opacity:.9}
+.st .s{display:block;font-size:10.5px;font-weight:700;line-height:1.2;margin-top:2px}
+.st.ok{background:var(--green)}
+.st.consumo{background:var(--amber)}
+.st.repuesto{background:var(--blue)}
+.st.danada{background:var(--red)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}
+.prod-row{display:grid;grid-template-columns:minmax(0,1fr) 72px auto;gap:6px;align-items:center;margin-bottom:4px;font-size:14px;font-weight:600}
+.prod-row .x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:20px;padding:0 4px}
+.prod-meta{font-size:12px;color:var(--muted);margin:0 0 10px}
+.photos{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.photos img,.photos .ph{width:64px;height:64px;object-fit:cover;border-radius:10px}
+.photos .ph{display:grid;place-items:center;font-size:10.5px;color:var(--muted);text-align:center;background:var(--bg);border:1.5px dashed var(--line);padding:4px}
+.sig{border:1.5px dashed #9fb3b5;border-radius:10px;background:#fff;touch-action:none;display:block;width:100%;height:120px;cursor:crosshair}
+.aside .intro{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 24px;margin-bottom:16px}
+.benefits{display:grid;gap:14px;margin:14px 0 0;padding:0;list-style:none}
+.benefits li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+.benefits .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+.benefits .ic svg{width:20px;height:20px}
+.benefits b{display:block;font-size:15px}
+.benefits span{color:var(--muted);font-size:14px}
+.try{background:linear-gradient(135deg,var(--petrol),var(--petrol-3));color:#e6f4f2;border-radius:var(--radius);padding:18px 22px;font-size:14.5px}
+.try b{color:var(--lime)}
+
+/* certificate */
+.doc{background:var(--doc);color:var(--doc-ink);max-width:780px;margin:0 auto;border-radius:6px;box-shadow:0 18px 40px rgba(12,59,64,.14);overflow:hidden}
+.doc-inner{padding:0 clamp(18px,4vw,44px) 30px}
+.doc-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;background:var(--petrol);color:#fff;margin:0 calc(-1 * clamp(18px,4vw,44px));padding:20px clamp(18px,4vw,44px)}
+.doc-brand{font-weight:800;font-size:24px;letter-spacing:.5px;line-height:1;display:flex;align-items:center;gap:10px}
+.doc-brand small{display:block;font-weight:500;font-size:12px;letter-spacing:.3px;color:#a9cfcc;margin-top:5px}
+.doc-no{text-align:right;font-size:12.5px;color:#cfe6e3}
+.doc-no b{color:#fff}
+.doc h2{font-size:15px;font-weight:800;letter-spacing:2px;text-transform:uppercase;text-align:center;margin:22px 0 14px;color:var(--petrol-3)}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 24px;font-size:14px;margin-bottom:10px;background:#f4f8f7;border-radius:10px;padding:14px 16px}
+.kv div span{color:#667a7d}
+.dt-wrap{overflow-x:auto}
+.doc table{border-collapse:collapse;width:100%;font-size:13.5px}
+.doc th,.doc td{text-align:left;padding:7px 8px;border-bottom:1px solid #e3eaea;vertical-align:top}
+.doc th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#667a7d;font-weight:700}
+.doc h4{font-size:12.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin:18px 0 8px;color:var(--petrol)}
+.st-sum{display:flex;flex-wrap:wrap;gap:6px}
+.st-sum span{font-family:var(--mono);font-size:12px;background:#eef4f3;border-radius:6px;padding:3px 8px}
+.doc-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:22px;align-items:end}
+.doc-foot img{max-height:70px;display:block}
+.doc-foot .line{border-top:1px solid var(--doc-ink);padding-top:5px;font-size:12.5px}
+.doc-legal{font-size:11.5px;color:#667a7d;margin-top:18px;border-top:1px solid #e3eaea;padding-top:10px}
+.doc-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px auto 0;max-width:780px}
+.doc-banner{text-align:center;margin:0 0 14px}
+
+/* office */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+.kpi b{display:block;font-size:36px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--petrol)}
+.kpi span{font-size:13px;color:var(--muted);font-weight:600}
+.kpi.bad b{color:var(--red)} .kpi.warn b{color:var(--amber)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.filters button[aria-pressed="true"]{background:var(--petrol);color:#fff;border-color:var(--petrol)}
+.office-table{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+.office-table table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+.office-table th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:12px 14px;background:#f5f9f8;border-bottom:1px solid var(--line)}
+.office-table td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.office-table tr:last-child td{border-bottom:0}
+.office-table tr:hover td{background:#f8fbfb}
+
+/* portal */
+.portal{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:24px;align-items:start}
+.pcard{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.big{font-size:32px;font-weight:800;line-height:1.1;color:var(--petrol)}
+.hist{display:grid;gap:10px}
+.hist .item{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:center;background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:12px 16px}
+.hist .item small{color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .container{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+footer b{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--petrol);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:10}
+[hidden]{display:none!important}
+
+@media (max-width:860px){
+  .tech,.portal{grid-template-columns:minmax(0,1fr)}
+  .tech .phone{max-width:420px;margin:0 auto;width:100%}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:480px){
+  .kv,.doc-foot{grid-template-columns:minmax(0,1fr)}
+  .phone{border-radius:30px;padding:7px}.screen{border-radius:24px}
+  .tab{flex-basis:45%;font-size:14px;padding:10px 8px}
+  .hero{padding-bottom:70px}
+}
+@media (prefers-reduced-motion:no-preference){.tab,.btn,.st,.stop{transition:background .15s,border-color .15s,color .15s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="container topbar">
+    <div class="brand"><div class="logo">SP</div><div><b>Solution Pest</b><small>Gestión de servicios MIP</small></div></div>
+    <span class="demo-pill">Demo · datos de ejemplo</span>
+  </div>
+</header>
+<section class="hero">
+  <div class="container">
+    <h1>Visitas, constancias y clientes, <em>todo en un solo sistema</em></h1>
+    <p>El técnico carga la visita desde el celular, la constancia se arma sola, la oficina ve qué clientes están al día y cada cliente tiene su historial listo para una inspección de bromatología.</p>
+    <ul class="flow" aria-label="Cómo funciona">
+      <li><span>1</span>El técnico carga la visita</li>
+      <li><span>2</span>Se genera la constancia</li>
+      <li><span>3</span>La oficina controla vencimientos</li>
+      <li><span>4</span>El cliente consulta su historial</li>
+    </ul>
+  </div>
+</section>
+
+<div class="container">
+  <div class="tabbar" role="tablist">
+    <button class="tab" role="tab" id="t-tech" aria-selected="true" data-pane="p-tech"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>App del técnico</button>
+    <button class="tab" role="tab" id="t-doc" aria-selected="false" data-pane="p-doc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Constancia</button>
+    <button class="tab" role="tab" id="t-office" aria-selected="false" data-pane="p-office"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Panel de oficina</button>
+    <button class="tab" role="tab" id="t-portal" aria-selected="false" data-pane="p-portal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Portal del cliente</button>
+  </div>
+</div>
+
+<main class="container">
+  <!-- 1 TECH -->
+  <section id="p-tech" role="tabpanel" aria-labelledby="t-tech">
+    <div class="tech">
+      <div class="phone"><div class="screen">
+        <div class="app-head">
+          <div class="status"><span id="today-lbl" class="mono"></span><span>Recorrido de hoy</span></div>
+          <div class="who"><div class="avatar">MG</div><div><h2>Hola, Martín</h2><small>Tenés 4 visitas programadas</small></div></div>
+        </div>
+        <div class="app-body">
+          <h3>Recorrido</h3>
+          <div class="route" id="route"></div>
+
+          <div id="visit">
+            <div class="card">
+              <h3 id="v-title"></h3>
+              <div class="note" id="v-sub"></div>
+            </div>
+            <div class="card">
+              <h3>Estaciones de cebo</h3>
+              <div class="note" style="margin:-4px 0 8px">Tocá cada estación para cambiar su estado.</div>
+              <div class="stations" id="stations"></div>
+              <div class="legend">
+                <span><i style="background:var(--green)"></i>Sin consumo</span>
+                <span><i style="background:var(--amber)"></i>Con consumo</span>
+                <span><i style="background:var(--blue)"></i>Cebo repuesto</span>
+                <span><i style="background:var(--red)"></i>Dañada</span>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Productos aplicados</h3>
+              <div id="prods"></div>
+              <div class="row">
+                <select id="prod-sel" aria-label="Producto a agregar" style="flex:1;min-width:0"></select>
+                <button class="btn small" id="prod-add" type="button">Agregar</button>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Fotos</h3>
+              <input type="file" id="photo-in" accept="image/*" multiple aria-label="Agregar fotos">
+              <div class="photos" id="photos"></div>
+            </div>
+            <div class="card">
+              <label class="f" for="obs">Observaciones</label>
+              <textarea id="obs" placeholder="Ej.: sellar rendija detrás de la heladera"></textarea>
+            </div>
+            <div class="card">
+              <h3>Firma del encargado</h3>
+              <canvas id="sig" class="sig" aria-label="Espacio para firmar"></canvas>
+              <div class="row" style="margin-top:8px">
+                <input type="text" id="signer" placeholder="Aclaración" aria-label="Aclaración de la firma" style="flex:1;min-width:0">
+                <button class="btn small" id="sig-clear" type="button">Borrar</button>
+              </div>
+            </div>
+            <button class="btn primary" id="close-visit" type="button" style="width:100%;padding:14px">Cerrar visita y generar constancia</button>
+            <div class="note" id="close-hint" style="margin-top:8px;text-align:center"></div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="aside">
+        <div class="intro">
+          <h2 class="panel-title">Qué resuelve</h2>
+          <ul class="benefits">
+            <li><div class="ic" style="background:var(--green-soft);color:var(--green-dark)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 12l2 2 4-4"/></svg></div><div><b>Sin papeles en la calle</b><span>El técnico registra estaciones, productos con dosis y lote, fotos y la firma del encargado desde el celular.</span></div></li>
+            <li><div class="ic" style="background:var(--blue-soft);color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div><b>Constancia al instante</b><span>Al cerrar la visita se arma con los datos de la habilitación y le llega al cliente por mail o WhatsApp.</span></div></li>
+            <li><div class="ic" style="background:var(--amber-soft);color:#a86500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b>Ningún vencimiento se pasa</b><span>La oficina ve qué clientes tienen la visita vencida o por vencer, y el sistema avisa solo.</span></div></li>
+            <li><div class="ic" style="background:var(--red-soft);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></div><div><b>Respaldo ante inspecciones</b><span>Restaurantes, escuelas y clínicas tienen su historial completo cuando llega bromatología.</span></div></li>
+          </ul>
+        </div>
+        <div class="try"><b>Probalo:</b> elegí un cliente del recorrido, tocá algunas estaciones para cambiarles el estado, firmá en el recuadro y tocá <i>Cerrar visita</i>. Después mirá cómo se actualizan la constancia, el panel y el portal.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 DOC -->
+  <section id="p-doc" role="tabpanel" aria-labelledby="t-doc" hidden>
+    <p class="note doc-banner" id="doc-note"></p>
+    <div class="doc"><div class="doc-inner" id="doc"></div></div>
+    <div class="doc-actions">
+      <button class="btn" type="button" data-toast="En el sistema real, la constancia sale en PDF por mail al cliente.">Enviar por mail</button>
+      <button class="btn primary" type="button" data-toast="En el sistema real, el cliente recibe el link de la constancia por WhatsApp.">Enviar por WhatsApp</button>
+    </div>
+  </section>
+
+  <!-- 3 OFFICE -->
+  <section id="p-office" role="tabpanel" aria-labelledby="t-office" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="filters" id="filters">
+      <button class="btn small" type="button" data-f="all" aria-pressed="true">Todos</button>
+      <button class="btn small" type="button" data-f="bad" aria-pressed="false">Vencidas</button>
+      <button class="btn small" type="button" data-f="warn" aria-pressed="false">Vencen esta semana</button>
+      <button class="btn small" type="button" data-f="ok" aria-pressed="false">Al día</button>
+    </div>
+    <div class="office-table"><table>
+      <thead><tr><th>Cliente</th><th>Rubro</th><th>Frecuencia</th><th>Última visita</th><th>Próxima</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="otable"></tbody>
+    </table></div>
+    <p class="note">El sistema también puede avisarle al cliente unos días antes de su próxima visita y a la oficina cuando algo se vence.</p>
+  </section>
+
+  <!-- 4 PORTAL -->
+  <section id="p-portal" role="tabpanel" aria-labelledby="t-portal" hidden>
+    <div class="portal">
+      <div class="pcard">
+        <label class="f" for="pclient">Ingresás como</label>
+        <select id="pclient"></select>
+        <div id="pstatus" style="margin-top:16px"></div>
+        <button class="btn primary" type="button" style="margin-top:14px;width:100%" data-toast="Pedido de visita extra enviado a la oficina (demo).">Pedir una visita extra</button>
+      </div>
+      <div>
+        <h2 class="panel-title" style="margin-bottom:12px">Historial de constancias</h2>
+        <div class="hist" id="phist"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital</span><span>Clientes, técnicos y productos de ejemplo</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+<script>
+(function(){
+  const TODAY = new Date(2026,8,30); // demo date
+  const DAY = 864e5;
+  const fmt = d => d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fmtLong = d => d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  const addDays = (d,n) => new Date(d.getTime()+n*DAY);
+  const FREQ = {Quincenal:15, Mensual:30, Bimestral:60, Trimestral:90};
+  const ST = [['ok','Sin consumo'],['consumo','Con consumo'],['repuesto','Cebo repuesto'],['danada','Dañada']];
+  const PRODUCTS = [
+    {n:'Cebo rodenticida en bloque (brodifacoum 0,005%)', u:'g/estación', d:20, cls:'Roedores'},
+    {n:'Gel cucarachicida (imidacloprid 2,15%)', u:'g/punto', d:0.5, cls:'Rastreros'},
+    {n:'Cipermetrina 25% EC (dilución)', u:'ml/L', d:4, cls:'Rastreros'},
+    {n:'Deltametrina 2,5% (termonebulización)', u:'ml/L', d:10, cls:'Voladores / dengue'},
+    {n:'Hipoclorito de sodio (limpieza de tanque)', u:'ml/L', d:50, cls:'Tanques'}
+  ];
+  const clients = [
+    {id:1,n:'Panadería San Cayetano',r:'Gastronomía',a:'Calle 1 N° 1532, La Plata',f:'Mensual',last:new Date(2026,7,26),st:6},
+    {id:2,n:'Colegio Nuevo Horizonte',r:'Escuela',a:'Av. 7 N° 820, La Plata',f:'Mensual',last:new Date(2026,7,28),st:10},
+    {id:3,n:'Oficinas Torre 50',r:'Oficinas',a:'Calle 50 N° 610, La Plata',f:'Bimestral',last:new Date(2026,7,1),st:4},
+    {id:4,n:'Parrilla La Tranquera',r:'Gastronomía',a:'Calle 12 N° 1450, La Plata',f:'Mensual',last:new Date(2026,8,2),st:8},
+    {id:5,n:'Clínica del Parque',r:'Salud',a:'Calle 60 N° 330, La Plata',f:'Quincenal',last:new Date(2026,8,20),st:12},
+    {id:6,n:'Supermercado El Bosque',r:'Comercio',a:'Av. 1 N° 2100, La Plata',f:'Mensual',last:new Date(2026,8,5),st:14},
+    {id:7,n:'Hotel Diagonal',r:'Hotelería',a:'Diag. 74 N° 1220, La Plata',f:'Mensual',last:new Date(2026,8,10),st:8},
+    {id:8,n:'Country Los Robles',r:'Barrio privado',a:'Ruta 11 km 12, City Bell',f:'Trimestral',last:new Date(2026,6,15),st:16}
+  ];
+  const next = c => addDays(c.last, FREQ[c.f]);
+  const status = c => { const days = Math.round((next(c)-TODAY)/DAY); return days<0?'bad':days<=7?'warn':'ok'; };
+  const statusLbl = {bad:'Vencida',warn:'Vence pronto',ok:'Al día'};
+
+  // history certificates (example)
+  let certNo = 123;
+  const certs = [];
+  const seedStations = (n,seed) => Array.from({length:n},(_,i)=>{const k=(i*7+seed*3)%11; return k===0?'consumo':k===5?'repuesto':'ok';});
+  clients.forEach(c=>{
+    [2,1].forEach(back=>{
+      const date = addDays(c.last, -FREQ[c.f]*(back-1));
+      certs.push({no:++certNo,cid:c.id,date,tech:back===1?'Martín G.':'Lucía R.',stations:seedStations(c.st,c.id+back),
+        prods:[{...PRODUCTS[0],d:20,lote:'L-2408'}].concat(c.r==='Gastronomía'?[{...PRODUCTS[1],d:0.5,lote:'G-1187'}]:[]),
+        obs:back===1?'Se recomienda sellar rendija detrás de heladera exhibidora.':'Sin novedades.',signer:'Encargado/a',sig:null,photos:0});
+    });
+  });
+  certs.sort((a,b)=>b.date-a.date);
+
+  // route for today = overdue + due soon
+  const route = clients.filter(c=>status(c)!=='ok').slice(0,4);
+  let current = route[0];
+  let draft;
+  function newDraft(c){
+    return {cid:c.id, stations:seedStations(c.st,c.id), prods:[{...PRODUCTS[0],d:PRODUCTS[0].d,lote:'L-2409'}], photos:[], obs:'', signer:'', sig:false};
+  }
+  draft = newDraft(current);
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+  // tabs
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showTab(t.id)));
+  function showTab(id){
+    document.querySelectorAll('.tab').forEach(t=>{const on=t.id===id;t.setAttribute('aria-selected',on);document.getElementById(t.dataset.pane).hidden=!on;});
+    if(id==='t-office') renderOffice(); if(id==='t-portal') renderPortal();
+  }
+
+  // toast
+  let tt; function toast(msg){const el=$('#toast');el.textContent=msg;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,3200);}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');if(b) toast(b.dataset.toast);});
+
+  // TECH
+  $('#today-lbl').textContent = fmt(TODAY);
+  function renderRoute(){
+    $('#route').innerHTML = route.map(c=>`<button class="stop" type="button" data-id="${c.id}" aria-pressed="${c.id===current.id}">
+      <span><b>${esc(c.n)}</b><small>${esc(c.a)} · ${c.st} estaciones</small></span>
+      <span class="chip ${status(c)}">${c.done?'Hecha':statusLbl[status(c)]}</span></button>`).join('');
+    $('#route').querySelectorAll('.stop').forEach(b=>b.onclick=()=>{current=clients.find(c=>c.id==b.dataset.id);draft=newDraft(current);clearSig();renderVisit();renderRoute();});
+  }
+  function renderVisit(){
+    $('#v-title').textContent = current.n;
+    $('#v-sub').textContent = `${current.r} · ${current.a} · Servicio ${current.f.toLowerCase()} de manejo integrado de plagas`;
+    $('#stations').innerHTML = draft.stations.map((s,i)=>{const lbl=ST.find(x=>x[0]===s)[1];
+      return `<button type="button" class="st ${s}" data-i="${i}" aria-label="Estación ${i+1}: ${lbl}"><span class="n">E-${String(i+1).padStart(2,'0')}</span><span class="s">${lbl}</span></button>`}).join('');
+    $('#stations').querySelectorAll('.st').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;const k=ST.findIndex(x=>x[0]===draft.stations[i]);draft.stations[i]=ST[(k+1)%ST.length][0];renderVisit();});
+    $('#prods').innerHTML = draft.prods.map((p,i)=>`<div class="prod-row"><span style="min-width:0">${esc(p.n)}</span>
+      <input type="number" step="any" min="0" value="${p.d}" data-i="${i}" id="dose-${i}" aria-label="Dosis">
+      <button class="x" type="button" data-rm="${i}" aria-label="Quitar producto">×</button></div>
+      <div class="prod-meta">${esc(p.u)} · ${esc(p.cls)} · Lote <span class="mono">${esc(p.lote)}</span></div>`).join('') || '<p class="note">Sin productos cargados.</p>';
+    $('#prods').querySelectorAll('input').forEach(inp=>inp.oninput=()=>{draft.prods[+inp.dataset.i].d=inp.value;});
+    $('#prods').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{draft.prods.splice(+b.dataset.rm,1);renderVisit();});
+    $('#obs').value = draft.obs; $('#signer').value = draft.signer;
+    renderPhotos(); updateHint();
+  }
+  $('#prod-sel').innerHTML = PRODUCTS.map((p,i)=>`<option value="${i}">${esc(p.n)}</option>`).join('');
+  $('#prod-add').onclick=()=>{const p=PRODUCTS[+$('#prod-sel').value];draft.prods.push({...p,lote:'L-'+(2400+Math.floor(Math.random()*90))});renderVisit();};
+  $('#obs').oninput=e=>draft.obs=e.target.value;
+  $('#signer').oninput=e=>{draft.signer=e.target.value;updateHint();};
+  $('#photo-in').onchange=e=>{[...e.target.files].slice(0,6).forEach(f=>{const r=new FileReader();r.onload=()=>{draft.photos.push(r.result);renderPhotos();};r.readAsDataURL(f);});e.target.value='';};
+  function renderPhotos(){
+    $('#photos').innerHTML = draft.photos.length ? draft.photos.map(src=>`<img src="${src}" alt="Foto de la visita">`).join('')
+      : '<div class="ph">Foto de estación</div><div class="ph">Foto del sector</div>';
+  }
+
+  // signature
+  const cv=$('#sig'), ctx=cv.getContext('2d'); let drawing=false;
+  function sizeCanvas(){const r=cv.getBoundingClientRect();const dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.lineWidth=2.2;ctx.lineCap='round';ctx.strokeStyle='#1b1b18';}
+  function clearSig(){ctx.clearRect(0,0,cv.width,cv.height);draft&&(draft.sig=false);updateHint();}
+  const pos=e=>{const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  cv.addEventListener('pointerdown',e=>{drawing=true;cv.setPointerCapture(e.pointerId);const [x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);});
+  cv.addEventListener('pointermove',e=>{if(!drawing)return;const [x,y]=pos(e);ctx.lineTo(x,y);ctx.stroke();draft.sig=true;});
+  cv.addEventListener('pointerup',()=>{drawing=false;updateHint();});
+  $('#sig-clear').onclick=clearSig;
+  function updateHint(){
+    const ok = draft.sig;
+    $('#close-hint').textContent = ok ? 'Todo listo para cerrar.' : 'Falta la firma del encargado para cerrar la visita.';
+    $('#close-visit').disabled = !ok;
+  }
+
+  $('#close-visit').onclick=()=>{
+    const c=current;
+    const cert={no:++certNo,cid:c.id,date:TODAY,tech:'Martín G.',stations:[...draft.stations],
+      prods:draft.prods.map(p=>({...p})),obs:draft.obs||'Sin observaciones.',signer:draft.signer||'Encargado/a',sig:cv.toDataURL('image/png'),photos:draft.photos.length,isNew:true};
+    certs.unshift(cert); c.last=TODAY; c.done=true; shownCert=cert;
+    renderDoc(); renderRoute(); showTab('t-doc'); window.scrollTo({top:0,behavior:'smooth'});
+    toast('Visita cerrada. Constancia N° '+String(cert.no).padStart(6,'0')+' generada.');
+    const nxt=route.find(r=>!r.done); if(nxt){current=nxt;draft=newDraft(nxt);clearSig();renderVisit();renderRoute();}
+  };
+
+  // DOC
+  let shownCert = certs[0];
+  function renderDoc(){
+    const c=clients.find(x=>x.id===shownCert.cid), k=shownCert;
+    const counts=ST.map(([s,l])=>[l,k.stations.filter(x=>x===s).length]).filter(x=>x[1]);
+    $('#doc-note').textContent = k.isNew ? 'Constancia generada recién desde la app del técnico.' : 'Constancia de ejemplo. Cerrá una visita en la app del técnico para generar una nueva.';
+    $('#doc').innerHTML = `
+      <div class="doc-head">
+        <div class="doc-brand"><div class="logo">SP</div><div>SOLUTION PEST<small>Manejo Integrado de Plagas · La Plata</small></div></div>
+        <div class="doc-no">Constancia N° <b class="mono">0001-${String(k.no).padStart(6,'0')}</b><br>Fecha: <span class="mono">${fmt(k.date)}</span></div>
+      </div>
+      <h2>Constancia de servicio</h2>
+      <div class="kv">
+        <div><span>Cliente:</span> <b>${esc(c.n)}</b></div>
+        <div><span>Rubro:</span> ${esc(c.r)}</div>
+        <div><span>Domicilio:</span> ${esc(c.a)}</div>
+        <div><span>Técnico:</span> ${esc(k.tech)}</div>
+        <div><span>Servicio:</span> Manejo integrado de plagas (${esc(c.f.toLowerCase())})</div>
+        <div><span>Próxima visita:</span> <b class="mono">${fmt(addDays(k.date,FREQ[c.f]))}</b></div>
+      </div>
+      <h4>Productos aplicados</h4>
+      <div class="dt-wrap"><table><thead><tr><th>Producto</th><th>Plaga objetivo</th><th>Dosis</th><th>Lote</th></tr></thead>
+      <tbody>${k.prods.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.cls)}</td><td class="mono">${esc(p.d)} ${esc(p.u)}</td><td class="mono">${esc(p.lote)}</td></tr>`).join('')}</tbody></table></div>
+      <h4>Estaciones de cebo (${k.stations.length})</h4>
+      <div class="st-sum">${counts.map(([l,n])=>`<span>${l}: ${n}</span>`).join('')}</div>
+      <p style="font-size:13px;margin:6px 0 0">${k.stations.map((s,i)=>s!=='ok'?`E-${String(i+1).padStart(2,'0')}: ${ST.find(x=>x[0]===s)[1].toLowerCase()}`:'').filter(Boolean).join(' · ') || 'Todas las estaciones sin consumo.'}</p>
+      <h4>Observaciones</h4>
+      <p style="font-size:14px;margin:0">${esc(k.obs)}${k.photos?` <span style="color:#5a625c">(${k.photos} foto${k.photos>1?'s':''} adjunta${k.photos>1?'s':''})</span>`:''}</p>
+      <div class="doc-foot">
+        <div>${k.sig?`<img src="${k.sig}" alt="Firma">`:'<div style="height:50px"></div>'}<div class="line">Firma y aclaración del cliente: ${esc(k.signer)}</div></div>
+        <div><div style="height:50px"></div><div class="line">Firma del técnico: ${esc(k.tech)}</div></div>
+      </div>
+      <div class="doc-legal">Empresa habilitada por la Dirección de Sanidad Vegetal y Fiscalización Agrícola (Ministerio de Agricultura y Ganadería, Prov. de Buenos Aires), Ley de Agroquímicos 10.699. Habilitación N° [número de habilitación]. Director técnico: [nombre y matrícula].</div>`;
+  }
+
+  // OFFICE
+  let filter='all';
+  $('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;$('#filters').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderOffice();});
+  function renderOffice(){
+    const bad=clients.filter(c=>status(c)==='bad').length, warn=clients.filter(c=>status(c)==='warn').length;
+    const month=certs.filter(k=>k.date.getMonth()===TODAY.getMonth()&&k.date.getFullYear()===TODAY.getFullYear()).length;
+    $('#kpis').innerHTML = `
+      <div class="kpi"><b>${clients.length}</b><span>Clientes con servicio</span></div>
+      <div class="kpi ${bad?'bad':''}"><b>${bad}</b><span>Visitas vencidas</span></div>
+      <div class="kpi ${warn?'warn':''}"><b>${warn}</b><span>Vencen en 7 días</span></div>
+      <div class="kpi"><b>${month}</b><span>Constancias en septiembre</span></div>`;
+    const rows = clients.slice().sort((a,b)=>next(a)-next(b)).filter(c=>filter==='all'||status(c)===filter);
+    $('#otable').innerHTML = rows.map(c=>`<tr><td><b>${esc(c.n)}</b><br><span class="note">${esc(c.a)}</span></td><td>${esc(c.r)}</td><td>${c.f}</td>
+      <td class="mono">${fmt(c.last)}</td><td class="mono">${fmt(next(c))}</td><td><span class="chip ${status(c)}">${statusLbl[status(c)]}</span></td>
+      <td><button class="btn small" type="button" data-see="${c.id}">Ver constancia</button></td></tr>`).join('')
+      || '<tr><td colspan="7" class="note">No hay clientes en este filtro.</td></tr>';
+    $('#otable').querySelectorAll('[data-see]').forEach(b=>b.onclick=()=>{shownCert=certs.find(k=>k.cid==b.dataset.see);renderDoc();showTab('t-doc');});
+  }
+
+  // PORTAL
+  $('#pclient').innerHTML = clients.map(c=>`<option value="${c.id}">${esc(c.n)}</option>`).join('');
+  $('#pclient').onchange=renderPortal;
+  function renderPortal(){
+    const c=clients.find(x=>x.id==$('#pclient').value), list=certs.filter(k=>k.cid===c.id);
+    const lastC=list[0], cons=lastC?lastC.stations.filter(s=>s==='consumo').length:0;
+    $('#pstatus').innerHTML = `<span class="chip ${status(c)}">${statusLbl[status(c)]}</span>
+      <p class="note" style="margin:10px 0 0">Próxima visita</p><div class="big mono">${fmt(next(c))}</div>
+      <p class="note" style="margin:10px 0 0">Última visita: ${fmt(c.last)}<br>Consumo detectado en ${cons} de ${c.st} estaciones.</p>`;
+    $('#phist').innerHTML = list.map(k=>`<div class="item"><span><b>Constancia <span class="mono">0001-${String(k.no).padStart(6,'0')}</span></b><br>
+      <small>${fmtLong(k.date)} · Técnico ${esc(k.tech)} · ${k.prods.length} producto${k.prods.length>1?'s':''}</small></span>
+      <span class="row"><button class="btn small" type="button" data-open="${k.no}">Ver</button>
+      <button class="btn small" type="button" data-toast="En el sistema real se descarga el PDF firmado.">Descargar PDF</button></span></div>`).join('');
+    $('#phist').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{shownCert=certs.find(k=>k.no==b.dataset.open);renderDoc();showTab('t-doc');});
+  }
+
+  // boot
+  renderRoute(); renderVisit(); renderDoc(); renderOffice(); renderPortal();
+  requestAnimationFrame(()=>{sizeCanvas();});
+  window.addEventListener('resize',()=>{const had=draft.sig;sizeCanvas();if(had){draft.sig=false;updateHint();}});
+})();
+</script>
+
+</body>
+</html>
