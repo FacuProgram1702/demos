@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MendozaRide · Central de Reservas</title>
+<meta name="description" content="Demo interactiva: reservas con cotización al instante, grilla de flota, app del chofer y panel de operación.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: malbec hero with Andes silhouette, floating tab bar, four working screens (booking, fleet grid, driver app, operations panel) */
+:root{
+  --malbec:#4a1128; --malbec-2:#6b1d3a; --wine:#8c2a4b;
+  --gold:#d4a24c; --gold-soft:#f8ecd4; --sand:#f5f1ec; --taupe:#b1aeac;
+  --surface:#ffffff; --ink:#221a1e; --muted:#6f6468; --line:#e6dfdb;
+  --green:#1f9d62; --green-soft:#e1f5eb; --amber:#c9820b; --amber-soft:#fdf1da; --red:#c83f3f; --red-soft:#fbe4e4; --blue:#2f6fb8; --blue-soft:#e3edf9;
+  --display:"Outfit","Segoe UI",Arial,sans-serif; --body:"Nunito Sans","Segoe UI",Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --radius:16px; --shadow:0 1px 2px rgba(74,17,40,.06),0 10px 28px rgba(74,17,40,.09);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--sand);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1180px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* header / hero */
+.hero{position:relative;background:linear-gradient(160deg,var(--malbec) 0%,var(--malbec-2) 55%,var(--wine) 100%);color:#fff;padding-top:env(safe-area-inset-top,0px);overflow:hidden}
+.hero svg.andes{position:absolute;left:0;right:0;bottom:0;width:100%;height:120px;pointer-events:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;position:relative}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--gold);color:var(--malbec);font-family:var(--display);font-weight:800;display:grid;place-items:center;font-size:16px}
+.brand b{font-family:var(--display);font-size:18px;display:block;line-height:1.1}
+.brand small{color:#e3c9d3;font-size:12px}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 12px;color:#f3e3ea;white-space:nowrap}
+.hero-body{position:relative;padding-block:14px 110px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4.8vw,46px);line-height:1.06;letter-spacing:-.5px;margin:0 0 10px;max-width:18ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:#f0dde5;max-width:62ch;font-size:16px;margin:0}
+
+.tabbar{position:relative;margin-top:-64px;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px;display:flex;flex-wrap:wrap;gap:4px}
+.tab{flex:1 1 160px;font-family:var(--display);font-size:16px;font-weight:600;border:0;border-radius:11px;background:transparent;color:var(--muted);padding:12px;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center}
+.tab svg{width:19px;height:19px;flex:none}
+.tab:hover{background:var(--sand);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--malbec);color:#fff}
+main{padding-block:26px 40px}
+
+/* shared */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.h2{font-family:var(--display);font-size:22px;font-weight:700;margin:0 0 4px}
+.note{font-size:13px;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.btn{font-family:var(--body);font-weight:700;font-size:14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer}
+.btn:hover{border-color:var(--wine)}
+.btn.primary{background:var(--malbec);border-color:var(--malbec);color:#fff}
+.btn.primary:hover{background:var(--wine)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--malbec)}
+.btn.small{font-size:13px;padding:6px 12px;border-radius:8px}
+label.f{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+input[type=text],input[type=number],input[type=time],input[type=date],select{font-family:var(--body);font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--green-soft);color:var(--green)} .chip.warn{background:var(--amber-soft);color:#9a6200} .chip.info{background:var(--blue-soft);color:var(--blue)} .chip.wine{background:#f6e3ea;color:var(--wine)}
+
+/* booking */
+.book{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+.book-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.lang{display:inline-flex;background:var(--sand);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;font-weight:800;font-size:12.5px;padding:5px 12px;border-radius:999px;cursor:pointer;color:var(--muted);font-family:var(--body)}
+.lang button[aria-pressed="true"]{background:var(--malbec);color:#fff}
+.types{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.types button{font-family:var(--body);font-weight:700;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.types button[aria-pressed="true"]{background:var(--gold-soft);border-color:var(--gold);color:var(--malbec)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.field{margin-bottom:12px}
+.flight-note{font-size:12.5px;color:var(--blue);margin-top:5px}
+.extras{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
+.extras label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.quote{position:sticky;top:16px}
+.quote .veh{display:flex;gap:14px;align-items:center;background:var(--sand);border-radius:12px;padding:12px 14px;margin:12px 0}
+.quote .veh svg{width:64px;height:34px;flex:none;color:var(--malbec)}
+.quote .veh b{font-family:var(--display);font-size:17px;display:block}
+.price{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;color:var(--malbec);font-variant-numeric:tabular-nums}
+.breakdown{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+.breakdown td{padding:5px 0;border-bottom:1px dashed var(--line)}
+.breakdown td:last-child{text-align:right;font-family:var(--mono)}
+.wa{background:#e7f7ee;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:14px}
+.wa .bubble{background:#fff;border-radius:10px 10px 10px 2px;padding:10px 12px;box-shadow:0 1px 1px rgba(0,0,0,.06);white-space:pre-line}
+.wa small{display:block;color:#3d7a5a;font-weight:700;margin-bottom:6px;font-size:12px}
+
+/* fleet grid */
+.fleet-top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.gantt-wrap{overflow-x:auto;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow)}
+.gantt{min-width:980px;font-size:13px}
+.g-row{display:grid;grid-template-columns:210px 1fr;border-bottom:1px solid var(--line);min-height:58px}
+.g-row:last-child{border-bottom:0}
+.g-label{padding:9px 14px;border-right:1px solid var(--line);background:#fcfaf8}
+.g-label b{display:block;font-family:var(--display);font-size:14.5px}
+.g-label small{color:var(--muted)}
+.g-track{position:relative;background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-size:calc(100%/18) 100%}
+.g-head .g-track{display:grid;grid-template-columns:repeat(18,1fr);background:none}
+.g-head .g-track span{font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 0 6px 4px;border-left:1px solid var(--line)}
+.g-head{background:#fcfaf8;min-height:0}
+.blk{position:absolute;top:8px;bottom:8px;border-radius:8px;padding:4px 8px;color:#fff;font-size:11.5px;line-height:1.25;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:default}
+.blk b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.blk.aeropuerto{background:var(--blue)} .blk.bodegas{background:var(--wine)} .blk.montana{background:#3f6f5a} .blk.larga{background:#7a5a2b} .blk.ejecutivo{background:#555}
+.blk.new{outline:3px solid var(--gold);outline-offset:1px;box-shadow:0 0 0 6px rgba(212,162,76,.25)}
+@media (prefers-reduced-motion:no-preference){.blk.new{animation:pulse 1.6s ease-in-out 3}}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(212,162,76,.05)}}
+.now{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:2}
+
+/* driver */
+.drv{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:30px;align-items:start}
+.phone{background:#1a1114;border-radius:40px;padding:10px;box-shadow:0 24px 50px rgba(74,17,40,.28)}
+.screen{background:var(--sand);border-radius:31px;overflow:hidden;min-height:560px}
+.app-head{background:linear-gradient(135deg,var(--malbec),var(--wine));color:#fff;padding:14px 18px 16px}
+.app-head .st{display:flex;justify-content:space-between;font-size:12px;opacity:.85;margin-bottom:10px}
+.app-head h3{font-family:var(--display);margin:0;font-size:19px}
+.app-head select{margin-top:8px;background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}
+.app-head select option{color:var(--ink)}
+.app-body{padding:14px;display:grid;gap:10px}
+.svc{background:var(--surface);border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(74,17,40,.07)}
+.svc .time{font-family:var(--display);font-weight:800;font-size:24px;color:var(--malbec);line-height:1}
+.svc .row1{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.svc .meta{font-size:13.5px;margin:4px 0}
+.svc .flight{background:var(--blue-soft);color:var(--blue);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;margin:8px 0}
+.svc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.aside-list{display:grid;gap:14px;list-style:none;padding:0;margin:14px 0 0}
+.aside-list li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px}
+.aside-list .ic{width:40px;height:40px;border-radius:12px;background:var(--gold-soft);color:var(--malbec);display:grid;place-items:center}
+.aside-list .ic svg{width:20px;height:20px}
+.aside-list b{display:block}
+.aside-list span{color:var(--muted);font-size:14px}
+
+/* panel */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+.kpi b{display:block;font-family:var(--display);font-size:32px;font-weight:800;line-height:1.05;color:var(--malbec);font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted);font-weight:600}
+.bar{height:6px;background:var(--sand);border-radius:99px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--gold)}
+.tbl{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;min-width:800px;font-size:14px}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 14px;background:#fcfaf8;border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.new td{background:var(--gold-soft)}
+
+footer{border-top:1px solid var(--line);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .container{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+footer b{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--malbec);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:700;max-width:calc(100% - 32px);box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:20}
+
+@media (max-width:900px){.book,.drv{grid-template-columns:minmax(0,1fr)}.quote{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.drv .phone{max-width:420px;width:100%;margin:0 auto}}
+@media (max-width:520px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}.tab{flex-basis:45%;font-size:14.5px;padding:10px 6px}.card{padding:18px}.phone{border-radius:30px;padding:7px}.screen{border-radius:24px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container topbar">
+    <div class="brand"><div class="logo">MR</div><div><b>MendozaRide</b><small>Transporte &amp; Turismo · Mendoza</small></div></div>
+    <span class="pill">Demo · datos de ejemplo</span>
+  </div>
+  <div class="container hero-body">
+    <h1>Tu central de reservas: <em>cotiza, asigna y avisa sola</em></h1>
+    <p>El pasajero reserva y ve el precio al instante, en español o en inglés. El sistema elige la unidad que corresponde y la ubica en la grilla sin superposiciones, y el chofer recibe el servicio en el celular con el vuelo y el punto de encuentro.</p>
+  </div>
+  <svg class="andes" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 120 L0 88 L120 60 L210 78 L330 30 L420 64 L520 42 L610 70 L720 18 L800 50 L880 36 L990 74 L1080 40 L1170 62 L1290 26 L1370 58 L1440 44 L1440 120 Z" fill="rgba(255,255,255,.07)"/>
+    <path d="M0 120 L0 100 L160 80 L260 96 L380 66 L470 90 L600 72 L700 96 L820 70 L930 92 L1050 76 L1160 98 L1280 72 L1440 90 L1440 120 Z" fill="rgba(255,255,255,.08)"/>
+    <path d="M720 18 L745 32 L732 34 L720 26 L706 36 L698 30 Z M330 30 L352 46 L338 44 L328 38 L316 46 L312 42 Z" fill="rgba(255,255,255,.35)"/>
+  </svg>
+</header>
+
+<div class="container">
+  <div class="tabbar" role="tablist">
+    <button class="tab" role="tab" id="t-book" aria-selected="true" data-pane="p-book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 14h3"/></svg>Reservar</button>
+    <button class="tab" role="tab" id="t-fleet" aria-selected="false" data-pane="p-fleet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h10M3 12h16M3 18h7"/></svg>Grilla de flota</button>
+    <button class="tab" role="tab" id="t-drv" aria-selected="false" data-pane="p-drv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>App del chofer</button>
+    <button class="tab" role="tab" id="t-panel" aria-selected="false" data-pane="p-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Panel del día</button>
+  </div>
+</div>
+
+<main class="container">
+  <!-- BOOK -->
+  <section id="p-book" role="tabpanel" aria-labelledby="t-book">
+    <div class="book">
+      <div class="card">
+        <div class="book-head">
+          <div><h2 class="h2" data-i="bookTitle"></h2><div class="note" data-i="bookSub"></div></div>
+          <div class="lang" role="group" aria-label="Idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+        </div>
+        <div class="types" id="types"></div>
+        <div class="field"><label class="f" for="route" data-i="route"></label><select id="route"></select></div>
+        <div class="grid3">
+          <div class="field"><label class="f" for="date" data-i="date"></label><input type="date" id="date" value="2026-10-03" min="2026-10-03"></div>
+          <div class="field"><label class="f" for="time" data-i="time"></label><input type="time" id="time" value="09:00" step="1800"></div>
+          <div class="field"><label class="f" for="pax" data-i="pax"></label><input type="number" id="pax" min="1" max="19" value="4"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="f" for="bags" data-i="bags"></label><input type="number" id="bags" min="0" max="40" value="2"></div>
+          <div class="field" id="flight-f"><label class="f" for="flight" data-i="flight"></label><input type="text" id="flight" placeholder="AR1402"><div class="flight-note" data-i="flightNote"></div></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label class="f" for="pname" data-i="name"></label><input type="text" id="pname" value="Emily Carter"></div>
+          <div class="field"><label class="f" for="pphone" data-i="phone"></label><input type="text" id="pphone" value="+1 305 555 0142"></div>
+        </div>
+        <div class="field"><label class="f" data-i="extras"></label>
+          <div class="extras">
+            <label><input type="checkbox" id="x-baby"> <span data-i="baby"></span></label>
+            <label><input type="checkbox" id="x-en" checked> <span data-i="bilingual"></span></label>
+            <label><input type="checkbox" id="x-stop"> <span data-i="stop"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card quote">
+        <div class="note" data-i="quoteTitle"></div>
+        <div class="veh" id="veh"></div>
+        <div class="price" id="price"></div>
+        <div class="note" id="price-note"></div>
+        <table class="breakdown" id="brk"></table>
+        <button class="btn primary" id="confirm" type="button" style="width:100%;padding:14px"></button>
+        <div class="note" style="text-align:center;margin-top:8px" data-i="demoPrices"></div>
+        <div class="wa" id="wa" hidden><small id="wa-t"></small><div class="bubble" id="wa-msg"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLEET -->
+  <section id="p-fleet" role="tabpanel" aria-labelledby="t-fleet" hidden>
+    <div class="fleet-top">
+      <div><h2 class="h2">Sábado 3 de octubre</h2><div class="note">Cada reserva se ubica sola en una unidad con los asientos justos y sin superponerse con otro servicio.</div></div>
+      <div class="legend"><span><i style="background:var(--blue)"></i>Aeropuerto</span><span><i style="background:var(--wine)"></i>Bodegas</span><span><i style="background:#3f6f5a"></i>Alta montaña</span><span><i style="background:#7a5a2b"></i>Larga distancia</span><span><i style="background:#555"></i>Ejecutivo / eventos</span></div>
+    </div>
+    <div class="gantt-wrap"><div class="gantt" id="gantt"></div></div>
+  </section>
+
+  <!-- DRIVER -->
+  <section id="p-drv" role="tabpanel" aria-labelledby="t-drv" hidden>
+    <div class="drv">
+      <div class="phone"><div class="screen">
+        <div class="app-head">
+          <div class="st"><span class="mono">SÁB 03/10</span><span>MendozaRide Choferes</span></div>
+          <h3 id="drv-hello"></h3>
+          <select id="drv-sel" aria-label="Elegir chofer"></select>
+        </div>
+        <div class="app-body" id="drv-list"></div>
+      </div></div>
+      <div class="card">
+        <h2 class="h2">Lo que gana el chofer (y la oficina)</h2>
+        <ul class="aside-list">
+          <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 16l20-6-20-6 4 6z"/></svg></div><div><b>Vuelos seguidos en tiempo real</b><span>Si el vuelo se atrasa, el chofer ve el nuevo horario y nadie espera de más en el aeropuerto.</span></div></li>
+          <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><b>Todo el servicio en un toque</b><span>Punto de encuentro, pasajeros, equipaje, idioma y teléfono del pasajero.</span></div></li>
+          <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b>Estado en vivo para la oficina</b><span>"Llegué", "a bordo" y "finalizado" se ven al instante en el panel, sin llamar al chofer.</span></div></li>
+          <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><b>Aviso automático al pasajero</b><span>Cuando el chofer marca "llegué", el pasajero recibe un WhatsApp con la patente y la foto del vehículo.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL -->
+  <section id="p-panel" role="tabpanel" aria-labelledby="t-panel" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Hora</th><th>Servicio</th><th>Pasajero</th><th>Unidad</th><th>Chofer</th><th>Total</th><th>Estado</th></tr></thead>
+      <tbody id="ptable"></tbody>
+    </table></div>
+    <p class="note">También se pueden sumar reportes por mes: servicios por tipo, facturación por unidad y los recorridos más pedidos.</p>
+  </section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital</span><span>Flota, choferes, pasajeros y tarifas de ejemplo</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const money=n=>'$ '+Math.round(n).toLocaleString('es-AR');
+  const hhmm=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');};
+
+  const T={
+    es:{bookTitle:'Reservá tu traslado',bookSub:'Cotización al instante, sin esperar respuesta',route:'Recorrido',date:'Fecha',time:'Hora de salida',pax:'Pasajeros',bags:'Valijas',flight:'N° de vuelo',flightNote:'Seguimos tu vuelo: si se atrasa, el chofer te espera igual.',name:'Nombre',phone:'WhatsApp',extras:'Extras',baby:'Silla de bebé',bilingual:'Chofer bilingüe (inglés)',stop:'Parada adicional',quoteTitle:'Tu cotización',confirm:'Confirmar con seña del 30%',demoPrices:'Tarifas de ejemplo: en el sistema real las cargan ustedes.',
+      types:{aeropuerto:'Aeropuerto',bodegas:'Bodegas',montana:'Alta montaña',larga:'Larga distancia',ejecutivo:'Ejecutivo'},
+      base:'Tarifa base',km:'Kilómetros',hours:'Horas de servicio',extrasL:'Extras',total:'Total',deposit:'Seña para confirmar',seats:'plazas',upTo:'hasta',pax1:'pasajeros',
+      waT:'Mensaje automático al pasajero',
+      wa:(b)=>`¡Hola ${b.name}! Tu reserva con MendozaRide está confirmada ✅\n${b.routeName}\n📅 Sáb 03/10 · ${hhmm(b.start)} h\n🚐 ${b.vehName} · Chofer: ${b.driver}\n${b.flight?'✈️ Seguimos tu vuelo '+b.flight+'\n':''}Seña recibida: ${money(b.price*.3)} · Saldo: ${money(b.price*.7)}`},
+    en:{bookTitle:'Book your ride',bookSub:'Instant quote, no waiting for a reply',route:'Route',date:'Date',time:'Pick-up time',pax:'Passengers',bags:'Suitcases',flight:'Flight number',flightNote:'We track your flight: if it is delayed, your driver will wait.',name:'Name',phone:'WhatsApp',extras:'Extras',baby:'Baby seat',bilingual:'English-speaking driver',stop:'Extra stop',quoteTitle:'Your quote',confirm:'Confirm with 30% deposit',demoPrices:'Sample rates: in the real system you set them.',
+      types:{aeropuerto:'Airport',bodegas:'Wineries',montana:'High Andes',larga:'Long distance',ejecutivo:'Executive'},
+      base:'Base rate',km:'Kilometres',hours:'Service hours',extrasL:'Extras',total:'Total',deposit:'Deposit to confirm',seats:'seats',upTo:'up to',pax1:'passengers',
+      waT:'Automatic message to the passenger',
+      wa:(b)=>`Hi ${b.name}! Your MendozaRide booking is confirmed ✅\n${b.routeName}\n📅 Sat 03/10 · ${hhmm(b.start)}\n🚐 ${b.vehName} · Driver: ${b.driver}\n${b.flight?'✈️ We are tracking flight '+b.flight+'\n':''}Deposit received: ${money(b.price*.3)} · Balance: ${money(b.price*.7)}`}
+  };
+  const ROUTES=[
+    {id:'apt-c',t:'aeropuerto',km:8,h:1,es:'Aeropuerto El Plumerillo ⇄ Centro de Mendoza',en:'El Plumerillo Airport ⇄ Mendoza downtown'},
+    {id:'apt-ch',t:'aeropuerto',km:22,h:1,es:'Aeropuerto El Plumerillo ⇄ Chacras de Coria',en:'El Plumerillo Airport ⇄ Chacras de Coria'},
+    {id:'maipu',t:'bodegas',km:40,h:5,es:'Bodegas de Maipú · medio día',en:'Maipú wineries · half day'},
+    {id:'lujan',t:'bodegas',km:70,h:8,es:'Luján de Cuyo · Agrelo y Las Compuertas · día completo',en:'Luján de Cuyo · Agrelo & Las Compuertas · full day'},
+    {id:'uco',t:'bodegas',km:220,h:9,es:'Valle de Uco · Tupungato y Gualtallary · día completo',en:'Uco Valley · Tupungato & Gualtallary · full day'},
+    {id:'alta',t:'montana',km:380,h:10,es:'Alta Montaña · Potrerillos, Uspallata y Aconcagua',en:'High Andes · Potrerillos, Uspallata & Aconcagua'},
+    {id:'sr',t:'larga',km:235,h:3.5,es:'Mendoza → San Rafael',en:'Mendoza → San Rafael'},
+    {id:'scl',t:'larga',km:360,h:8,es:'Mendoza → Santiago de Chile (Paso Cristo Redentor)',en:'Mendoza → Santiago, Chile (Cristo Redentor pass)'},
+    {id:'ejec',t:'ejecutivo',km:0,h:4,es:'Traslado ejecutivo a disposición · 4 horas',en:'Executive chauffeur at disposal · 4 hours'}
+  ];
+  const CLASSES=[
+    {id:'auto',seats:4,name:'Auto',ex:'Corolla / Cronos / Spin',base:15000,km:700,h:9000},
+    {id:'expert',seats:6,name:'Peugeot Expert',ex:'6 plazas',base:22000,km:1000,h:12000},
+    {id:'vito',seats:8,name:'Mercedes-Benz Vito',ex:'8 plazas',base:26000,km:1150,h:14000},
+    {id:'transit',seats:15,name:'Ford Transit',ex:'15 plazas',base:40000,km:1700,h:20000},
+    {id:'sprinter',seats:19,name:'Mercedes-Benz Sprinter',ex:'19 plazas',base:48000,km:2000,h:24000}
+  ];
+  const FLEET=[
+    {id:'AUTO-1',cls:'auto',model:'Toyota Corolla',plate:'AF 412 KD',driver:'Diego'},
+    {id:'AUTO-2',cls:'auto',model:'Fiat Cronos',plate:'AG 037 LP',driver:'Lucas'},
+    {id:'AUTO-3',cls:'auto',model:'Chevrolet Spin',plate:'AH 219 TR',driver:'Ana'},
+    {id:'EXP-1',cls:'expert',model:'Peugeot Expert',plate:'AE 880 MB',driver:'Marcos'},
+    {id:'VITO-1',cls:'vito',model:'Mercedes-Benz Vito',plate:'AF 551 ZC',driver:'Pablo'},
+    {id:'TRAN-1',cls:'transit',model:'Ford Transit',plate:'AD 316 QS',driver:'Sergio'},
+    {id:'SPR-1',cls:'sprinter',model:'Mercedes-Benz Sprinter',plate:'AG 702 HN',driver:'Julio'}
+  ];
+  const R=id=>ROUTES.find(r=>r.id===id), C=id=>CLASSES.find(c=>c.id===id), V=id=>FLEET.find(v=>v.id===id);
+  const priceOf=(route,cls,extras)=>{const c=C(cls);const hours=route.t==='aeropuerto'?1:route.h;const b=c.base,k=c.km*route.km,h=c.h*hours;const x=(extras.baby?5000:0)+(extras.stop?c.h:0);return {b,k,h,x,hours,total:Math.round((b+k+h+x)/1000)*1000};};
+
+  // bookings for the day (examples)
+  let seq=0;
+  const mk=(veh,start,route,name,pax,status,flight)=>{const r=R(route),v=V(veh);const p=priceOf(r,v.cls,{});return {id:++seq,veh,start,dur:r.t==='aeropuerto'?1:r.h,route,name,pax,status,flight,price:p.total};};
+  const bookings=[
+    mk('AUTO-1',7,'apt-c','John Smith',2,'done','AR1402'),
+    mk('AUTO-1',10,'maipu','Familia Rossi',3,'onboard'),
+    mk('AUTO-2',9,'lujan','Laura García',2,'onboard'),
+    mk('AUTO-3',18,'apt-ch','Hans Müller',2,'pending','LA4281'),
+    mk('EXP-1',8,'uco','Grupo Johnson',5,'onboard'),
+    mk('VITO-1',11.5,'apt-c','Familia Pereira',7,'pending','G3 1520'),
+    mk('VITO-1',19,'ejec','Evento corporativo Bodega (ejemplo)',6,'pending'),
+    mk('TRAN-1',7.5,'alta','Contingente escolar',14,'onboard'),
+    mk('SPR-1',6,'scl','Contingente Santiago',18,'onboard')
+  ];
+  const statusLbl={pending:['Confirmada','info'],arrived:['Chofer en el lugar','warn'],onboard:['En curso','wine'],done:['Finalizada','ok']};
+
+  // UI state
+  let lang='es', type='bodegas';
+  const setText=()=>{document.querySelectorAll('[data-i]').forEach(el=>{el.textContent=T[lang][el.dataset.i]||'';});$('#confirm').textContent=T[lang].confirm;document.documentElement.lang=lang;};
+  document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;document.querySelectorAll('.lang button').forEach(x=>x.setAttribute('aria-pressed',x===b));setText();renderTypes();fillRoutes($('#route').value);quote();});
+  function renderTypes(){
+    $('#types').innerHTML=Object.entries(T[lang].types).map(([k,l])=>`<button type="button" data-t="${k}" aria-pressed="${k===type}">${l}</button>`).join('');
+    $('#types').querySelectorAll('button').forEach(b=>b.onclick=()=>{type=b.dataset.t;renderTypes();fillRoutes();quote();});
+  }
+  function fillRoutes(keep){
+    const list=ROUTES.filter(r=>r.t===type);
+    $('#route').innerHTML=list.map(r=>`<option value="${r.id}">${esc(r[lang])}</option>`).join('');
+    if(keep&&list.some(r=>r.id===keep)) $('#route').value=keep; else if(type==='bodegas') $('#route').value='uco';
+    $('#flight-f').hidden = type!=='aeropuerto';
+  }
+  const classFor=(pax,bags)=>{const need=Math.max(pax,Math.ceil(bags/1.5));return CLASSES.find(c=>c.seats>=need)||CLASSES[CLASSES.length-1];};
+  const free=(veh,start,dur)=>!bookings.some(b=>b.veh===veh&&start<b.start+b.dur&&b.start<start+dur);
+  function pickVehicle(cls,start,dur){
+    for(const c of CLASSES.filter(c=>c.seats>=cls.seats)){const v=FLEET.find(v=>v.cls===c.id&&free(v.id,start,dur));if(v) return v;}
+    return null;
+  }
+  function current(){
+    const r=R($('#route').value); const pax=Math.max(1,Math.min(19,+$('#pax').value||1)); const bags=Math.max(0,+$('#bags').value||0);
+    const [H,M]=($('#time').value||'09:00').split(':').map(Number); const start=H+M/60;
+    const cls=classFor(pax,bags); const dur=r.t==='aeropuerto'?1:r.h; const v=pickVehicle(cls,start,dur);
+    const extras={baby:$('#x-baby').checked,stop:$('#x-stop').checked};
+    const p=priceOf(r,v?v.cls:cls.id,extras);
+    return {r,pax,bags,start,dur,cls,v,p};
+  }
+  const vanSvg='<svg viewBox="0 0 64 34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 24V10a4 4 0 0 1 4-4h34l12 10h4a2 2 0 0 1 2 2v6z"/><path d="M42 6v10h12M24 6v10M8 16h34"/><circle cx="16" cy="26" r="4" fill="#fff"/><circle cx="48" cy="26" r="4" fill="#fff"/></svg>';
+  function quote(){
+    const q=current(), L=T[lang];
+    const c=q.v?C(q.v.cls):q.cls;
+    $('#veh').innerHTML=`${vanSvg}<div><b>${q.v?esc(q.v.model):esc(c.name)}</b><span class="note">${L.upTo} ${c.seats} ${L.seats} · ${q.pax} ${L.pax1}</span>${q.v?'':'<br><span class="chip warn">Sin unidad libre en ese horario</span>'}</div>`;
+    $('#price').textContent=money(q.p.total);
+    $('#price-note').textContent=`${L.deposit}: ${money(q.p.total*.3)}`;
+    $('#brk').innerHTML=`<tr><td>${L.base}</td><td>${money(q.p.b)}</td></tr><tr><td>${L.km} (${q.r.km})</td><td>${money(q.p.k)}</td></tr><tr><td>${L.hours} (${q.p.hours})</td><td>${money(q.p.h)}</td></tr>${q.p.x?`<tr><td>${L.extrasL}</td><td>${money(q.p.x)}</td></tr>`:''}<tr><td><b>${L.total}</b></td><td><b>${money(q.p.total)}</b></td></tr>`;
+    $('#confirm').disabled=!q.v;
+  }
+  ['route','time','pax','bags','x-baby','x-stop','date'].forEach(id=>$('#'+id).addEventListener('input',quote));
+  let lastNew=null;
+  $('#confirm').onclick=()=>{
+    const q=current(); if(!q.v) return;
+    const b={id:++seq,veh:q.v.id,start:q.start,dur:q.dur,route:q.r.id,name:$('#pname').value||'Pasajero',pax:q.pax,status:'pending',flight:q.r.t==='aeropuerto'?($('#flight').value||'AR1402'):'',price:q.p.total,isNew:true};
+    bookings.push(b); lastNew=b.id;
+    $('#wa').hidden=false; $('#wa-t').textContent=T[lang].waT;
+    $('#wa-msg').textContent=T[lang].wa({...b,routeName:q.r[lang],vehName:q.v.model,driver:q.v.driver});
+    toast(`Reserva confirmada · asignada a ${q.v.model} (${q.v.driver})`);
+    renderGantt(); renderPanel(); renderDriverSel(q.v.id); quote();
+  };
+
+  // tabs
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.id));
+  function show(id){document.querySelectorAll('.tab').forEach(t=>{const on=t.id===id;t.setAttribute('aria-selected',on);document.getElementById(t.dataset.pane).hidden=!on;}); if(id==='t-fleet') setTimeout(()=>{const n=document.querySelector('.blk.new'); if(n) n.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});},50);}
+  let tt; function toast(m){const el=$('#toast');el.textContent=m;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,3500);}
+
+  // gantt 6..24
+  const pct=h=>((h-6)/18*100);
+  function renderGantt(){
+    let html='<div class="g-row g-head"><div class="g-label"><b>Unidad</b><small>chofer</small></div><div class="g-track">'+Array.from({length:18},(_,i)=>`<span>${String(6+i).padStart(2,'0')}</span>`).join('')+'</div></div>';
+    FLEET.forEach(v=>{
+      const c=C(v.cls);
+      html+=`<div class="g-row"><div class="g-label"><b>${esc(v.model)}</b><small>${c.seats} plazas · ${esc(v.driver)} · <span class="mono">${v.plate}</span></small></div><div class="g-track">`+
+        bookings.filter(b=>b.veh===v.id).map(b=>{const r=R(b.route);const end=Math.min(24,b.start+b.dur);
+          return `<div class="blk ${r.t} ${b.id===lastNew?'new':''}" style="left:${pct(b.start)}%;width:calc(${pct(end)-pct(b.start)}% - 3px)" title="${esc(r.es)} · ${esc(b.name)}"><b>${hhmm(b.start)} ${esc(b.name)}</b>${esc(r.es)} · ${b.pax} pax</div>`;}).join('')+
+        (v.id==='AUTO-1'?`<div class="now" style="left:${pct(9.25)}%" title="Ahora 09:15"></div>`:'')+`</div></div>`;
+    });
+    $('#gantt').innerHTML=html;
+  }
+
+  // driver app
+  function renderDriverSel(vehId){
+    $('#drv-sel').innerHTML=FLEET.map(v=>`<option value="${v.id}">${esc(v.driver)} · ${esc(v.model)}</option>`).join('');
+    if(vehId) $('#drv-sel').value=vehId; renderDriver();
+  }
+  $('#drv-sel').onchange=renderDriver;
+  function renderDriver(){
+    const v=V($('#drv-sel').value); const list=bookings.filter(b=>b.veh===v.id).sort((a,b)=>a.start-b.start);
+    $('#drv-hello').textContent=`Hola, ${v.driver} · ${list.length} servicio${list.length!==1?'s':''} hoy`;
+    $('#drv-list').innerHTML=list.map(b=>{const r=R(b.route);const [lbl,cls]=statusLbl[b.status];
+      const meet=r.t==='aeropuerto'?'Hall de arribos, El Plumerillo · cartel con nombre':(r.id==='scl'?'Terminal de ómnibus, plataforma 10':'Hotel del pasajero, Ciudad de Mendoza');
+      const delay=b.flight?(b.flight==='AR1402'?'aterrizó 07:05 · en horario':'demorado 25 min · nuevo arribo '+hhmm(b.start+25/60)):'';
+      return `<div class="svc"><div class="row1"><span class="time">${hhmm(b.start)}</span><span class="chip ${cls}">${lbl}</span></div>
+        <div class="meta"><b>${esc(b.name)}</b> · ${b.pax} pasajeros${b.isNew?' · <span class="chip wine">Nueva</span>':''}</div>
+        <div class="meta">${esc(r.es)}</div>
+        <div class="meta note">📍 ${meet}</div>
+        ${b.flight?`<div class="flight">✈ Vuelo ${esc(b.flight)} · ${delay}</div>`:''}
+        <div class="acts">${b.status==='done'?'':`
+          <button class="btn small" type="button" data-st="arrived" data-b="${b.id}">Llegué</button>
+          <button class="btn small" type="button" data-st="onboard" data-b="${b.id}">A bordo</button>
+          <button class="btn small gold" type="button" data-st="done" data-b="${b.id}">Finalizado</button>`}</div></div>`;}).join('')||'<div class="svc">Sin servicios asignados hoy.</div>';
+    $('#drv-list').querySelectorAll('[data-st]').forEach(btn=>btn.onclick=()=>{const b=bookings.find(x=>x.id==btn.dataset.b);b.status=btn.dataset.st;
+      toast(btn.dataset.st==='arrived'?`Aviso enviado a ${b.name}: "Tu chofer ya está en el punto de encuentro"`:btn.dataset.st==='onboard'?'Servicio en curso · la oficina lo ve en el panel':'Servicio finalizado · queda listo para facturar');
+      renderDriver();renderPanel();});
+  }
+
+  // panel
+  function renderPanel(){
+    const total=bookings.reduce((s,b)=>s+b.price,0);
+    const hours=bookings.reduce((s,b)=>s+Math.min(b.dur,24-b.start),0);
+    const occ=Math.round(hours/(FLEET.length*18)*100);
+    const active=bookings.filter(b=>b.status==='onboard'||b.status==='arrived').length;
+    $('#kpis').innerHTML=`
+      <div class="kpi"><b>${bookings.length}</b><span>Servicios hoy</span></div>
+      <div class="kpi"><b>${active}</b><span>En curso ahora</span></div>
+      <div class="kpi"><b>${occ}%</b><span>Ocupación de la flota</span><div class="bar"><i style="width:${occ}%"></i></div></div>
+      <div class="kpi"><b style="font-size:26px">${money(total)}</b><span>Facturación del día</span></div>`;
+    $('#ptable').innerHTML=bookings.slice().sort((a,b)=>a.start-b.start).map(b=>{const r=R(b.route),v=V(b.veh);const [lbl,cls]=statusLbl[b.status];
+      return `<tr class="${b.id===lastNew?'new':''}"><td class="mono">${hhmm(b.start)}</td><td>${esc(r.es)}</td><td>${esc(b.name)} · ${b.pax}</td><td>${esc(v.model)}</td><td>${esc(v.driver)}</td><td class="mono">${money(b.price)}</td><td><span class="chip ${cls}">${lbl}</span></td></tr>`;}).join('');
+  }
+
+  // boot
+  setText(); renderTypes(); fillRoutes(); quote(); renderGantt(); renderDriverSel('AUTO-1'); renderPanel();
+})();
+</script>
+</body>
+</html>
