@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mucamas CR · Plataforma de Limpieza</title>
+<meta name="description" content="Demo interactiva: reservas con precio al instante, portal para anfitriones de Airbnb sincronizado, app de colaboradoras y panel de operación.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: ocean-teal hero with a wave edge, floating tab bar, four working screens (booking, Airbnb host portal, cleaner app, operations) */
+:root{
+  --ocean:#0b3d4f; --ocean-2:#0f5a6e; --aqua:#16a99c; --aqua-d:#0e8a7f; --aqua-soft:#dff5f2;
+  --sun:#ffb547; --sun-soft:#fff2da; --coral:#e8604c; --coral-soft:#fde6e2; --blue:#2f6fcf; --blue-soft:#e4edfb;
+  --bg:#f3f7f6; --surface:#ffffff; --ink:#132a31; --muted:#5f7479; --line:#dce6e4;
+  --display:"Lexend","Segoe UI",Arial,sans-serif; --body:"DM Sans","Segoe UI",Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:18px; --shadow:0 1px 2px rgba(11,61,79,.05),0 12px 30px rgba(11,61,79,.09);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+
+.hero{background:linear-gradient(160deg,var(--ocean) 0%,var(--ocean-2) 60%,#11707f 100%);color:#fff;padding-top:env(safe-area-inset-top,0px);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;left:-5%;right:-5%;bottom:-2px;height:90px;background:radial-gradient(60% 90px at 20% 100%,rgba(255,255,255,.06),transparent 70%),radial-gradient(50% 80px at 80% 100%,rgba(22,169,156,.25),transparent 70%)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:16px;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--aqua),#3fd1c2);display:grid;place-items:center}
+.logo svg{width:24px;height:24px}
+.brand b{font-family:var(--display);font-size:19px;display:block;line-height:1.05}
+.brand small{color:#a9d6dc;font-size:12px}
+.top-r{display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px;color:#d7f0f2;white-space:nowrap}
+.lang{display:inline-flex;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+.lang button{border:0;background:transparent;color:#cfe9ec;font-weight:800;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;font-family:var(--body)}
+.lang button[aria-pressed="true"]{background:#fff;color:var(--ocean)}
+.hero-body{position:relative;z-index:1;padding-block:8px 100px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4.8vw,48px);line-height:1.06;letter-spacing:-.8px;margin:0 0 12px;max-width:17ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--sun)}
+.hero p{color:#cde7ea;max-width:60ch;margin:0;font-size:16px}
+.zones{display:flex;flex-wrap:wrap;gap:6px;max-width:330px;justify-content:flex-end}
+.zones span{font-size:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:4px 10px;color:#e3f4f5}
+.tabbar{margin-top:-62px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;display:flex;flex-wrap:wrap;gap:4px;position:relative;z-index:2}
+.tab{flex:1 1 170px;font-family:var(--display);font-weight:600;font-size:15.5px;border:0;border-radius:13px;background:transparent;color:var(--muted);padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab svg{width:19px;height:19px;flex:none}
+.tab:hover{background:var(--bg);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--ocean);color:#fff}
+main{padding-block:26px 44px}
+
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
+.h2{font-family:var(--display);font-weight:700;font-size:22px;margin:0 0 4px;letter-spacing:-.3px}
+.h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 10px}
+.btn{font-family:var(--body);font-weight:700;font-size:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer}
+.btn:hover{border-color:var(--aqua)}
+.btn.primary{background:var(--aqua);border-color:var(--aqua);color:#fff}
+.btn.primary:hover{background:var(--aqua-d)}
+.btn.dark{background:var(--ocean);border-color:var(--ocean);color:#fff}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:#3a2600}
+.btn.small{font-size:13px;padding:6px 12px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+input[type=text],input[type=number],select,textarea{font-family:var(--body);font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--aqua-soft);color:var(--aqua-d)} .chip.warn{background:var(--sun-soft);color:#9a5d00} .chip.bad{background:var(--coral-soft);color:#b8402f} .chip.info{background:var(--blue-soft);color:var(--blue)}
+
+/* booking */
+.book{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.svc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.svc{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 8px;text-align:center;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.svc svg{width:26px;height:26px;color:var(--ocean-2);display:block;margin:0 auto 6px}
+.svc b{font-size:13px;display:block;line-height:1.2}
+.svc[aria-pressed="true"]{border-color:var(--aqua);background:var(--aqua-soft)}
+.svc[aria-pressed="true"] svg{color:var(--aqua-d)}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{border:0;background:var(--bg);width:40px;height:42px;font-size:18px;cursor:pointer;color:var(--ink);font-family:var(--body)}
+.stepper output{flex:1;text-align:center;font-weight:700;font-family:var(--mono)}
+.freq{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.freq button,.ex{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-family:var(--body);font-weight:700;font-size:13px;cursor:pointer;color:var(--ink)}
+.freq button small{color:var(--aqua-d);font-weight:800;margin-left:4px}
+.freq button[aria-pressed="true"],.ex[aria-pressed="true"]{border-color:var(--aqua);background:var(--aqua-soft)}
+.extras{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.day{border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:7px 2px;text-align:center;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.day small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700}
+.day b{font-family:var(--display);font-size:18px}
+.day[aria-pressed="true"]{border-color:var(--ocean);background:var(--ocean);color:#fff}
+.day[aria-pressed="true"] small{color:#b9dde2}
+.slots{display:flex;flex-wrap:wrap;gap:6px}
+.slot{border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding:7px 12px;font-family:var(--mono);font-weight:600;font-size:13px;cursor:pointer;color:var(--ink)}
+.slot[aria-pressed="true"]{border-color:var(--aqua);background:var(--aqua-soft)}
+.slot:disabled{text-decoration:line-through;opacity:.45;cursor:not-allowed}
+.quote{position:sticky;top:16px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cur{display:inline-flex;background:var(--bg);border-radius:999px;padding:3px}
+.cur button{border:0;background:transparent;font-weight:800;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;color:var(--muted);font-family:var(--body)}
+.cur button[aria-pressed="true"]{background:var(--ocean);color:#fff}
+.price{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;letter-spacing:-.8px;margin:12px 0 4px;color:var(--ocean)}
+.qline{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.qline span:last-child{font-family:var(--mono)}
+.team{display:flex;gap:10px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 12px;margin:12px 0}
+.av{width:34px;height:34px;border-radius:50%;background:var(--aqua);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex:none}
+.pay{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pay span{font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:8px;padding:3px 8px;color:var(--muted)}
+.confirm-box{margin-top:14px;background:var(--aqua-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+
+/* host portal */
+.host-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.props{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.prop{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.prop .ph{height:78px;background:linear-gradient(135deg,var(--c1),var(--c2));position:relative}
+.prop .ph span{position:absolute;left:10px;bottom:8px;font-size:11px;font-weight:800;color:#fff;background:rgba(0,0,0,.25);border-radius:6px;padding:2px 7px}
+.prop .bd{padding:10px 12px 12px}
+.prop b{font-size:14px;display:block;line-height:1.25}
+.sync{font-size:12px;color:var(--aqua-d);font-weight:700;margin-top:4px;display:flex;gap:5px;align-items:center}
+.host-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.task{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.date{background:var(--bg);border-radius:12px;text-align:center;padding:6px 0}
+.date small{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.date b{font-family:var(--display);font-size:20px;line-height:1.1}
+.win{font-size:12.5px;color:var(--muted)}
+.win b{color:var(--ink);font-family:var(--mono);font-size:12.5px}
+.task.new{background:var(--sun-soft);border-radius:12px;padding-inline:8px}
+.dmg{border-left:4px solid var(--coral);background:var(--coral-soft);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+.dmg .ph2{display:flex;gap:6px;margin-top:6px}
+.dmg .ph2 i{width:52px;height:40px;border-radius:6px;background:linear-gradient(135deg,#c9b8a8,#8f7d6d);display:block}
+.mtable{width:100%;border-collapse:collapse;font-size:14px}
+.mtable td{padding:8px 0;border-bottom:1px solid var(--line)}
+.mtable td:last-child{text-align:right;font-family:var(--mono)}
+.mtable tr:last-child td{border-bottom:0;font-weight:800}
+
+/* cleaner app */
+.cl{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:30px;align-items:start}
+.phone{background:#0d1d22;border-radius:40px;padding:10px;box-shadow:0 24px 50px rgba(11,61,79,.28)}
+.screen{background:var(--bg);border-radius:31px;overflow:hidden;min-height:600px}
+.app-head{background:linear-gradient(135deg,var(--aqua),var(--ocean-2));color:#fff;padding:14px 18px 16px}
+.app-head .st{display:flex;justify-content:space-between;font-size:12px;opacity:.85;margin-bottom:8px}
+.app-head h3{font-family:var(--display);margin:0;font-size:19px}
+.app-head select{margin-top:8px;background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.28)}
+.app-head select option{color:var(--ink)}
+.app-body{padding:14px;display:grid;gap:10px}
+.job{background:var(--surface);border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(11,61,79,.07)}
+.job .t{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.job .t b{font-family:var(--display);font-size:22px;color:var(--ocean)}
+.job .meta{font-size:13.5px;margin:4px 0}
+.prog{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:10px 0 8px}
+.prog i{display:block;height:100%;background:var(--aqua);transition:width .25s}
+.check{display:grid;gap:4px;margin:6px 0}
+.check label{display:flex;gap:8px;align-items:center;font-size:14px;padding:6px 8px;border-radius:8px;background:var(--bg);cursor:pointer}
+.check input{accent-color:var(--aqua);width:18px;height:18px}
+.job .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.dmgform{background:var(--coral-soft);border-radius:10px;padding:10px;margin-top:8px;display:grid;gap:6px}
+.aside-list{display:grid;gap:14px;list-style:none;padding:0;margin:14px 0 0}
+.aside-list li{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px}
+.aside-list .ic{width:42px;height:42px;border-radius:13px;background:var(--aqua-soft);color:var(--aqua-d);display:grid;place-items:center}
+.aside-list .ic svg{width:20px;height:20px}
+.aside-list b{display:block}
+.aside-list span{color:var(--muted);font-size:14px}
+
+/* ops */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
+.kpi b{display:block;font-family:var(--display);font-size:32px;font-weight:800;line-height:1.05;color:var(--ocean);font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted);font-weight:700}
+.zboard-wrap{overflow-x:auto;margin-bottom:20px}
+.zboard{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;min-width:1040px}
+.zcol{background:#e7efed;border-radius:14px;padding:10px}
+.zcol h4{margin:2px 4px 10px;font-family:var(--display);font-size:14.5px;display:flex;justify-content:space-between;gap:6px}
+.zcol h4 span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.zcard{background:var(--surface);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px;box-shadow:0 1px 2px rgba(11,61,79,.06)}
+.zcard .who{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.zcard .av{width:26px;height:26px;font-size:11px}
+.ops-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line)}
+.tbl tr:last-child td{border-bottom:0}
+.rev{border-bottom:1px solid var(--line);padding:10px 0;font-size:14px}
+.rev:last-child{border-bottom:0}
+.stars{color:var(--sun);letter-spacing:1px}
+
+footer{border-top:1px solid var(--line);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .container{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+footer b{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ocean);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:700;max-width:calc(100% - 32px);box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:20}
+@media (prefers-reduced-motion:no-preference){.tab,.btn,.svc,.day,.slot{transition:background .15s,border-color .15s,color .15s}}
+@media (max-width:980px){.book,.cl,.host-grid,.ops-grid{grid-template-columns:minmax(0,1fr)}.quote{position:static}.props{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-body{grid-template-columns:minmax(0,1fr)}.zones{justify-content:flex-start;max-width:none}.cl .phone{max-width:420px;width:100%;margin:0 auto}}
+@media (max-width:600px){.svc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.row3{grid-template-columns:repeat(2,minmax(0,1fr))}.days{grid-template-columns:repeat(4,minmax(0,1fr))}.tab{flex-basis:45%;font-size:14px;padding:10px 6px}.card{padding:18px}.props{grid-template-columns:minmax(0,1fr)}.phone{border-radius:30px;padding:7px}.screen{border-radius:24px}.top-r .pill{display:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container topbar">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 3.9L18 8.5l-3.2 2.9.9 4.3L12 13.6l-3.7 2.1.9-4.3L6 8.5l4.2-1.6z"/><path d="M5 20h14"/></svg></div><div><b>Mucamas Costa Rica</b><small>Limpieza de confianza · 7 provincias</small></div></div>
+    <div class="top-r"><span class="pill">Demo · datos de ejemplo</span><div class="lang" role="group" aria-label="Idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></div>
+  </div>
+  <div class="container hero-body">
+    <div>
+      <h1 data-i="heroT">Reservas, anfitriones y equipo <em>en una sola plataforma</em></h1>
+      <p data-i="heroP">El cliente reserva y paga en un minuto. Cada check-out de Airbnb se convierte solo en una limpieza asignada, la colaboradora la cierra desde el celular con fotos, y el anfitrión recibe el reporte al instante.</p>
+    </div>
+    <div class="zones"><span>Escazú</span><span>Santa Ana</span><span>Rohrmoser</span><span>Heredia</span><span>Alajuela</span><span>Cartago</span><span>Tamarindo</span><span>Flamingo</span><span>Jacó</span><span>Manuel Antonio</span></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabbar" role="tablist">
+    <button class="tab" role="tab" id="t-book" aria-selected="true" data-pane="p-book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><span data-i="tab1">Reservar</span></button>
+    <button class="tab" role="tab" id="t-host" aria-selected="false" data-pane="p-host"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span data-i="tab2">Portal Airbnb</span></button>
+    <button class="tab" role="tab" id="t-cl" aria-selected="false" data-pane="p-cl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><span data-i="tab3">App colaboradoras</span></button>
+    <button class="tab" role="tab" id="t-ops" aria-selected="false" data-pane="p-ops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i="tab4">Operación</span></button>
+  </div>
+</div>
+
+<main class="container">
+<!-- BOOK -->
+<section id="p-book" role="tabpanel" aria-labelledby="t-book">
+  <div class="book">
+    <div class="card">
+      <h2 class="h2" data-i="bookT">¿Qué necesitas limpiar?</h2>
+      <p class="note" style="margin-top:0" data-i="bookS">Precio al instante, sin esperar respuesta por WhatsApp.</p>
+      <div class="svc-grid" id="svcs"></div>
+      <div class="row3" id="size-row"></div>
+      <h3 class="h3" data-i="freqT">Frecuencia</h3>
+      <div class="freq" id="freq"></div>
+      <h3 class="h3" data-i="exT">Extras</h3>
+      <div class="extras" id="extras"></div>
+      <div class="row3" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div><label class="f" for="zone" data-i="zoneL">Zona</label><select id="zone"></select></div>
+        <div><label class="f" for="cname" data-i="nameL">Nombre</label><input type="text" id="cname" value="Laura Jiménez"></div>
+      </div>
+      <h3 class="h3" data-i="dateT">Día y hora</h3>
+      <div class="days" id="days"></div>
+      <div class="slots" id="slots"></div>
+    </div>
+    <div class="card quote">
+      <div class="qhead"><span class="note" data-i="qT">Tu cotización</span><div class="cur" role="group" aria-label="Moneda"><button type="button" data-cur="crc" aria-pressed="true">₡ CRC</button><button type="button" data-cur="usd" aria-pressed="false">$ USD</button></div></div>
+      <div class="price" id="price"></div>
+      <div class="note" id="per"></div>
+      <div id="qlines" style="margin-top:10px"></div>
+      <div class="team" id="team"></div>
+      <button class="btn primary" id="book-btn" type="button" style="width:100%;padding:14px"></button>
+      <div class="pay"><span>SINPE Móvil</span><span>Tarjeta</span><span>Transferencia</span></div>
+      <div class="confirm-box" id="confirm" hidden></div>
+      <p class="note" style="margin:10px 0 0" data-i="demoP">Tarifas de ejemplo: en el sistema real las configuran ustedes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOST PORTAL -->
+<section id="p-host" role="tabpanel" aria-labelledby="t-host" hidden>
+  <div class="host-top">
+    <div><h2 class="h2" data-i="hostT">Hola, John 👋</h2><div class="note" data-i="hostS">Tus propiedades se sincronizan con el calendario de Airbnb. Cada check-out crea una limpieza sola.</div></div>
+    <button class="btn sun" id="sim" type="button" data-i="simB">Simular nueva reserva en Airbnb</button>
+  </div>
+  <div class="props" id="props"></div>
+  <div class="host-grid">
+    <div class="card">
+      <h3 class="h3" data-i="upT">Próximas limpiezas</h3>
+      <div id="tasks"></div>
+    </div>
+    <div style="display:grid;gap:20px">
+      <div class="card"><h3 class="h3" data-i="dmgT">Reportes de daños</h3><div id="dmgs"></div></div>
+      <div class="card"><h3 class="h3" data-i="monT">Resumen de septiembre</h3><table class="mtable" id="month"></table><button class="btn small" type="button" style="margin-top:10px" data-toast="La factura mensual por propiedad se descarga en PDF (demo)." data-i="invB">Descargar factura del mes</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- CLEANER APP -->
+<section id="p-cl" role="tabpanel" aria-labelledby="t-cl" hidden>
+  <div class="cl">
+    <div class="phone"><div class="screen">
+      <div class="app-head">
+        <div class="st"><span class="mono">JUE 01/10</span><span>Mucamas · Equipo</span></div>
+        <h3 id="cl-hello"></h3>
+        <select id="cl-sel" aria-label="Elegir colaboradora"></select>
+      </div>
+      <div class="app-body" id="cl-list"></div>
+    </div></div>
+    <div class="card">
+      <h2 class="h2">Qué gana el equipo</h2>
+      <ul class="aside-list">
+        <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></div><div><b>Checklist por tipo de servicio</b><span>Airbnb, profunda u oficina: cada limpieza sale igual de completa, la haga quien la haga.</span></div></li>
+        <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div><div><b>Fotos de antes y después</b><span>Respaldo ante cualquier reclamo y tranquilidad para el anfitrión que está lejos.</span></div></li>
+        <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div><b>Reporte de daños en el momento</b><span>Con foto, directo al anfitrión, sin pasar por la oficina.</span></div></li>
+        <li><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><b>Agenda por zona</b><span>Cada colaboradora ve solo sus servicios, con dirección, código de acceso y ventana de tiempo.</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- OPS -->
+<section id="p-ops" role="tabpanel" aria-labelledby="t-ops" hidden>
+  <div class="kpis" id="kpis"></div>
+  <h2 class="h2" style="margin-bottom:10px">Equipo por zona · hoy</h2>
+  <div class="zboard-wrap"><div class="zboard" id="zboard"></div></div>
+  <div class="ops-grid">
+    <div class="card"><h3 class="h3">Servicios de hoy</h3><div class="tbl"><table><thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Colaboradora</th><th>Estado</th></tr></thead><tbody id="optable"></tbody></table></div></div>
+    <div class="card"><h3 class="h3">Últimas calificaciones</h3><div id="revs"></div></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · desarrollo de software desde Argentina</span><span>Tarifas, clientes y propiedades de ejemplo</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  let tt; const toast=m=>{const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,3600);};
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');if(b)toast(b.dataset.toast);});
+  const RATE=505; let cur='crc', lang='es';
+  const money=n=>cur==='crc'?'₡'+Math.round(n).toLocaleString('es-CR'):'$'+Math.round(n/RATE).toLocaleString('en-US');
+
+  const T={
+    es:{heroT:'Reservas, anfitriones y equipo <em>en una sola plataforma</em>',heroP:'El cliente reserva y paga en un minuto. Cada check-out de Airbnb se convierte solo en una limpieza asignada, la colaboradora la cierra desde el celular con fotos, y el anfitrión recibe el reporte al instante.',
+      tab1:'Reservar',tab2:'Portal Airbnb',tab3:'App colaboradoras',tab4:'Operación',bookT:'¿Qué necesitas limpiar?',bookS:'Precio al instante, sin esperar respuesta por WhatsApp.',freqT:'Frecuencia',exT:'Extras',zoneL:'Zona',nameL:'Nombre',dateT:'Día y hora',qT:'Tu cotización',demoP:'Tarifas de ejemplo: en el sistema real las configuran ustedes.',
+      hostT:'Hola, John 👋',hostS:'Tus propiedades se sincronizan con el calendario de Airbnb. Cada check-out crea una limpieza sola.',simB:'Simular nueva reserva en Airbnb',upT:'Próximas limpiezas',dmgT:'Reportes de daños',monT:'Resumen de septiembre',invB:'Descargar factura del mes',
+      svc:{casa:'Casa / apto',airbnb:'Airbnb',oficina:'Oficina',profunda:'Profunda',obra:'Post-construcción'},
+      beds:'Dormitorios',baths:'Baños',m2:'m²',freq:{una:'Una vez',sem:'Semanal',qui:'Quincenal',men:'Mensual'},
+      ex:{plancha:'Planchado',ventanas:'Ventanas',lav:'Lavandería',prod:'Productos incluidos',refri:'Interior refrigeradora'},
+      base:'Servicio',extrasL:'Extras',zoneX:'Traslado zona costera',disc:'Descuento frecuencia',total:'Total',per:'por visita',hours:'h aprox.',team1:'colaboradora',teamN:'colaboradoras',book:'Reservar y pagar',
+      conf:(n,d,s,w)=>`✅ <b>Reserva confirmada, ${n}.</b><br>${d} a las ${s}. Te asignamos a <b>${w}</b>. Recibirás un WhatsApp con su foto el día anterior.`,
+      sync:'Sincronizado con Airbnb',co:'Check-out',ci:'Próximo check-in',none:'Sin reservas próximas'},
+    en:{heroT:'Bookings, hosts and team <em>in one platform</em>',heroP:'Clients book and pay in a minute. Every Airbnb check-out automatically becomes an assigned cleaning, the cleaner closes it from her phone with photos, and the host gets the report instantly.',
+      tab1:'Book',tab2:'Airbnb portal',tab3:'Cleaner app',tab4:'Operations',bookT:'What do you need cleaned?',bookS:'Instant price, no waiting for a WhatsApp reply.',freqT:'Frequency',exT:'Extras',zoneL:'Area',nameL:'Name',dateT:'Day and time',qT:'Your quote',demoP:'Sample rates: in the real system you set them.',
+      hostT:'Hi, John 👋',hostS:'Your properties sync with your Airbnb calendar. Every check-out creates a cleaning automatically.',simB:'Simulate a new Airbnb booking',upT:'Upcoming cleanings',dmgT:'Damage reports',monT:'September summary',invB:'Download monthly invoice',
+      svc:{casa:'Home / apt',airbnb:'Airbnb',oficina:'Office',profunda:'Deep clean',obra:'Post-construction'},
+      beds:'Bedrooms',baths:'Bathrooms',m2:'sq m',freq:{una:'One time',sem:'Weekly',qui:'Biweekly',men:'Monthly'},
+      ex:{plancha:'Ironing',ventanas:'Windows',lav:'Laundry',prod:'Supplies included',refri:'Inside fridge'},
+      base:'Service',extrasL:'Extras',zoneX:'Beach area travel',disc:'Frequency discount',total:'Total',per:'per visit',hours:'h approx.',team1:'cleaner',teamN:'cleaners',book:'Book and pay',
+      conf:(n,d,s,w)=>`✅ <b>Booking confirmed, ${n}.</b><br>${d} at ${s}. Your cleaner is <b>${w}</b>. You'll get a WhatsApp with her photo the day before.`,
+      sync:'Synced with Airbnb',co:'Check-out',ci:'Next check-in',none:'No upcoming bookings'}
+  };
+  const L=()=>T[lang];
+  const SVC_IC={casa:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',airbnb:'<path d="M12 3c-2 4-7 11-7 14a4 4 0 0 0 7 2.5A4 4 0 0 0 19 17c0-3-5-10-7-14z"/>',oficina:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M10 21v-4h4v4"/>',profunda:'<path d="M12 3l1.8 3.9L18 8.5l-3.2 2.9.9 4.3L12 13.6l-3.7 2.1.9-4.3L6 8.5l4.2-1.6z"/>',obra:'<path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-5h6v5"/>'};
+  const ZONES=[['Escazú','gam'],['Santa Ana','gam'],['Rohrmoser','gam'],['Curridabat','gam'],['Heredia','gam'],['Alajuela','gam'],['Cartago','gam'],['Tamarindo','costa'],['Playa Flamingo','costa'],['Jacó','costa'],['Manuel Antonio','costa']];
+  const EXTRAS={plancha:8000,ventanas:7000,lav:6000,prod:4000,refri:4000};
+  const FREQ={una:0,sem:.15,qui:.10,men:.05};
+  let st={svc:'airbnb',beds:2,baths:2,m2:120,freq:'una',ex:{lav:true},zone:7,day:1,slot:'10:00'};
+
+  function calc(){
+    let base,h;
+    if(st.svc==='oficina'){base=Math.max(25000,st.m2*250);h=st.m2/60;}
+    else if(st.svc==='obra'){base=Math.max(60000,st.m2*450);h=st.m2/25;}
+    else{base=18000+st.beds*6000+st.baths*5000;h=1.5+st.beds*.6+st.baths*.5;if(st.svc==='airbnb'){base+=2000+st.beds*3000;h+=.5;}if(st.svc==='profunda'){base*=1.6;h*=1.6;}}
+    const ex=Object.keys(st.ex).filter(k=>st.ex[k]).reduce((s,k)=>s+EXTRAS[k],0);
+    const zx=ZONES[st.zone][1]==='costa'?5000:0;
+    const disc=(base+ex)*FREQ[st.freq];
+    const total=Math.round((base+ex+zx-disc)/500)*500;
+    const team=h>5?2:1; return {base,ex,zx,disc,total,h:Math.round(h/team*2)/2,team};
+  }
+  const DAYS=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'], DAYS_EN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const start=new Date(2026,9,1); const SLOTS=['08:00','10:00','13:00','15:00'];
+  const taken=(d,s)=>((d*7+SLOTS.indexOf(s)*3)%5)===0;
+
+  function renderBook(){
+    const l=L();
+    $('#svcs').innerHTML=Object.keys(l.svc).map(k=>`<button type="button" class="svc" data-s="${k}" aria-pressed="${k===st.svc}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SVC_IC[k]}</svg><b>${l.svc[k]}</b></button>`).join('');
+    $('#svcs').querySelectorAll('.svc').forEach(b=>b.onclick=()=>{st.svc=b.dataset.s;renderBook();});
+    const byM2=st.svc==='oficina'||st.svc==='obra';
+    const stp=(k,lbl)=>`<div><label class="f">${lbl}</label><div class="stepper"><button type="button" data-k="${k}" data-d="-1" aria-label="menos">−</button><output>${st[k]}</output><button type="button" data-k="${k}" data-d="1" aria-label="más">+</button></div></div>`;
+    $('#size-row').innerHTML=byM2?`<div style="grid-column:span 2"><label class="f" for="m2">${l.m2}</label><input type="number" id="m2" min="20" max="3000" value="${st.m2}"></div>`:stp('beds',l.beds)+stp('baths',l.baths)+`<div><label class="f">&nbsp;</label><div class="note" style="padding-top:10px">${lang==='es'?'Incluye cocina, sala y áreas comunes':'Includes kitchen, living and common areas'}</div></div>`;
+    $('#size-row').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;st[k]=Math.max(k==='beds'?1:1,Math.min(8,st[k]+(+b.dataset.d)));renderBook();});
+    const m=$('#m2'); if(m) m.oninput=()=>{st.m2=Math.max(20,+m.value||20);renderQuote();};
+    $('#freq').innerHTML=Object.keys(l.freq).map(k=>`<button type="button" data-f="${k}" aria-pressed="${k===st.freq}">${l.freq[k]}${FREQ[k]?`<small>−${FREQ[k]*100}%</small>`:''}</button>`).join('');
+    $('#freq').querySelectorAll('button').forEach(b=>b.onclick=()=>{st.freq=b.dataset.f;renderBook();});
+    $('#extras').innerHTML=Object.keys(l.ex).map(k=>`<button type="button" class="ex" data-e="${k}" aria-pressed="${!!st.ex[k]}">${l.ex[k]} <span class="note">+${money(EXTRAS[k])}</span></button>`).join('');
+    $('#extras').querySelectorAll('.ex').forEach(b=>b.onclick=()=>{st.ex[b.dataset.e]=!st.ex[b.dataset.e];renderBook();});
+    $('#days').innerHTML=Array.from({length:7},(_,i)=>{const d=new Date(start.getTime()+i*864e5);return `<button type="button" class="day" data-d="${i}" aria-pressed="${i===st.day}"><small>${(lang==='es'?DAYS:DAYS_EN)[d.getDay()]}</small><b>${d.getDate()}</b></button>`;}).join('');
+    $('#days').querySelectorAll('.day').forEach(b=>b.onclick=()=>{st.day=+b.dataset.d;if(taken(st.day,st.slot))st.slot=SLOTS.find(s=>!taken(st.day,s));renderBook();});
+    $('#slots').innerHTML=SLOTS.map(s=>`<button type="button" class="slot" data-t="${s}" aria-pressed="${s===st.slot}" ${taken(st.day,s)?'disabled':''}>${s}</button>`).join('');
+    $('#slots').querySelectorAll('.slot').forEach(b=>b.onclick=()=>{st.slot=b.dataset.t;renderBook();});
+    renderQuote();
+  }
+  $('#zone').innerHTML=ZONES.map((z,i)=>`<option value="${i}">${z[0]}${z[1]==='costa'?' · costa':''}</option>`).join('');
+  $('#zone').value=st.zone; $('#zone').onchange=e=>{st.zone=+e.target.value;renderQuote();};
+  const WORKERS={gam:['Ana R.','Sofía M.','María C.'],costa:['Karla V.','Yessenia P.']};
+  function worker(){const z=ZONES[st.zone];const list=z[1]==='costa'?(/Manuel|Jacó/.test(z[0])?['Yessenia P.']:['Karla V.']):WORKERS.gam;return list[st.day%list.length];}
+  function renderQuote(){
+    const q=calc(),l=L();
+    $('#price').textContent=money(q.total);
+    $('#per').textContent=(st.freq==='una'?'':l.per+' · ')+q.h+' '+l.hours;
+    $('#qlines').innerHTML=`<div class="qline"><span>${l.base}: ${l.svc[st.svc]}</span><span>${money(q.base)}</span></div>${q.ex?`<div class="qline"><span>${l.extrasL}</span><span>${money(q.ex)}</span></div>`:''}${q.zx?`<div class="qline"><span>${l.zoneX}</span><span>${money(q.zx)}</span></div>`:''}${q.disc?`<div class="qline"><span>${l.disc}</span><span>−${money(q.disc)}</span></div>`:''}<div class="qline" style="border:0;font-weight:800"><span>${l.total}</span><span>${money(q.total)}</span></div>`;
+    const w=worker();
+    $('#team').innerHTML=`<div class="av">${w.split(' ').map(x=>x[0]).join('')}</div><div><b>${q.team} ${q.team>1?l.teamN:l.team1}</b><div class="note">${lang==='es'?'Asignada según zona y disponibilidad':'Assigned by area and availability'}: ${w}${q.team>1?' + 1':''}</div></div>`;
+    $('#book-btn').textContent=l.book+' · '+money(q.total);
+  }
+  $('#book-btn').onclick=()=>{
+    const d=new Date(start.getTime()+st.day*864e5), l=L();
+    const ds=d.toLocaleDateString(lang==='es'?'es-CR':'en-US',{weekday:'long',day:'numeric',month:'long'});
+    $('#confirm').hidden=false; $('#confirm').innerHTML=l.conf(esc($('#cname').value||'Cliente'),ds,st.slot,worker());
+    ops.push({time:st.slot,client:$('#cname').value||'Cliente',svc:l.svc[st.svc],who:worker(),status:'conf',zone:ZONES[st.zone][1]==='costa'?(/Manuel|Jacó/.test(ZONES[st.zone][0])?'Pacífico Central':'Guanacaste'):'Escazú · Santa Ana',isNew:true});
+    renderOps(); toast(lang==='es'?'Pago recibido por SINPE Móvil · reserva confirmada':'Payment received · booking confirmed');
+  };
+  document.querySelectorAll('[data-cur]').forEach(b=>b.onclick=()=>{cur=b.dataset.cur;document.querySelectorAll('[data-cur]').forEach(x=>x.setAttribute('aria-pressed',x===b));renderBook();renderHost();});
+
+  // HOST
+  const PROPS=[
+    {id:1,n:'Casa Vista Pacífico',z:'Tamarindo',beds:3,c1:'#f7b267',c2:'#f4845f',who:'Karla V.'},
+    {id:2,n:'Condo Flamingo 2B',z:'Playa Flamingo',beds:2,c1:'#5ec2b7',c2:'#2a8f9d',who:'Karla V.'},
+    {id:3,n:'Villa Selva',z:'Manuel Antonio',beds:4,c1:'#7bc47f',c2:'#2f7d52',who:'Yessenia P.'},
+    {id:4,n:'Loft Escazú Centro',z:'Escazú',beds:1,c1:'#8fa8e8',c2:'#4a64b8',who:'Ana R.'}
+  ];
+  let tasks=[
+    {p:1,d:1,co:'11:00',ci:'15:00',st:'ok'},{p:4,d:1,co:'10:00',ci:'16:00',st:'ok'},{p:3,d:2,co:'11:00',ci:'14:00',st:'ok'},{p:2,d:3,co:'10:00',ci:'—',st:'ok'},{p:1,d:5,co:'11:00',ci:'16:00',st:'ok'}
+  ];
+  let simCount=0, lastTask=null;
+  const dmgs=[{p:3,t:'Vaso roto en la cocina y mancha en sofá de la terraza',who:'Yessenia P.',d:'29/09'},{p:1,t:'Control remoto del A/C sin baterías, repuestas por el equipo',who:'Karla V.',d:'27/09'}];
+  const P=id=>PROPS.find(p=>p.id===id);
+  function renderHost(){
+    const l=L();
+    $('#props').innerHTML=PROPS.map(p=>`<div class="prop" style="--c1:${p.c1};--c2:${p.c2}"><div class="ph"><span>${esc(p.z)}</span></div><div class="bd"><b>${esc(p.n)}</b><div class="note">${p.beds} ${l.beds.toLowerCase()} · ${esc(p.who)}</div><div class="sync">⟳ ${l.sync}</div></div></div>`).join('');
+    const sorted=tasks.slice().sort((a,b)=>a.d-b.d||a.co.localeCompare(b.co));
+    $('#tasks').innerHTML=sorted.map(t=>{const p=P(t.p),d=new Date(start.getTime()+t.d*864e5);const tight=t.ci!=='—'&&(+t.ci.slice(0,2)-+t.co.slice(0,2))<=3;
+      return `<div class="task ${t===lastTask?'new':''}"><div class="date"><small>${(lang==='es'?DAYS:DAYS_EN)[d.getDay()]}</small><b>${d.getDate()}</b></div><div><b>${esc(p.n)}</b><div class="win">${l.co} <b>${t.co}</b> → ${l.ci} <b>${t.ci}</b></div><div class="note">${esc(p.who)}</div></div><span class="chip ${tight?'warn':'ok'}">${tight?(lang==='es'?'Ventana corta':'Tight window'):(lang==='es'?'Asignada':'Assigned')}</span></div>`;}).join('');
+    $('#dmgs').innerHTML=dmgs.map(x=>`<div class="dmg"><b>${esc(P(x.p).n)}</b> · ${x.d}<br>${esc(x.t)}<div class="note">${lang==='es'?'Reportado por':'Reported by'} ${esc(x.who)}</div><div class="ph2"><i></i><i></i></div></div>`).join('');
+    const rows=PROPS.map(p=>{const n=[6,4,5,9][p.id-1];const price=(20000+p.beds*9000+6000)*n;return [p.n,n,price];});
+    const tot=rows.reduce((s,r)=>s+r[2],0);
+    $('#month').innerHTML=rows.map(r=>`<tr><td>${esc(r[0])} <span class="note">· ${r[1]} ${lang==='es'?'limpiezas':'cleanings'}</span></td><td>${money(r[2])}</td></tr>`).join('')+`<tr><td>${L().total}</td><td>${money(tot)}</td></tr>`;
+  }
+  $('#sim').onclick=()=>{
+    const opts=[{p:2,d:4,co:'11:00',ci:'15:00'},{p:4,d:6,co:'10:00',ci:'13:00'},{p:3,d:4,co:'11:00',ci:'16:00'}];
+    const t={...opts[simCount%opts.length],st:'ok'}; simCount++; tasks.push(t); lastTask=t;
+    const d=new Date(start.getTime()+t.d*864e5);
+    renderHost();
+    toast((lang==='es'?`Nueva reserva detectada en Airbnb → limpieza programada el ${d.getDate()}/10 a las ${t.co} y asignada a ${P(t.p).who}`:`New Airbnb booking detected → cleaning scheduled on 10/${d.getDate()} at ${t.co}, assigned to ${P(t.p).who}`));
+  };
+
+  // CLEANER
+  const CHECK={airbnb:['Cambio de ropa de cama y toallas','Cocina y vajilla','Baños desinfectados','Pisos y superficies','Reposición de amenities','Revisión de daños y faltantes'],casa:['Cocina','Baños','Dormitorios','Sala y comedor','Pisos'],oficina:['Escritorios','Baños','Cocina','Pisos','Basureros']};
+  const JOBS=[
+    {id:1,who:'Karla V.',time:'11:00',place:'Casa Vista Pacífico',addr:'Tamarindo · Condominio Las Palmas, casa 14',access:'Código caja: 4812',type:'airbnb',win:'Check-in 15:00',done:[true,true,false,false,false,false],st:'prog'},
+    {id:2,who:'Karla V.',time:'15:30',place:'Condo Flamingo 2B',addr:'Playa Flamingo · Torre Mar, apto 2B',access:'Llave en recepción',type:'airbnb',win:'Sin check-in hoy',done:[false,false,false,false,false,false],st:'pend'},
+    {id:3,who:'Ana R.',time:'10:00',place:'Loft Escazú Centro',addr:'Escazú · Av. Escazú, torre 2, piso 8',access:'Código puerta: 2291',type:'airbnb',win:'Check-in 16:00',done:[false,false,false,false,false,false],st:'pend'},
+    {id:4,who:'Ana R.',time:'14:00',place:'Familia Solano',addr:'Santa Ana · Pozos, casa 32',access:'Cliente en casa',type:'casa',win:'Servicio semanal',done:[false,false,false,false,false],st:'pend'},
+    {id:5,who:'Yessenia P.',time:'11:00',place:'Villa Selva',addr:'Manuel Antonio · Camino a Playa Espadilla',access:'Guarda de seguridad',type:'airbnb',win:'Check-in 14:00',done:[true,true,true,true,false,false],st:'prog'},
+    {id:6,who:'María C.',time:'08:00',place:'Oficinas Nube Tech',addr:'Heredia · Zona Franca América, edif. B',access:'Gafete en recepción',type:'oficina',win:'Antes de las 10:00',done:[true,true,true,true,true],st:'done'}
+  ];
+  const WHO=['Karla V.','Ana R.','Yessenia P.','María C.'];
+  $('#cl-sel').innerHTML=WHO.map(w=>`<option>${w}</option>`).join('');
+  $('#cl-sel').onchange=renderCleaner;
+  let openDmg=null;
+  function renderCleaner(){
+    const w=$('#cl-sel').value, list=JOBS.filter(j=>j.who===w);
+    $('#cl-hello').textContent=`Hola, ${w.split(' ')[0]} · ${list.length} servicio${list.length!==1?'s':''} hoy`;
+    $('#cl-list').innerHTML=list.map(j=>{const items=CHECK[j.type];const pct=Math.round(j.done.filter(Boolean).length/items.length*100);
+      const chip=j.st==='done'?'<span class="chip ok">Finalizada</span>':j.st==='prog'?'<span class="chip info">En curso</span>':'<span class="chip warn">Pendiente</span>';
+      return `<div class="job"><div class="t"><b>${j.time}</b>${chip}</div><div class="meta"><b>${esc(j.place)}</b></div><div class="meta note">📍 ${esc(j.addr)}</div><div class="meta note">🔑 ${esc(j.access)} · ⏱ ${esc(j.win)}</div>
+        <div class="prog"><i style="width:${pct}%"></i></div>
+        ${j.st!=='done'?`<div class="check">${items.map((it,i)=>`<label><input type="checkbox" data-j="${j.id}" data-i="${i}" ${j.done[i]?'checked':''}> ${it}</label>`).join('')}</div>
+        <div class="acts"><label class="btn small" style="display:inline-flex;align-items:center;gap:6px">📷 Fotos<input type="file" accept="image/*" multiple hidden data-ph="${j.id}"></label><button class="btn small" type="button" data-dm="${j.id}">Reportar daño</button><button class="btn small primary" type="button" data-fin="${j.id}" ${pct<100?'disabled':''}>Finalizar</button></div>
+        ${openDmg===j.id?`<div class="dmgform"><select aria-label="Tipo"><option>Objeto roto</option><option>Mancha</option><option>Faltante</option><option>Otro</option></select><input type="text" placeholder="Detalle" aria-label="Detalle del daño"><button class="btn small" type="button" data-dmsend="${j.id}">Enviar al anfitrión</button></div>`:''}`:`<div class="note">✓ Reporte enviado con 8 fotos · calificación del cliente ★★★★★</div>`}</div>`;}).join('');
+    $('#cl-list').querySelectorAll('input[type=checkbox]').forEach(c=>c.onchange=()=>{const j=JOBS.find(x=>x.id==c.dataset.j);j.done[+c.dataset.i]=c.checked;if(j.st==='pend')j.st='prog';renderCleaner();renderOps();});
+    $('#cl-list').querySelectorAll('[data-ph]').forEach(f=>f.onchange=()=>toast(`${f.files.length} foto${f.files.length!==1?'s':''} agregada${f.files.length!==1?'s':''} al reporte`));
+    $('#cl-list').querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>{openDmg=openDmg===+b.dataset.dm?null:+b.dataset.dm;renderCleaner();});
+    $('#cl-list').querySelectorAll('[data-dmsend]').forEach(b=>b.onclick=()=>{openDmg=null;toast('Daño reportado · el anfitrión lo recibe al instante con la foto');renderCleaner();});
+    $('#cl-list').querySelectorAll('[data-fin]').forEach(b=>b.onclick=()=>{const j=JOBS.find(x=>x.id==b.dataset.fin);j.st='done';toast(`Limpieza finalizada · ${j.place}: el anfitrión recibió el reporte con fotos`);renderCleaner();renderOps();});
+  }
+
+  // OPS
+  const ZCOLS=[['Escazú · Santa Ana',['Ana R.','Sofía M.']],['Heredia · Alajuela',['María C.']],['Cartago · Curridabat',['Daniela F.']],['Guanacaste',['Karla V.']],['Pacífico Central',['Yessenia P.']]];
+  let ops=[
+    {time:'08:00',client:'Oficinas Nube Tech',svc:'Oficina',who:'María C.',status:'done',zone:'Heredia · Alajuela'},
+    {time:'09:00',client:'Condominio Altos de Curridabat',svc:'Profunda',who:'Daniela F.',status:'prog',zone:'Cartago · Curridabat'},
+    {time:'10:00',client:'Loft Escazú Centro (Airbnb)',svc:'Airbnb',who:'Ana R.',status:'conf',zone:'Escazú · Santa Ana'},
+    {time:'11:00',client:'Casa Vista Pacífico (Airbnb)',svc:'Airbnb',who:'Karla V.',status:'prog',zone:'Guanacaste'},
+    {time:'11:00',client:'Villa Selva (Airbnb)',svc:'Airbnb',who:'Yessenia P.',status:'prog',zone:'Pacífico Central'},
+    {time:'13:00',client:'Familia Mora',svc:'Casa / apto',who:'Sofía M.',status:'conf',zone:'Escazú · Santa Ana'},
+    {time:'14:00',client:'Familia Solano',svc:'Casa / apto',who:'Ana R.',status:'conf',zone:'Escazú · Santa Ana'},
+    {time:'15:30',client:'Condo Flamingo 2B (Airbnb)',svc:'Airbnb',who:'Karla V.',status:'conf',zone:'Guanacaste'}
+  ];
+  const SL={done:['Finalizada','ok'],prog:['En curso','info'],conf:['Confirmada','warn']};
+  function syncOps(){JOBS.forEach(j=>{const o=ops.find(o=>o.who===j.who&&o.time===j.time);if(o)o.status=j.st==='pend'?'conf':j.st;});}
+  function renderOps(){
+    syncOps();
+    const done=ops.filter(o=>o.status==='done').length;
+    $('#kpis').innerHTML=`<div class="kpi"><b>${ops.length}</b><span>Servicios hoy</span></div><div class="kpi"><b>${done}/${ops.length}</b><span>Finalizados</span></div><div class="kpi"><b>97%</b><span>Limpiezas a tiempo este mes</span></div><div class="kpi"><b>4,9 ★</b><span>Calificación promedio</span></div>`;
+    $('#zboard').innerHTML=ZCOLS.map(([z,ws])=>{const list=ops.filter(o=>o.zone===z);return `<div class="zcol"><h4>${z}<span>${list.length}</span></h4>${ws.map(w=>{const mine=list.filter(o=>o.who===w);return `<div class="zcard"><div class="who"><div class="av">${w.split(' ').map(x=>x[0]).join('')}</div><b>${w}</b></div>${mine.map(o=>`<div class="note">${o.time} · ${esc(o.client)} ${o.isNew?'<span class="chip warn">Nueva</span>':''}</div>`).join('')||'<div class="note">Disponible</div>'}</div>`;}).join('')}</div>`;}).join('');
+    $('#optable').innerHTML=ops.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(o=>`<tr><td class="mono">${o.time}</td><td>${esc(o.client)}</td><td>${esc(o.svc)}</td><td>${esc(o.who)}</td><td><span class="chip ${SL[o.status][1]}">${SL[o.status][0]}</span></td></tr>`).join('');
+    $('#revs').innerHTML=[['John M. · Casa Vista Pacífico','Spotless as always, guests loved it. Thanks Karla!',5],['Laura J. · Escazú','Muy puntuales y ordenadas. La casa quedó impecable.',5],['Nube Tech · Heredia','Excelente servicio, siempre antes de que llegue el equipo.',5],['Sarah K. · Villa Selva','Great job and the damage report with photos saved me a headache.',4]].map(r=>`<div class="rev"><div class="stars">${'★'.repeat(r[2])}${'☆'.repeat(5-r[2])}</div><b>${r[0]}</b><div class="note">${r[1]}</div></div>`).join('');
+  }
+
+  // lang + tabs
+  function applyLang(){document.querySelectorAll('[data-i]').forEach(el=>{const v=L()[el.dataset.i];if(typeof v==='string')el.innerHTML=v;});document.documentElement.lang=lang;}
+  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;document.querySelectorAll('[data-lang]').forEach(x=>x.setAttribute('aria-pressed',x===b));applyLang();renderBook();renderHost();});
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);document.getElementById(x.dataset.pane).hidden=!on;});});
+
+  applyLang(); renderBook(); renderHost(); renderCleaner(); renderOps();
+})();
+</script>
+</body>
+</html>
