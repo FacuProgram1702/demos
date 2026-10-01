@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hotel para Mascotas · Sistema de Reservas</title>
+<meta name="description" content="Demo interactiva: reservas con ficha de ingreso digital, ocupación por parque, traslados puerta a puerta y parte diario para los dueños.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: deep finca-green hero with rolling hills, floating tab bar, four working screens (booking + intake form, park occupancy, door-to-door route, daily report to owners) */
+:root{
+  --green:#1f4d3a; --green-2:#2d6a4f; --leaf:#52b788; --leaf-soft:#e3f4ea;
+  --sun:#f4b740; --sun-soft:#fff3d6; --sky:#4a90d9; --sky-soft:#e4effb; --coral:#e2674f; --coral-soft:#fde6e1;
+  --bg:#f5f6f1; --surface:#ffffff; --ink:#1c2b24; --muted:#617068; --line:#e1e6dd;
+  --display:"Fredoka","Segoe UI",Arial,sans-serif; --body:"Nunito Sans","Segoe UI",Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:20px; --shadow:0 1px 2px rgba(31,77,58,.05),0 12px 30px rgba(31,77,58,.09);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+
+.hero{background:linear-gradient(170deg,var(--green) 0%,var(--green-2) 100%);color:#fff;position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.hero svg.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:110px;pointer-events:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:16px;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:14px;background:var(--sun);display:grid;place-items:center}
+.logo svg{width:26px;height:26px}
+.brand b{font-family:var(--display);font-size:20px;display:block;line-height:1.05;font-weight:600}
+.brand small{color:#b8dcc7;font-size:12px}
+.pill{font-size:12px;font-weight:800;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px;color:#e0f2e7;white-space:nowrap}
+.hero-body{position:relative;z-index:1;padding-block:6px 104px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5vw,50px);line-height:1.04;margin:0 0 12px;max-width:16ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--sun)}
+.hero p{color:#d3ebdd;max-width:60ch;margin:0;font-size:16px}
+.facts{display:flex;gap:20px;flex-wrap:wrap}
+.facts div b{font-family:var(--display);font-size:28px;display:block;line-height:1}
+.facts div span{font-size:12.5px;color:#b8dcc7}
+.tabbar{margin-top:-64px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;display:flex;flex-wrap:wrap;gap:4px;position:relative;z-index:2}
+.tab{flex:1 1 170px;font-family:var(--display);font-weight:600;font-size:16.5px;border:0;border-radius:14px;background:transparent;color:var(--muted);padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab svg{width:20px;height:20px;flex:none}
+.tab:hover{background:var(--bg);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--green);color:#fff}
+main{padding-block:26px 44px}
+
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:22px}
+.h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 4px}
+.h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 10px}
+.btn{font-family:var(--body);font-weight:800;font-size:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;cursor:pointer}
+.btn:hover{border-color:var(--leaf)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2)}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:#3a2700}
+.btn.small{font-size:13px;padding:6px 12px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:block;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+input[type=text],input[type=date],input[type=time],select,textarea{font-family:var(--body);font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+textarea{min-height:60px;resize:vertical}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.chip.ok{background:var(--leaf-soft);color:var(--green-2)} .chip.warn{background:var(--sun-soft);color:#8f5f00} .chip.bad{background:var(--coral-soft);color:#b5412c} .chip.info{background:var(--sky-soft);color:#2e6db0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.field{margin-bottom:12px}
+
+/* booking */
+.book{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;align-items:start}
+.sizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.size{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:10px 6px;text-align:center;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.size svg{display:block;margin:0 auto 4px;color:var(--green-2)}
+.size b{font-size:13.5px;display:block}
+.size small{font-size:11.5px;color:var(--muted)}
+.size[aria-pressed="true"]{border-color:var(--green);background:var(--leaf-soft)}
+.parknote{font-size:13px;color:var(--green-2);font-weight:700;margin:4px 0 14px}
+.avail{display:flex;gap:4px;margin:6px 0 14px;flex-wrap:wrap}
+.avail div{flex:1;min-width:38px;text-align:center;border-radius:10px;padding:5px 2px;font-size:11px;font-weight:800}
+.avail div span{display:block;font-family:var(--mono);font-size:13px}
+.av-ok{background:var(--leaf-soft);color:var(--green-2)} .av-mid{background:var(--sun-soft);color:#8f5f00} .av-full{background:var(--coral-soft);color:#b5412c}
+.opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-family:var(--body);font-weight:800;font-size:13px;cursor:pointer;color:var(--ink)}
+.opt[aria-pressed="true"]{border-color:var(--green);background:var(--leaf-soft)}
+.intake{background:var(--bg);border-radius:16px;padding:16px;margin-top:6px}
+.intake h4{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.upload{display:flex;gap:10px;align-items:center;border:1.5px dashed #b9c6b6;border-radius:12px;padding:10px 12px;background:var(--surface);font-size:14px}
+.upload svg{flex:none;color:var(--green-2)}
+.quote{position:sticky;top:16px}
+.price{font-family:var(--display);font-weight:700;font-size:42px;line-height:1;color:var(--green);margin:10px 0 4px}
+.qline{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.qline span:last-child{font-family:var(--mono)}
+.confirm{margin-top:14px;background:var(--leaf-soft);border-radius:14px;padding:12px 14px;font-size:14px}
+
+/* occupancy */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
+.kpi b{display:block;font-family:var(--display);font-size:32px;font-weight:700;line-height:1.05;color:var(--green)}
+.kpi span{font-size:13px;color:var(--muted);font-weight:700}
+.occ-wrap{overflow-x:auto}
+.occ{border-collapse:separate;border-spacing:4px;min-width:860px;width:100%;font-size:13px}
+.occ th{font-weight:800;color:var(--muted);font-size:11.5px;text-align:center;padding:2px}
+.occ th.park{text-align:left;font-family:var(--display);font-size:14px;color:var(--ink);font-weight:600;white-space:nowrap;padding-right:8px}
+.occ td{text-align:center;border-radius:9px;padding:8px 2px;font-family:var(--mono);font-weight:600;font-size:12.5px}
+.occ td.new{outline:2.5px solid var(--sun)}
+.guests{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:18px}
+.guest{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:start}
+.pet{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:700;font-size:18px}
+.guest b{font-size:15px}
+.guest .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+
+/* route */
+.route{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:22px;align-items:start}
+.map{background:#eaf1e4;border-radius:16px;padding:10px}
+.map svg{width:100%;height:auto;display:block}
+.stop{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.stop:last-child{border-bottom:0}
+.num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:14px}
+.num.pick{background:var(--sky)} .num.drop{background:var(--coral)} .num.done{background:var(--leaf)}
+.stop .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* daily report */
+.daily{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:28px;align-items:start}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.checks label{display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:8px 10px;cursor:pointer;font-size:14px}
+.checks input{accent-color:var(--green);width:18px;height:18px}
+.mood{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.phone{background:#13221b;border-radius:40px;padding:10px;box-shadow:0 24px 50px rgba(31,77,58,.28)}
+.screen{background:#efeae2;border-radius:31px;overflow:hidden;min-height:620px;display:flex;flex-direction:column}
+.wa-head{background:#1f5c47;color:#fff;padding:14px 16px;display:flex;gap:10px;align-items:center}
+.wa-head .logo{width:38px;height:38px;border-radius:50%}
+.wa-head b{display:block;font-size:15px}
+.wa-head small{font-size:12px;opacity:.8}
+.feed{padding:12px;display:grid;gap:10px;align-content:start;flex:1;overflow-y:auto;max-height:640px}
+.msg{background:#fff;border-radius:14px 14px 14px 4px;padding:8px;box-shadow:0 1px 1px rgba(0,0,0,.06);font-size:14px;max-width:94%}
+.msg .ph{border-radius:10px;overflow:hidden;margin-bottom:6px}
+.msg .ph img,.msg .ph svg{display:block;width:100%;height:auto}
+.msg ul{margin:4px 0;padding-left:18px}
+.msg .time{text-align:right;font-size:11px;color:#8a8f8c}
+.msg.new{outline:2px solid var(--sun)}
+
+footer{border-top:1px solid var(--line);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .container{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between}
+footer b{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--green);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:800;max-width:calc(100% - 32px);box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:20}
+@media (prefers-reduced-motion:no-preference){.tab,.btn,.size,.opt{transition:background .15s,border-color .15s,color .15s}}
+@media (max-width:980px){.book,.route,.daily{grid-template-columns:minmax(0,1fr)}.quote{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-body{grid-template-columns:minmax(0,1fr)}.daily .phone{max-width:420px;width:100%;margin:0 auto}}
+@media (max-width:600px){.sizes{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.checks{grid-template-columns:minmax(0,1fr)}.tab{flex-basis:45%;font-size:14.5px;padding:10px 6px}.card{padding:18px}.phone{border-radius:30px;padding:7px}.screen{border-radius:24px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container topbar">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="#1f4d3a"><ellipse cx="6" cy="9" rx="2.2" ry="2.8"/><ellipse cx="10.2" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="14.8" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="19" cy="9" rx="2.2" ry="2.8"/><path d="M12.5 11c-3.3 0-6.3 3.6-6.3 6.3 0 2 1.6 3.2 3.6 3.2 1.2 0 1.8-.6 2.7-.6s1.5.6 2.7.6c2 0 3.6-1.2 3.6-3.2 0-2.7-3-6.3-6.3-6.3z"/></svg></div><div><b>Hotel para Mascotas</b><small>Finca Familia Acosta · Maipú, Mendoza</small></div></div>
+    <span class="pill">Demo · datos de ejemplo</span>
+  </div>
+  <div class="container hero-body">
+    <div>
+      <h1>Reservas, traslados y partes diarios <em>sin explotar el WhatsApp</em></h1>
+      <p>El dueño reserva, completa la ficha de ingreso desde el celular y ve la disponibilidad del parque de su perro. El hotel ve la ocupación de cada parque, la ruta de retiros y entregas, y le manda a cada dueño un parte diario con foto.</p>
+    </div>
+    <div class="facts"><div><b>5.000 m²</b><span>de finca</span></div><div><b>3 parques</b><span>según tamaño</span></div><div><b>Puerta a puerta</b><span>retiro y entrega</span></div></div>
+  </div>
+  <svg class="hills" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path d="M0 110V70C160 30 320 30 480 58S800 96 960 66 1280 24 1440 52V110Z" fill="rgba(255,255,255,.06)"/><path d="M0 110V88C200 62 380 70 560 86S920 104 1100 84 1340 66 1440 76V110Z" fill="rgba(82,183,136,.22)"/></svg>
+</header>
+
+<div class="container">
+  <div class="tabbar" role="tablist">
+    <button class="tab" role="tab" id="t-book" aria-selected="true" data-pane="p-book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Reservar</button>
+    <button class="tab" role="tab" id="t-occ" aria-selected="false" data-pane="p-occ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Ocupación</button>
+    <button class="tab" role="tab" id="t-route" aria-selected="false" data-pane="p-route"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 7h13v10H1zM14 11h5l3 3v3h-8"/><circle cx="5" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>Traslados</button>
+    <button class="tab" role="tab" id="t-daily" aria-selected="false" data-pane="p-daily"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>Parte diario</button>
+  </div>
+</div>
+
+<main class="container">
+<!-- BOOK -->
+<section id="p-book" role="tabpanel" aria-labelledby="t-book">
+  <div class="book">
+    <div class="card">
+      <h2 class="h2">Reservá la estadía</h2>
+      <p class="note" style="margin-top:0">Disponibilidad real del parque y precio al instante.</p>
+      <div class="grid3">
+        <div class="field"><label class="f" for="pname">Nombre de la mascota</label><input type="text" id="pname" value="Pancho"></div>
+        <div class="field"><label class="f" for="din">Ingreso</label><input type="date" id="din" value="2026-10-09" min="2026-10-02" max="2026-10-15"></div>
+        <div class="field"><label class="f" for="dout">Salida</label><input type="date" id="dout" value="2026-10-13" min="2026-10-03" max="2026-10-16"></div>
+      </div>
+      <label class="f">Tamaño</label>
+      <div class="sizes" id="sizes"></div>
+      <div class="parknote" id="parknote"></div>
+      <label class="f">Disponibilidad del parque por noche</label>
+      <div class="avail" id="avail"></div>
+      <label class="f">Traslado puerta a puerta</label>
+      <div class="opts" id="trans"></div>
+      <div class="grid2" id="zone-row"><div class="field"><label class="f" for="zone">Zona</label><select id="zone"></select></div><div class="field"><label class="f" for="oname">Dueño/a</label><input type="text" id="oname" value="Valeria Gómez"></div></div>
+      <label class="f">Extras</label>
+      <div class="opts" id="extras"></div>
+
+      <div class="intake">
+        <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Ficha de ingreso digital <span class="note" style="font-family:var(--body)">(reemplaza el PDF)</span></h4>
+        <div class="grid2">
+          <div class="field"><label class="f" for="breed">Raza</label><input type="text" id="breed" value="Mestizo"></div>
+          <div class="field"><label class="f" for="food">Alimentación</label><select id="food"><option>Trae su alimento</option><option>Alimento del hotel</option><option>Dieta especial</option></select></div>
+          <div class="field"><label class="f" for="meds">Medicación</label><input type="text" id="meds" value="Ninguna"></div>
+          <div class="field"><label class="f" for="soc">¿Se lleva bien con otros perros?</label><select id="soc"><option>Sí, muy sociable</option><option>Con algunos</option><option>Prefiere estar solo</option></select></div>
+          <div class="field"><label class="f" for="vet">Veterinario de cabecera</label><input type="text" id="vet" value="Vet. San Martín · 261 555-0182"></div>
+          <div class="field"><label class="f" for="anti">Último antiparasitario</label><input type="date" id="anti" value="2026-09-15"></div>
+        </div>
+        <label class="upload"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><span id="vacc-l">Subí una foto de la libreta de vacunas</span><input type="file" id="vacc" accept="image/*" hidden></label>
+      </div>
+    </div>
+
+    <div class="card quote">
+      <div class="note">Tu estadía</div>
+      <div class="price" id="price"></div>
+      <div class="note" id="nights"></div>
+      <div id="qlines" style="margin-top:10px"></div>
+      <button class="btn primary" id="book-btn" type="button" style="width:100%;padding:14px;margin-top:14px"></button>
+      <div class="note" style="text-align:center;margin-top:8px">Se confirma con una seña del 30% · Tarifas de ejemplo</div>
+      <div class="confirm" id="confirm" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- OCC -->
+<section id="p-occ" role="tabpanel" aria-labelledby="t-occ" hidden>
+  <div class="kpis" id="kpis"></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h3 class="h3" style="margin:0">Ocupación por parque · próximas 2 semanas</h3><span class="note">Lugares ocupados / capacidad</span></div>
+    <div class="occ-wrap"><table class="occ" id="occ"></table></div>
+  </div>
+  <h3 class="h3" style="margin-top:22px">Huéspedes de hoy</h3>
+  <div class="guests" id="guests"></div>
+</section>
+
+<!-- ROUTE -->
+<section id="p-route" role="tabpanel" aria-labelledby="t-route" hidden>
+  <div class="route">
+    <div class="card">
+      <h3 class="h3">Recorrido del viernes 2/10 · Camioneta del hotel</h3>
+      <div class="map" id="map"></div>
+      <p class="note" style="margin:10px 0 0">El recorrido se ordena solo para no ir y volver por la misma zona. Retiros en azul, entregas en rojo.</p>
+    </div>
+    <div class="card">
+      <h3 class="h3">Paradas</h3>
+      <div id="stops"></div>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY -->
+<section id="p-daily" role="tabpanel" aria-labelledby="t-daily" hidden>
+  <div class="daily">
+    <div class="card">
+      <h2 class="h2">Parte diario</h2>
+      <p class="note" style="margin-top:0">El cuidador lo completa en 20 segundos y al dueño le llega por WhatsApp con la foto.</p>
+      <div class="field"><label class="f" for="dpet">Huésped</label><select id="dpet"></select></div>
+      <label class="f">Cómo estuvo hoy</label>
+      <div class="checks">
+        <label><input type="checkbox" id="c-eat" checked> Comió bien</label>
+        <label><input type="checkbox" id="c-play" checked> Jugó en el parque</label>
+        <label><input type="checkbox" id="c-walk" checked> Paseo por la finca</label>
+        <label><input type="checkbox" id="c-med"> Medicación dada</label>
+      </div>
+      <label class="f">Ánimo</label>
+      <div class="mood" id="mood"></div>
+      <div class="field"><label class="f" for="dnote">Nota para el dueño</label><textarea id="dnote">Hoy hizo un amigo nuevo en el parque y durmió la siesta al sol. ¡Está feliz!</textarea></div>
+      <div class="field"><label class="upload" style="cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><span id="dphoto-l">Agregar foto (opcional)</span><input type="file" id="dphoto" accept="image/*" hidden></label></div>
+      <button class="btn sun" id="send" type="button" style="width:100%;padding:13px">Enviar parte al dueño</button>
+    </div>
+    <div class="phone"><div class="screen">
+      <div class="wa-head"><div class="logo"><svg viewBox="0 0 24 24" fill="#1f4d3a" width="22" height="22"><ellipse cx="6" cy="9" rx="2.2" ry="2.8"/><ellipse cx="10.2" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="14.8" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="19" cy="9" rx="2.2" ry="2.8"/><path d="M12.5 11c-3.3 0-6.3 3.6-6.3 6.3 0 2 1.6 3.2 3.6 3.2 1.2 0 1.8-.6 2.7-.6s1.5.6 2.7.6c2 0 3.6-1.2 3.6-3.2 0-2.7-3-6.3-6.3-6.3z"/></svg></div><div><b>Hotel para Mascotas</b><small id="wa-sub">Partes diarios</small></div></div>
+      <div class="feed" id="feed"></div>
+    </div></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital</span><span>Huéspedes, dueños y tarifas de ejemplo</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const money=n=>'$ '+Math.round(n).toLocaleString('es-AR');
+  let tt; const toast=m=>{const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,3600);};
+  const DAY=864e5, START=new Date(2026,9,2), D=i=>new Date(START.getTime()+i*DAY);
+  const idx=s=>Math.round((new Date(s+'T00:00:00')-START)/DAY);
+  const DN=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  const PARKS=[{id:'chicos',n:'Cachorros y chicos',cap:12},{id:'medianos',n:'Medianos',cap:10},{id:'grandes',n:'Grandes',cap:8}];
+  const SIZES=[{id:'cach',n:'Cachorro',d:'hasta 6 meses',park:'chicos',night:9500,bath:12000,sz:18},{id:'chico',n:'Chico',d:'hasta 10 kg',park:'chicos',night:9000,bath:12000,sz:20},{id:'med',n:'Mediano',d:'10 a 25 kg',park:'medianos',night:11000,bath:18000,sz:25},{id:'gran',n:'Grande',d:'más de 25 kg',park:'grandes',night:13000,bath:24000,sz:31}];
+  const ZONES=[['Maipú',6000],['Luján de Cuyo',8000],['Godoy Cruz',8000],['Ciudad de Mendoza',9000],['Guaymallén',9000],['Las Heras',10000]];
+  const COLORS=['#e2674f','#4a90d9','#f4b740','#52b788','#9b6dd6','#d98e47','#3aa6a0','#c95b8a'];
+
+  // bookings (park, in, out idx)
+  const seed=[['chicos',-2,4,'Luna','Caniche','Chico','Martina R.','Godoy Cruz'],['chicos',-1,3,'Rocco','Bulldog francés','Chico','Diego F.','Ciudad de Mendoza'],['chicos',0,6,'Kira','Schnauzer mini','Chico','Paula S.','Maipú'],['chicos',-3,2,'Simón','Labrador (cachorro)','Cachorro','Familia Ortiz','Luján de Cuyo'],
+    ['medianos',-2,5,'Mora','Border collie','Mediano','Lucía P.','Guaymallén'],['medianos',0,3,'Nala','Beagle','Mediano','Andrés T.','Godoy Cruz'],['medianos',-1,8,'Coco','Mestizo','Mediano','Sofía L.','Las Heras'],
+    ['grandes',-4,1,'Toby','Golden retriever','Grande','Carolina M.','Ciudad de Mendoza'],['grandes',0,4,'Thor','Ovejero alemán','Grande','Martín V.','Luján de Cuyo'],['grandes',-1,10,'Bruno','Rottweiler','Grande','Esteban G.','Maipú']];
+  let bookings=seed.map((s,i)=>({park:s[0],in:s[1],out:s[2],pet:s[3],breed:s[4],size:s[5],owner:s[6],zone:s[7],color:COLORS[i%COLORS.length],meds:i===4?'Antiinflamatorio 20:00':i===8?'Gotas para oídos 9:00':'',food:i%3===0?'Dieta especial':'Trae su alimento'}));
+  // background occupancy (other guests not listed) to make the grid realistic
+  const extra=(park,d)=>{const base={chicos:5,medianos:4,grandes:3}[park];const wk=[0,1,2,1,0,3,4][D(d).getDay()];return Math.max(0,base+wk-2+((d*7+park.length)%3));};
+  const occupied=(park,d)=>extra(park,d)+bookings.filter(b=>b.park===park&&d>=b.in&&d<b.out).length;
+  let lastNew=null;
+
+  // BOOK
+  let st={size:'med',trans:'ambos',zone:0,ex:{bath:true,meds:false}};
+  function renderBook(){
+    $('#sizes').innerHTML=SIZES.map(s=>`<button type="button" class="size" data-s="${s.id}" aria-pressed="${s.id===st.size}"><svg width="${s.sz}" height="${s.sz}" viewBox="0 0 24 24" fill="currentColor"><ellipse cx="6" cy="9" rx="2.2" ry="2.8"/><ellipse cx="10.2" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="14.8" cy="5.6" rx="2.2" ry="2.8"/><ellipse cx="19" cy="9" rx="2.2" ry="2.8"/><path d="M12.5 11c-3.3 0-6.3 3.6-6.3 6.3 0 2 1.6 3.2 3.6 3.2 1.2 0 1.8-.6 2.7-.6s1.5.6 2.7.6c2 0 3.6-1.2 3.6-3.2 0-2.7-3-6.3-6.3-6.3z"/></svg><b>${s.n}</b><small>${s.d}</small></button>`).join('');
+    $('#sizes').querySelectorAll('.size').forEach(b=>b.onclick=()=>{st.size=b.dataset.s;renderBook();});
+    const sz=SIZES.find(s=>s.id===st.size), park=PARKS.find(p=>p.id===sz.park);
+    $('#parknote').textContent=`Va al parque "${park.n}" · capacidad ${park.cap} perros`;
+    $('#trans').innerHTML=[['no','Lo llevo yo'],['ida','Solo retiro'],['vuelta','Solo entrega'],['ambos','Retiro y entrega']].map(([k,l])=>`<button type="button" class="opt" data-t="${k}" aria-pressed="${k===st.trans}">${l}</button>`).join('');
+    $('#trans').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{st.trans=b.dataset.t;renderBook();});
+    $('#extras').innerHTML=`<button type="button" class="opt" data-e="bath" aria-pressed="${st.ex.bath}">Baño y cepillado antes de volver</button><button type="button" class="opt" data-e="meds" aria-pressed="${st.ex.meds}">Toma medicación</button>`;
+    $('#extras').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{st.ex[b.dataset.e]=!st.ex[b.dataset.e];renderBook();});
+    $('#zone-row').querySelector('.field').hidden=st.trans==='no';
+    renderQuote();
+  }
+  $('#zone').innerHTML=ZONES.map((z,i)=>`<option value="${i}">${z[0]}</option>`).join('');
+  $('#zone').onchange=e=>{st.zone=+e.target.value;renderQuote();};
+  ['din','dout'].forEach(id=>$('#'+id).addEventListener('input',renderQuote));
+  $('#vacc').onchange=e=>{if(e.target.files.length){$('#vacc-l').textContent='✓ Libreta cargada: '+e.target.files[0].name;}};
+  function range(){let a=idx($('#din').value),b=idx($('#dout').value);if(isNaN(a))a=7;if(isNaN(b)||b<=a)b=a+1;return [Math.max(0,a),Math.min(14,b)];}
+  function renderQuote(){
+    const sz=SIZES.find(s=>s.id===st.size),park=PARKS.find(p=>p.id===sz.park);const [a,b]=range();const n=b-a;
+    let html='',full=false;
+    for(let d=a;d<b;d++){const o=occupied(park.id,d),free=park.cap-o;if(free<=0)full=true;html+=`<div class="${free<=0?'av-full':free<=2?'av-mid':'av-ok'}">${DN[D(d).getDay()]} ${D(d).getDate()}<span>${Math.max(0,free)} lib.</span></div>`;}
+    $('#avail').innerHTML=html;
+    const stay=sz.night*n, tr=st.trans==='no'?0:ZONES[st.zone][1]*(st.trans==='ambos'?2:1), bath=st.ex.bath?sz.bath:0;
+    const total=stay+tr+bath;
+    $('#price').textContent=money(total);
+    $('#nights').textContent=`${n} noche${n>1?'s':''} · ${D(a).toLocaleDateString('es-AR',{day:'numeric',month:'short'})} al ${D(b).toLocaleDateString('es-AR',{day:'numeric',month:'short'})}`;
+    $('#qlines').innerHTML=`<div class="qline"><span>Estadía (${n} × ${money(sz.night)})</span><span>${money(stay)}</span></div>${tr?`<div class="qline"><span>Traslado ${st.trans==='ambos'?'ida y vuelta':'un tramo'} · ${ZONES[st.zone][0]}</span><span>${money(tr)}</span></div>`:''}${bath?`<div class="qline"><span>Baño y cepillado</span><span>${money(bath)}</span></div>`:''}<div class="qline"><span>Seña para confirmar (30%)</span><span>${money(total*.3)}</span></div>`;
+    $('#book-btn').disabled=full; $('#book-btn').textContent=full?'Sin lugar en alguna noche: probá otras fechas':'Confirmar reserva · seña '+money(total*.3);
+  }
+  $('#book-btn').onclick=()=>{
+    const sz=SIZES.find(s=>s.id===st.size);const [a,b]=range();
+    const bk={park:sz.park,in:a,out:b,pet:$('#pname').value||'Mascota',breed:$('#breed').value||'Mestizo',size:sz.n,owner:$('#oname').value||'Dueño/a',zone:ZONES[st.zone][0],color:COLORS[bookings.length%COLORS.length],meds:st.ex.meds?($('#meds').value||'Según ficha'):'',food:$('#food').value,isNew:true};
+    bookings.push(bk); lastNew=bk;
+    $('#confirm').hidden=false;
+    $('#confirm').innerHTML=`✅ <b>¡Reserva confirmada para ${esc(bk.pet)}!</b><br>Ingresa el ${D(a).toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}. ${st.trans!=='no'?`Lo pasamos a buscar por ${esc(bk.zone)} entre las 9 y las 11 h; el día anterior te confirmamos el horario por WhatsApp.`:'Te esperamos en la finca de 9 a 18 h.'} La ficha de ingreso ya quedó cargada.`;
+    renderOcc(); dpetFill(); toast('Seña recibida · reserva cargada en la grilla del parque '+PARKS.find(p=>p.id===sz.park).n);
+  };
+
+  // OCC
+  function renderOcc(){
+    const today=bookings.filter(b=>0>=b.in&&0<b.out);
+    const tot=PARKS.reduce((s,p)=>s+occupied(p.id,0),0), cap=PARKS.reduce((s,p)=>s+p.cap,0);
+    const ins=bookings.filter(b=>b.in===0).length, outs=bookings.filter(b=>b.out===0).length;
+    $('#kpis').innerHTML=`<div class="kpi"><b>${tot}/${cap}</b><span>Huéspedes hoy</span></div><div class="kpi"><b>${Math.round(tot/cap*100)}%</b><span>Ocupación de hoy</span></div><div class="kpi"><b>${ins} · ${outs}</b><span>Ingresos · salidas hoy</span></div><div class="kpi"><b>${bookings.filter(b=>b.in>0).length+11}</b><span>Reservas próximas</span></div>`;
+    let h='<tr><th></th>'+Array.from({length:14},(_,d)=>`<th>${DN[D(d).getDay()]}<br>${D(d).getDate()}</th>`).join('')+'</tr>';
+    PARKS.forEach(p=>{h+=`<tr><th class="park">${p.n}</th>`+Array.from({length:14},(_,d)=>{const o=Math.min(p.cap,occupied(p.id,d)),r=o/p.cap;const bg=r>=1?'var(--coral-soft)':r>=.8?'var(--sun-soft)':'var(--leaf-soft)';const col=r>=1?'#b5412c':r>=.8?'#8f5f00':'var(--green-2)';const isNew=lastNew&&lastNew.park===p.id&&d>=lastNew.in&&d<lastNew.out;return `<td class="${isNew?'new':''}" style="background:${bg};color:${col}">${o}/${p.cap}</td>`;}).join('')+'</tr>';});
+    $('#occ').innerHTML=h;
+    $('#guests').innerHTML=today.map(b=>`<div class="guest"><div class="pet" style="background:${b.color}">${esc(b.pet[0])}</div><div><b>${esc(b.pet)}</b> <span class="note">· ${esc(b.breed)}</span><div class="note">${esc(PARKS.find(p=>p.id===b.park).n)} · sale el ${D(b.out).getDate()}/10 · ${esc(b.owner)}</div><div class="tags">${b.meds?`<span class="chip warn">💊 ${esc(b.meds)}</span>`:''}${b.food==='Dieta especial'?'<span class="chip info">Dieta especial</span>':''}${b.out===0?'<span class="chip bad">Sale hoy</span>':''}${b.in===0?'<span class="chip ok">Ingresa hoy</span>':''}</div></div></div>`).join('');
+  }
+
+  // ROUTE
+  const STOPS=[
+    {t:'pick',pet:'Kira',owner:'Paula S.',zone:'Maipú',addr:'Barrio Cruz de Piedra',time:'09:10',x:285,y:240},
+    {t:'drop',pet:'Toby',owner:'Carolina M.',zone:'Ciudad de Mendoza',addr:'Quinta Sección, cerca del Parque',time:'09:50',x:120,y:85},
+    {t:'pick',pet:'Nala',owner:'Andrés T.',zone:'Godoy Cruz',addr:'Barrio Bombal Sur',time:'10:15',x:145,y:165},
+    {t:'pick',pet:'Thor',owner:'Martín V.',zone:'Luján de Cuyo',addr:'Chacras de Coria, calle Italia',time:'10:45',x:165,y:245},
+    {t:'drop',pet:'Simón',owner:'Familia Ortiz',zone:'Luján de Cuyo',addr:'Vistalba',time:'11:10',x:110,y:300}
+  ];
+  const FINCA={x:395,y:205};
+  function renderRoute(){
+    const pts=[FINCA,...STOPS,FINCA];
+    $('#map').innerHTML=`<svg viewBox="0 0 460 340" role="img" aria-label="Mapa esquemático del recorrido">
+      <rect x="0" y="0" width="460" height="340" rx="12" fill="#eaf1e4"/>
+      <path d="M40 60 C140 90 200 60 300 90 S420 120 450 100" stroke="#d6e2cd" stroke-width="14" fill="none"/>
+      <path d="M60 330 C120 250 160 200 230 160 S360 120 440 40" stroke="#d6e2cd" stroke-width="10" fill="none"/>
+      <text x="40" y="40" font-size="11" fill="#7e8d78" font-family="Nunito Sans">Ciudad</text><text x="30" y="325" font-size="11" fill="#7e8d78" font-family="Nunito Sans">Luján</text><text x="300" y="325" font-size="11" fill="#7e8d78" font-family="Nunito Sans">Maipú</text>
+      <polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#1f4d3a" stroke-width="2.5" stroke-dasharray="6 5"/>
+      <g transform="translate(${FINCA.x-26},${FINCA.y-18})"><rect width="52" height="36" rx="10" fill="#f4b740"/><text x="26" y="23" text-anchor="middle" font-size="11" font-weight="800" fill="#1f4d3a" font-family="Nunito Sans">FINCA</text></g>
+      ${STOPS.map((s,i)=>`<g><circle cx="${s.x}" cy="${s.y}" r="13" fill="${s.done?'#52b788':s.t==='pick'?'#4a90d9':'#e2674f'}"/><text x="${s.x}" y="${s.y+4.5}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="Nunito Sans">${i+1}</text></g>`).join('')}
+    </svg>`;
+    $('#stops').innerHTML=STOPS.map((s,i)=>`<div class="stop"><div class="num ${s.done?'done':s.t}">${s.done?'✓':i+1}</div><div><b>${s.time} · ${s.t==='pick'?'Retiro':'Entrega'} de ${esc(s.pet)}</b><div class="note">${esc(s.owner)} · ${esc(s.zone)} · ${esc(s.addr)}</div></div><div class="acts">${s.done?'<span class="chip ok">Hecho</span>':`<button class="btn small" type="button" data-av="${i}">Avisar llegada</button><button class="btn small primary" type="button" data-ok="${i}">${s.t==='pick'?'Retirado':'Entregado'}</button>`}</div></div>`).join('');
+    $('#stops').querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{const s=STOPS[+b.dataset.av];toast(`WhatsApp a ${s.owner}: "Estamos llegando a buscar a ${s.pet}, en 10 minutos"`);});
+    $('#stops').querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>{const s=STOPS[+b.dataset.ok];s.done=true;toast(s.t==='pick'?`${s.pet} ya va camino a la finca · aviso enviado a ${s.owner}`:`${s.pet} entregado en casa · ${s.owner} recibió la confirmación`);renderRoute();});
+  }
+
+  // DAILY
+  let mood='Feliz';
+  function dpetFill(){const cur=bookings.filter(b=>0>=b.in&&0<b.out);$('#dpet').innerHTML=cur.map((b,i)=>`<option value="${bookings.indexOf(b)}">${esc(b.pet)} · ${esc(b.owner)}</option>`).join('');}
+  $('#mood').innerHTML=['Feliz','Tranquilo','Juguetón','Extraña un poco'].map(m=>`<button type="button" class="opt" data-m="${m}" aria-pressed="${m===mood}">${m}</button>`).join('');
+  $('#mood').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{mood=b.dataset.m;$('#mood').querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b));});
+  let photo=null;
+  $('#dphoto').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{photo=r.result;$('#dphoto-l').textContent='✓ Foto lista: '+f.name;};r.readAsDataURL(f);};
+  const dogSvg=(c)=>`<svg viewBox="0 0 320 180"><rect width="320" height="180" fill="#bfe3c9"/><circle cx="270" cy="38" r="20" fill="#ffd66b"/><path d="M0 130 Q80 105 160 125 T320 118 V180 H0Z" fill="#7cc58f"/><g transform="translate(110,62)"><ellipse cx="50" cy="62" rx="44" ry="26" fill="${c}"/><circle cx="92" cy="40" r="22" fill="${c}"/><ellipse cx="104" cy="22" rx="8" ry="14" fill="${c}" transform="rotate(25 104 22)"/><circle cx="99" cy="38" r="3" fill="#222"/><circle cx="112" cy="45" r="4" fill="#222"/><rect x="18" y="78" width="10" height="24" rx="5" fill="${c}"/><rect x="66" y="78" width="10" height="24" rx="5" fill="${c}"/><path d="M8 52 Q-8 38 2 26" stroke="${c}" stroke-width="8" fill="none" stroke-linecap="round"/></g></svg>`;
+  let feed=[{pet:'Toby',owner:'Carolina M.',color:'#e2674f',items:['Comió bien','Jugó en el parque','Paseo por la finca'],mood:'Feliz',note:'Mañana vuelve a casa. ¡Lo vamos a extrañar!',time:'Ayer 18:40'}];
+  function renderFeed(){
+    $('#feed').innerHTML=feed.map(f=>`<div class="msg ${f.isNew?'new':''}"><div class="ph">${f.photo?`<img src="${f.photo}" alt="Foto de ${esc(f.pet)}">`:dogSvg(f.color)}</div><b>Parte diario de ${esc(f.pet)} 🐾</b><ul>${f.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul><div>Ánimo: <b>${esc(f.mood)}</b></div><div style="margin-top:4px">${esc(f.note)}</div><div class="time">${f.time}</div></div>`).join('');
+    $('#feed').scrollTop=$('#feed').scrollHeight;
+  }
+  $('#send').onclick=()=>{
+    const b=bookings[+$('#dpet').value]; if(!b) return;
+    const items=[['c-eat','Comió bien'],['c-play','Jugó en el parque'],['c-walk','Paseo por la finca'],['c-med','Medicación dada en horario']].filter(([id])=>$('#'+id).checked).map(x=>x[1]);
+    feed.forEach(f=>f.isNew=false);
+    feed.push({pet:b.pet,owner:b.owner,color:b.color,items,mood,note:$('#dnote').value,photo,time:'Hoy '+new Date().toTimeString().slice(0,5),isNew:true});
+    $('#wa-sub').textContent='Chat con '+b.owner;
+    photo=null; $('#dphoto-l').textContent='Agregar foto (opcional)'; $('#dphoto').value='';
+    renderFeed(); toast(`Parte de ${b.pet} enviado a ${b.owner} por WhatsApp`);
+  };
+
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);document.getElementById(x.dataset.pane).hidden=!on;});});
+  renderBook(); renderOcc(); renderRoute(); dpetFill(); renderFeed();
+})();
+</script>
+</body>
+</html>
