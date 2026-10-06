@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr. Fly · Sistema de Cumples</title>
+<meta name="description" content="Demo para Mr. Fly: agenda de cumples de todas las sedes, invitación digital donde los papás anotan a los chicos, checklist de ingreso en vivo desde tablet, celular o PC, y hoja del día para el staff.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --ink:#0f0f12; --ink-2:#1b1b21; --ink-3:#2a2a33;
+  --red:#e3262b; --red-d:#b8161b; --red-soft:#fde6e6;
+  --yel:#ffd23f; --yel-soft:#fff6d6; --pur:#7b3ff2; --pur-soft:#efe8fe; --blu:#2563eb; --blu-soft:#e6eefd;
+  --ok:#14945a; --ok-soft:#e1f5ea; --warn:#b86e00; --warn-soft:#fdefd8;
+  --paper:#f4f3f1; --surface:#fff; --text:#141418; --muted:#666370; --line:#e3e1dd;
+  --display:"Unbounded","Segoe UI",Arial,sans-serif; --body:"Plus Jakarta Sans","Segoe UI",Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:18px; --shadow:0 1px 2px rgba(0,0,0,.05),0 12px 30px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--paper);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.container{max-width:1240px;margin:0 auto;padding-inline:16px}
+:focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+button{font-family:inherit}
+
+/* hero */
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.hero:before{content:"";position:absolute;inset:-40% -10% auto auto;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(227,38,43,.35),transparent 65%)}
+.hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-linear-gradient(90deg,var(--red) 0 60px,var(--yel) 60px 120px,var(--pur) 120px 180px)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:16px;position:relative}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--red);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.5px;transform:rotate(-6deg)}
+.brand b{font-family:var(--display);font-size:20px;display:block;line-height:1.05}
+.brand small{color:#a8a6b0;font-size:12px}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 12px;color:#e8e6ef;white-space:nowrap}
+.hero-body{padding-block:10px 36px;position:relative}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4.2vw,46px);line-height:1.08;letter-spacing:-1px;margin:0 0 14px;max-width:22ch;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--yel)}
+.hero p.lead{color:#cfcdd6;max-width:66ch;margin:0 0 22px;font-size:16px}
+.sedes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.sede{background:var(--ink-2);border:1px solid var(--ink-3);border-radius:14px;padding:12px 14px;border-left:4px solid var(--c)}
+.sede b{display:block;font-size:14.5px}
+.sede span{font-size:12.5px;color:#b3b1bb}
+.sede em{font-style:normal;font-size:11px;font-weight:800;color:var(--ink);background:var(--yel);border-radius:999px;padding:1px 8px;margin-left:6px}
+
+.tabbar{position:sticky;top:0;z-index:20;background:rgba(244,243,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tab{flex:0 0 auto;font-family:var(--body);font-weight:800;font-size:15px;border:0;border-radius:12px;background:transparent;color:var(--muted);padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.tab svg{width:18px;height:18px}
+.tab:hover{background:#e7e5e1;color:var(--text)}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff}
+main{padding-block:22px 40px}
+
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.h2{font-family:var(--display);font-weight:700;font-size:21px;margin:0 0 4px;letter-spacing:-.4px}
+.h3{font-weight:800;font-size:16px;margin:0 0 8px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.btn{font-weight:800;font-size:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:10px 15px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:#999}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.red:hover{background:var(--red-d)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:9px}
+label.f{display:block;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blu);box-shadow:0 0 0 3px var(--blu-soft)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-red{background:var(--red-soft);color:var(--red-d)} .c-blu{background:var(--blu-soft);color:var(--blu)} .c-gray{background:#ebe9e5;color:#55525c} .c-pur{background:var(--pur-soft);color:var(--pur)} .c-yel{background:var(--yel-soft);color:#7a5b00} .c-dark{background:var(--ink);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px}
+.kpi small{font-size:12.5px;color:var(--muted);font-weight:700}
+.kpi b{display:block;font-family:var(--display);font-size:24px;line-height:1.15;margin-top:2px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-weight:800;font-size:13px;cursor:pointer;color:var(--muted)}
+.fbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.alert{border-radius:12px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+.alert.ok{background:var(--ok-soft);color:#0d6b40} .alert.blu{background:var(--blu-soft);color:#1a47b0} .alert.red{background:var(--red-soft);color:var(--red-d)}
+
+/* agenda */
+.ag-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.day{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;cursor:pointer;text-align:center}
+.day small{display:block;font-size:11.5px;color:var(--muted);font-weight:800;text-transform:uppercase}
+.day b{font-family:var(--display);font-size:20px;display:block;line-height:1.15}
+.day .mv{font-size:11.5px;color:var(--muted)}
+.day[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.day[aria-pressed="true"] small,.day[aria-pressed="true"] .mv{color:#cfcdd6}
+.slots-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table.slots{border-collapse:separate;border-spacing:0;width:100%;min-width:820px}
+.slots th{font-size:12px;text-align:left;padding:10px;border-bottom:1px solid var(--line);background:#faf9f7;vertical-align:bottom}
+.slots th i{display:block;width:100%;height:4px;border-radius:4px;background:var(--c);margin-bottom:6px}
+.slots th span{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.slots td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;width:19%}
+.slots td.t{width:84px;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--muted);white-space:nowrap}
+.slots tr:last-child td{border-bottom:0}
+.bk{display:block;width:100%;text-align:left;border:0;border-radius:11px;padding:9px 10px;cursor:pointer;background:color-mix(in srgb,var(--c) 12%,#fff);border-left:4px solid var(--c);color:var(--text)}
+.bk b{display:block;font-size:13.5px;line-height:1.25}
+.bk span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.bk:hover{filter:brightness(.97)}
+.free{display:block;width:100%;border:1.5px dashed #d3d0ca;background:transparent;border-radius:11px;padding:12px 8px;color:#9b98a2;font-weight:700;font-size:12.5px;cursor:pointer}
+.free:hover{border-color:var(--red);color:var(--red)}
+.soon{display:block;border-radius:11px;padding:12px 8px;font-size:12px;color:#9b98a2;background:repeating-linear-gradient(45deg,#faf9f7 0 8px,#f2f0ec 8px 16px);text-align:center;font-weight:700}
+.lead-item{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:9px;background:#fff}
+.lead-item b{display:block;font-size:14px}
+.lead-item .meta{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+
+/* invitación */
+.inv-grid{display:grid;grid-template-columns:400px minmax(0,1fr);gap:20px;align-items:start}
+.phone{background:#111;border-radius:34px;padding:12px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-width:400px;margin-inline:auto;width:100%}
+.screen{background:#fff;border-radius:24px;overflow:hidden;max-height:780px;overflow-y:auto}
+.inv-top{background:var(--ink);color:#fff;padding:26px 20px 22px;position:relative;overflow:hidden;text-align:center}
+.inv-top .conf{position:absolute;inset:0;pointer-events:none}
+.inv-top .conf i{position:absolute;width:10px;height:16px;border-radius:2px;opacity:.9}
+.inv-top small{font-weight:800;letter-spacing:2px;font-size:11px;color:var(--yel);text-transform:uppercase;position:relative}
+.inv-top h3{font-family:var(--display);font-size:30px;line-height:1.05;margin:8px 0 6px;position:relative}
+.inv-top p{margin:0;color:#d5d3db;font-size:14px;position:relative}
+.inv-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.inv-info div{background:var(--paper);border-radius:11px;padding:9px 10px}
+.inv-info small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.inv-info b{font-size:14px}
+.inv-form{padding:16px}
+.inv-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inv-form label.f{margin-top:10px}
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sizes button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 0;font-weight:800;cursor:pointer}
+.sizes button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.waiver{display:flex;gap:10px;align-items:flex-start;background:var(--yel-soft);border:1px solid #f1df9a;border-radius:12px;padding:11px 12px;margin-top:12px;font-size:13.5px}
+.waiver input{width:20px;height:20px;flex:none;accent-color:var(--ink);margin-top:1px}
+.host-list{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.hl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);align-items:center;font-size:14px}
+.hl:last-child{border-bottom:0}
+.hl span{display:block;font-size:12.5px;color:var(--muted)}
+.share{display:flex;gap:8px;align-items:center;background:var(--paper);border-radius:12px;padding:8px 8px 8px 12px;margin:10px 0}
+.share code{flex:1;font-family:var(--mono);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* checklist */
+.dev{display:inline-flex;background:#e7e5e1;border-radius:12px;padding:4px;gap:4px}
+.dev button{border:0;background:transparent;border-radius:9px;padding:7px 12px;font-weight:800;font-size:13px;color:var(--muted);cursor:pointer;display:flex;gap:6px;align-items:center}
+.dev button svg{width:16px;height:16px}
+.dev button[aria-pressed="true"]{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.frame{margin-inline:auto;transition:max-width .25s;border-radius:22px;background:var(--ink);padding:10px}
+.frame.pc{max-width:100%} .frame.tablet{max-width:820px} .frame.phone2{max-width:400px}
+.app{background:#fff;border-radius:14px;overflow:hidden}
+.app-head{background:var(--ink-2);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.app-head b{font-size:15px}
+.app-head select{width:auto;max-width:100%;background:var(--ink-3);color:#fff;border-color:var(--ink-3);font-weight:700;font-size:14px;padding:7px 10px}
+.sync{font-size:12px;color:#b9f5d6;display:flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:#2fe08a;box-shadow:0 0 0 3px rgba(47,224,138,.25);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(47,224,138,0)}}
+.counters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px 14px;background:#faf9f7;border-bottom:1px solid var(--line)}
+.counters div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.counters small{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.counters b{font-family:var(--display);font-size:22px}
+.prog{height:8px;background:#ebe9e5;border-radius:8px;overflow:hidden;margin:0 14px 0}
+.prog i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.ck-tools{padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.ck-tools input{max-width:260px}
+.glist{max-height:640px;overflow:auto}
+.g{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
+.g.in{background:#f4fbf7}
+.g.out{background:#f6f6f6;opacity:.75}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:15px}
+.g b{font-size:15.5px}
+.g .meta{font-size:12.5px;color:var(--muted)}
+.g .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.g .acts{display:flex;gap:6px;flex-direction:column;align-items:stretch;min-width:132px}
+.bigbtn{border:0;border-radius:12px;padding:12px 14px;font-weight:800;font-size:15px;cursor:pointer;background:var(--red);color:#fff}
+.bigbtn.done{background:var(--ok)}
+.bigbtn.ghost{background:#fff;color:var(--text);border:1px solid var(--line);font-size:13px;padding:8px 10px}
+.frame.phone2 .g{grid-template-columns:38px minmax(0,1fr)} .frame.phone2 .g .acts{grid-column:1/-1;flex-direction:row} .frame.phone2 .g .acts>*{flex:1}
+.frame.phone2 .counters{grid-template-columns:1fr 1fr} .frame.phone2 .av{width:38px;height:38px;font-size:13px}
+
+/* hoja */
+.sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.ps{background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;border-top:5px solid var(--c)}
+.ps-h{padding:14px 16px 10px}
+.ps-h b{font-family:var(--display);font-size:17px;display:block}
+.ps-h span{font-size:13px;color:var(--muted)}
+.tl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 16px 12px}
+.tl div{background:var(--paper);border-radius:9px;padding:6px 6px;text-align:center}
+.tl small{display:block;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.tl b{font-family:var(--mono);font-size:13px}
+.ps-b{padding:12px 16px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13.5px}
+.ps-b h5{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.ps-b ul{margin:0;padding-left:16px} .ps-b li{margin-bottom:2px}
+.socks{display:flex;gap:6px;flex-wrap:wrap}
+.socks span{border:1px solid var(--line);border-radius:9px;padding:4px 8px;font-family:var(--mono);font-weight:700;font-size:13px}
+
+/* next */
+.next{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.nx{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--line)}
+.nx b{font-weight:800;font-size:15.5px;display:block;margin-bottom:4px}
+.nx span{font-size:13.5px;color:var(--muted)}
+.nx .tag{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--red);display:block;margin-bottom:6px}
+
+.ov{position:fixed;inset:0;background:rgba(10,10,14,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}
+.modal{background:#fff;border-radius:18px;max-width:620px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.m-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.m-head h3{margin:0;font-family:var(--display);font-size:18px}
+.m-body{padding:18px}
+.m-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line)}
+.x{border:0;background:transparent;color:#a09da6;cursor:pointer;font-size:18px;line-height:1;padding:6px 8px;border-radius:7px}
+.x:hover{background:var(--red-soft);color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:.25s;z-index:60;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{border-top:1px solid var(--line);padding-block:18px;font-size:13px;color:var(--muted)}
+footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+@media (max-width:1000px){
+  .ag-grid,.inv-grid{grid-template-columns:minmax(0,1fr)}
+  .sedes{grid-template-columns:1fr 1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .next{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .sedes,.next{grid-template-columns:1fr}
+  .days{grid-template-columns:repeat(7,minmax(44px,1fr));overflow-x:auto}
+  .counters{grid-template-columns:1fr 1fr}
+  .g{grid-template-columns:38px minmax(0,1fr)} .g .acts{grid-column:1/-1;flex-direction:row} .g .acts>*{flex:1}
+  .sheet-grid{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .pill{display:none}
+  .dev{display:none}
+}
+@media print{
+  .hero,.tabbar,footer,#nxSec,.no-print{display:none!important}
+  body{background:#fff} .ps{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <div class="topbar">
+      <div class="brand"><div class="logo" aria-hidden="true">MF</div><div><b>Mr. Fly · Cumples</b><small>Sistema interno · Mar del Plata</small></div></div>
+      <span class="pill">Demo hecha por ELETEK para Mr. Fly</span>
+    </div>
+    <div class="hero-body">
+      <h1>Cada cumple organizado: <em>los papás anotan a los chicos</em> y el staff los recibe con una lista en vivo.</h1>
+      <p class="lead">Una agenda única para todas las sedes. Cada cumple tiene su invitación digital, donde los papás anotan a los chicos con talle de medias, alergias, consentimiento y quién los retira. En la entrada se tachan desde la tablet, el celular o la PC, todos sincronizados.</p>
+      <div class="sedes" id="sedes"></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="container tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda de cumples</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>Invitación de los papás</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Checklist de ingreso</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Hoja del día</button>
+  </div>
+</nav>
+
+<main class="container">
+<section id="tab-a" role="tabpanel">
+  <div class="kpis" id="kpis"></div>
+  <div class="ag-grid">
+    <div>
+      <div class="sec-head"><div><h2 class="h2">Agenda de todas las sedes</h2><div class="note">Toquen un cumple para ver el detalle o un turno libre para reservar. Cada turno dura 2 h 45 min.</div></div></div>
+      <div class="days" id="days"></div>
+      <div class="slots-wrap"><table class="slots" id="slots"></table></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h3 class="h3">Consultas de WhatsApp por responder</h3>
+        <div class="note" style="margin:-4px 0 10px">Lo que hoy llega al 223 425-7923 queda acá hasta convertirse en reserva.</div>
+        <div id="leads"></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3 class="h3">Agenda 2027 · precio congelado</h3>
+        <div id="y27"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="tab-i" role="tabpanel" hidden>
+  <div class="sec-head"><div><h2 class="h2">La invitación que reciben los papás</h2><div class="note">El anfitrión comparte un link por WhatsApp. Cada familia anota a su hijo o hija desde el celular y todo cae solo en la lista del cumple.</div></div>
+    <select id="iSel" style="width:auto;max-width:100%" aria-label="Elegir cumple"></select></div>
+  <div class="inv-grid">
+    <div class="phone"><div class="screen" id="invScreen"></div></div>
+    <div class="card">
+      <h3 class="h3">Lo que ve el anfitrión</h3>
+      <div class="note">La mamá o el papá del cumpleañero sigue quién confirmó, sin planillas ni mensajes sueltos.</div>
+      <div class="share"><code id="iLink"></code><button class="btn sm dark" id="iCopy" type="button">Copiar para WhatsApp</button></div>
+      <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px" id="iStats"></div>
+      <div class="host-list" id="iList"></div>
+      <button class="btn" id="iRemind" type="button" style="margin-top:12px;width:100%;white-space:normal">Copiar recordatorio de consentimiento para los que faltan</button>
+    </div>
+  </div>
+</section>
+
+<section id="tab-c" role="tabpanel" hidden>
+  <div class="sec-head">
+    <div><h2 class="h2">Checklist de ingreso en vivo</h2><div class="note">La misma lista abierta en la tablet de la entrada, el celular del profe y la PC de la oficina. Lo que marca uno lo ven todos al instante.</div></div>
+    <div class="dev" role="group" aria-label="Ver como">
+      <button type="button" data-d="tablet" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/></svg>Tablet</button>
+      <button type="button" data-d="phone2" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/></svg>Celular</button>
+      <button type="button" data-d="pc" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>PC</button>
+    </div>
+  </div>
+  <div class="frame tablet" id="frame">
+    <div class="app">
+      <div class="app-head"><select id="cSel" aria-label="Elegir cumple de hoy"></select><span class="sync"><i></i><span id="syncTxt">Sincronizado · 3 dispositivos conectados</span></span></div>
+      <div class="counters" id="cCount"></div>
+      <div style="padding-top:10px;background:#faf9f7"><div class="prog"><i id="cProg"></i></div><div style="height:10px"></div></div>
+      <div class="ck-tools">
+        <input id="cQ" placeholder="Buscar chico o adulto…" aria-label="Buscar invitado">
+        <div class="filters" id="cFil"></div>
+        <button class="btn sm" id="cAdd" type="button">+ Invitado de último momento</button>
+        <button class="btn sm" id="cSim" type="button" title="Simula que alguien marca un ingreso desde otra tablet">Simular otra tablet</button>
+      </div>
+      <div class="glist" id="glist"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-h" role="tabpanel" hidden>
+  <div class="sec-head">
+    <div><h2 class="h2">Hoja del día para el staff</h2><div class="note">Sale sola de las listas: horarios, chicos confirmados, medias por talle para preparar, alergias para la cocina y consentimientos que faltan.</div></div>
+    <div class="filters no-print"><select id="hDay" style="width:auto" aria-label="Día"></select><button class="btn dark" id="hPrint" type="button">Imprimir</button></div>
+  </div>
+  <div class="sheet-grid" id="sheets"></div>
+</section>
+
+<section id="nxSec" style="margin-top:34px" aria-labelledby="nxT">
+  <h2 class="h2" id="nxT">Lo que se puede sumar después</h2>
+  <div class="note">La demo muestra la base. Esto lo agregamos solo si les sirve:</div>
+  <div class="next">
+    <div class="nx"><span class="tag">Consentimiento</span><b>Conexión con su consentimiento actual</b><span>Si su sistema de tickets lo permite, el estado del consentimiento se trae solo. Si no, se firma desde la misma invitación.</span></div>
+    <div class="nx"><span class="tag">Cobros</span><b>Seña online</b><span>El anfitrión deja la seña con Mercado Pago al reservar y la fecha queda tomada.</span></div>
+    <div class="nx"><span class="tag">WhatsApp</span><b>Recordatorios automáticos</b><span>El día antes, a cada familia: horario, dirección, medias y el consentimiento si falta.</span></div>
+    <div class="nx"><span class="tag">Party Zone</span><b>Sedes nuevas en un clic</b><span>Gascón y Edison se suman a la agenda con sus salones y horarios propios.</span></div>
+    <div class="nx"><span class="tag">Marketing</span><b>Base de cumpleaños</b><span>Cada invitado deja la fecha de su cumple. Un mes antes, el sistema avisa para ofrecerles el suyo.</span></div>
+    <div class="nx"><span class="tag">Números</span><b>Reportes por sede</b><span>Cumples por mes, ocupación por turno, conversión de consultas y temporada.</span></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · software a medida desde Mar del Plata</span><span>Nombres, cumples y horarios de ejemplo</span></div></footer>
+
+<div id="ov" class="ov" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="m-head"><h3 id="mT"></h3><button class="x" id="mX" aria-label="Cerrar">✕</button></div><div class="m-body" id="mB"></div><div class="m-foot" id="mF"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T0=new Date(); T0.setHours(0,0,0,0);
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const D=n=>{const d=new Date(T0);d.setDate(d.getDate()+n);return iso(d)};
+const fromIso=s=>{const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])};
+const DOW=['dom','lun','mar','mié','jue','vie','sáb'];
+const DOWL=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fd=s=>{const d=fromIso(s);return DOW[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)};
+const fdl=s=>{const d=fromIso(s);return DOWL[d.getDay()]+' '+d.getDate()+' de '+MES[d.getMonth()]};
+const addMin=(hhmm,m)=>{let [h,mi]=hhmm.split(':').map(Number);let t=h*60+mi+m;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const nowHM=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+let seed=7;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const pick=a=>a[Math.floor(rnd()*a.length)];
+
+/* ---------- datos de ejemplo ---------- */
+const SEDES=[
+ {id:'tp',name:'Trampoline Park',dir:'Alvear 4726',c:'#e3262b',esp:['Salón','Box']},
+ {id:'ip',name:'Inflatable Park',dir:'Av. Constitución 7598',c:'#f2a900',esp:['Salón']},
+ {id:'pg',name:'Party Zone Gascón',dir:'Gascón 3366',c:'#7b3ff2',esp:['Salón'],soon:true},
+ {id:'pe',name:'Party Zone Edison',dir:'Edison 1821',c:'#2563eb',esp:['Salón'],soon:true}];
+const SBY={};SEDES.forEach(s=>SBY[s.id]=s);
+const COLS=[];SEDES.forEach(s=>s.esp.forEach(e=>COLS.push({s,e})));
+const TURNOS=['12:30','15:15','18:00'];const DUR=165;
+const KIDS=['Olivia','Benjamín','Mateo','Emma','Martina','Santino','Isabella','Bautista','Catalina','Felipe','Mía','Thiago','Valentina','Joaquín','Sofía','Lorenzo','Delfina','Bruno','Renata','Lautaro','Francesca','Tomás','Julieta','Ignacio','Alma','Lucas','Juana','Agustín','Pilar','Ciro','Malena','Simón','Guadalupe','Dante','Victoria','León','Zoe','Gael','Abril','Valentino','Lola','Nicolás','Camila','Máximo','Josefina','Benicio'];
+const APE=['Fernández','González','Rodríguez','López','Martínez','García','Pérez','Romero','Sosa','Álvarez','Torres','Ruiz','Díaz','Acosta','Benítez','Medina','Herrera','Suárez','Aguirre','Giménez','Molina','Castro','Ortiz','Silva','Rojas','Luna','Juárez','Cabrera','Ríos','Ferreyra'];
+const ADU=['Carolina','Mariana','Lucía','Paula','Florencia','Natalia','Romina','Valeria','Andrea','Laura','Gabriel','Martín','Diego','Pablo','Juan','Sebastián','Julieta','Agustina','Cecilia','Soledad','Hernán','Verónica','Ezequiel','Daniela'];
+const ALER=['Celíaco','Alergia al maní','Intolerancia a la lactosa','Asma: tiene su inhalador','Vegetariano'];
+const talleDe=e=>e<=5?'XS':e<=8?'S':e<=12?'M':'L';
+const tel=()=>'223 '+(5+Math.floor(rnd()*2))+String(Math.floor(rnd()*90+10))+'-'+String(Math.floor(rnd()*9000+1000));
+function mkGuest(edadBase){const n=pick(KIDS),a=pick(APE),ad=pick(ADU),e=Math.max(4,edadBase+Math.floor(rnd()*3)-1);const g={id:'g'+Math.floor(rnd()*1e9),nino:n+' '+a,edad:e,adulto:ad+' '+a,tel:tel(),talle:talleDe(e),alergia:rnd()<.12?pick(ALER):'',consent:rnd()<.9,in:null,out:null,por:''};g.retira=rnd()<.8?g.adulto:pick(ADU)+' '+pick(APE)+' (tía/o)';return g}
+let bookings=[],bid=100;
+function mkBooking(o){const b=Object.assign({id:++bid,estado:'señado',congelado:false,guests:[]},o);b.slug=norm(b.nene).replace(/\s+/g,'-')+'-'+b.edad+'-'+(b.id*37%997).toString(36);return b}
+(function seedData(){
+  const fixed=[
+    {nene:'Olivia',edad:8,anfitrion:'Carolina Pérez',tel:'223 512-4471',sede:'tp',esp:'Salón',fecha:D(0),turno:'15:15',cupo:25,estado:'confirmado',n:24,inN:9},
+    {nene:'Benjamín',edad:6,anfitrion:'Martín Acosta',tel:'223 603-1198',sede:'tp',esp:'Box',fecha:D(0),turno:'15:15',cupo:20,estado:'confirmado',n:18,inN:0},
+    {nene:'Mateo',edad:10,anfitrion:'Natalia Ruiz',tel:'223 547-8820',sede:'ip',esp:'Salón',fecha:D(0),turno:'18:00',cupo:30,estado:'confirmado',n:22,inN:0}];
+  fixed.forEach(f=>{const b=mkBooking(f);for(let k=0;k<f.n;k++){const g=mkGuest(f.edad);if(k<f.inN){g.consent=true;g.in=addMin(f.turno,2+k*2)}b.guests.push(g)}
+    if(f.nene==='Olivia'){b.guests[0].nino='Joaquín Herrera';b.guests[0].alergia='Celíaco';b.guests[12].consent=false;b.guests[15].consent=false;b.guests[17].alergia='Alergia al maní';b.guests[20].alergia='Asma: tiene su inhalador';b.guests.slice(12).forEach((g,i)=>{if(i!==0&&i!==3)g.consent=true})}
+    bookings.push(b)});
+  for(let d=0;d<14;d++){const dt=fromIso(D(d)),w=dt.getDay();const p=w===6||w===0?.85:w===5?.6:.28;
+    for(const col of COLS){if(col.s.soon)continue;for(const t of TURNOS){if(bookings.some(b=>b.fecha===D(d)&&b.sede===col.s.id&&b.esp===col.e&&b.turno===t))continue;if(rnd()>p)continue;
+      const e=4+Math.floor(rnd()*8),cupo=[20,25,30,35][Math.floor(rnd()*4)];const b=mkBooking({nene:pick(KIDS),edad:e,anfitrion:pick(ADU)+' '+pick(APE),tel:tel(),sede:col.s.id,esp:col.e,fecha:D(d),turno:t,cupo,estado:rnd()<.55?'confirmado':'señado',congelado:rnd()<.15});
+      const n=Math.round(cupo*(d<3?.75+rnd()*.25:d<7?.4+rnd()*.4:rnd()*.4));for(let k=0;k<n;k++)b.guests.push(mkGuest(e));bookings.push(b)}}}
+  [['Renata',7,'2027-03-06','tp','Salón','15:15'],['Gael',5,'2027-04-17','ip','Salón','12:30'],['Abril',9,'2027-05-22','tp','Box','18:00'],['Dante',6,'2027-07-10','tp','Salón','12:30']].forEach(a=>bookings.push(mkBooking({nene:a[0],edad:a[1],anfitrion:pick(ADU)+' '+pick(APE),tel:tel(),fecha:a[2],sede:a[3],esp:a[4],turno:a[5],cupo:25,estado:'señado',congelado:true})));
+})();
+let leads=[
+ {quien:'Romina, mamá de Thiago',nene:'Thiago',edad:7,fecha:D(10),sede:'tp',cant:30,hace:'hace 20 min',txt:'Hola! Quería saber si tienen lugar para el cumple de Thiago, somos unos 30 chicos.'},
+ {quien:'Diego, papá de Martina',nene:'Martina',edad:9,fecha:D(12),sede:'ip',cant:25,hace:'hace 2 h',txt:'Buenas, ¿cuánto sale el cumple en el Inflatable? Sería un sábado.'},
+ {quien:'Natalia, mamá de Ciro',nene:'Ciro',edad:5,fecha:'2027-03-13',sede:'tp',cant:20,hace:'ayer',txt:'Vi lo de congelar el precio para 2027, quiero reservar marzo.'}];
+
+/* ---------- utilidades ---------- */
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>el.classList.remove('on'),3200)}
+function modal(title,body,foot){$('#mT').textContent=title;$('#mB').innerHTML=body;$('#mF').innerHTML=foot||'<button class="btn" data-close>Cerrar</button>';$('#ov').hidden=false;$('#mF').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);setTimeout(()=>{const f=$('#mB input');(f||$('#mX')).focus()},40)}
+function closeModal(){$('#ov').hidden=true}
+$('#mX').onclick=closeModal;$('#ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ov').hidden)closeModal()});
+async function copy(t,msg){try{await navigator.clipboard.writeText(t);toast(msg)}catch(e){toast('No se pudo copiar desde este navegador')}}
+const range=b=>b.turno+' a '+addMin(b.turno,DUR);
+const estadoChip=b=>b.estado==='confirmado'?'<span class="chip c-ok">Confirmado</span>':'<span class="chip c-yel">Señado</span>';
+const stats=b=>({n:b.guests.length,inn:b.guests.filter(g=>g.in&&!g.out).length,out:b.guests.filter(g=>g.out).length,pend:b.guests.filter(g=>!g.in).length,sinc:b.guests.filter(g=>!g.consent).length,aler:b.guests.filter(g=>g.alergia).length});
+const COLORS=['#e3262b','#f2a900','#7b3ff2','#2563eb','#14945a','#d9467a','#0e9fb0','#8a5a2b'];
+const avColor=s=>COLORS[[...s].reduce((a,c)=>a+c.charCodeAt(0),0)%COLORS.length];
+const ini=s=>s.split(' ').slice(0,2).map(w=>w[0]).join('');
+
+$('#sedes').innerHTML=SEDES.map(s=>`<div class="sede" style="--c:${s.c}"><b>${s.name}${s.soon?'<em>Próximamente</em>':''}</b><span>${s.dir} · ${s.esp.join(' y ')}</span></div>`).join('');
+
+/* ---------- agenda ---------- */
+let aday=D(0);
+function renderA(){
+  const wk=bookings.filter(b=>b.fecha>=D(0)&&b.fecha<=D(6));
+  const y27=bookings.filter(b=>b.fecha>='2027-01-01');
+  $('#kpis').innerHTML=`<div class="kpi"><small>Cumples en los próximos 7 días</small><b>${wk.length}</b></div><div class="kpi"><small>Chicos esperados en la semana</small><b>${wk.reduce((s,b)=>s+b.cupo,0)}</b></div><div class="kpi"><small>Consultas por responder</small><b>${leads.length}</b></div><div class="kpi"><small>Cumples 2027 con precio congelado</small><b>${y27.length}</b></div>`;
+  $('#days').innerHTML=Array.from({length:7},(_,k)=>{const d=D(k),n=bookings.filter(b=>b.fecha===d).length,dt=fromIso(d);return `<button class="day" aria-pressed="${d===aday}" data-d="${d}"><small>${k===0?'Hoy':DOW[dt.getDay()]}</small><b>${dt.getDate()}</b><span class="mv">${n} cumple${n===1?'':'s'}</span></button>`}).join('');
+  $$('#days .day').forEach(b=>b.onclick=()=>{aday=b.dataset.d;renderA()});
+  $('#slots').innerHTML=`<thead><tr><th style="width:84px">${fd(aday)}</th>${COLS.map(c=>`<th style="--c:${c.s.c}"><i></i>${c.s.name}<span>${c.e} · ${c.s.dir}</span></th>`).join('')}</tr></thead><tbody>${TURNOS.map(t=>`<tr><td class="t">${t}<br>${addMin(t,DUR)}</td>${COLS.map(c=>{
+      if(c.s.soon)return `<td><span class="soon">Próximamente</span></td>`;
+      const b=bookings.find(x=>x.fecha===aday&&x.sede===c.s.id&&x.esp===c.e&&x.turno===t);
+      if(!b)return `<td><button class="free" data-new="${c.s.id}|${c.e}|${t}">+ Libre</button></td>`;
+      const s=stats(b);return `<td><button class="bk" style="--c:${c.s.c}" data-b="${b.id}"><b>${esc(b.nene)} cumple ${b.edad}</b><span>${s.n}/${b.cupo} anotados · ${b.estado==='confirmado'?'confirmado':'señado'}${b.congelado?' · precio congelado':''}</span></button></td>`}).join('')}</tr>`).join('')}</tbody>`;
+  $$('#slots [data-b]').forEach(x=>x.onclick=()=>detail(+x.dataset.b));
+  $$('#slots [data-new]').forEach(x=>x.onclick=()=>{const [s,e,t]=x.dataset.new.split('|');newBooking({sede:s,esp:e,turno:t,fecha:aday})});
+  $('#leads').innerHTML=leads.length?leads.map((l,i)=>`<div class="lead-item"><b>${esc(l.quien)}</b><div class="meta">${l.hace} · ${esc(SBY[l.sede].name)} · ${fd(l.fecha)} · ${l.cant} chicos</div><div class="note" style="margin-bottom:8px">“${esc(l.txt)}”</div><button class="btn sm red" data-lead="${i}">Armar la reserva</button></div>`).join(''):'<div class="note">No hay consultas pendientes.</div>';
+  $$('#leads [data-lead]').forEach(x=>x.onclick=()=>{const l=leads[+x.dataset.lead];newBooking({sede:l.sede,esp:SBY[l.sede].esp[0],turno:'15:15',fecha:l.fecha,nene:l.nene,edad:l.edad,anfitrion:l.quien.split(',')[0],cupo:l.cant,congelado:l.fecha>='2027-01-01',lead:+x.dataset.lead})});
+  $('#y27').innerHTML=y27.sort((a,b)=>a.fecha<b.fecha?-1:1).map(b=>`<div class="lead-item" style="padding:9px 11px"><b>${esc(b.nene)} cumple ${b.edad}</b><div class="meta" style="margin:2px 0 0">${fd(b.fecha)}/${b.fecha.slice(2,4)} · ${esc(SBY[b.sede].name)} · <span class="chip c-blu">Precio congelado</span></div></div>`).join('');
+}
+function detail(id){
+  const b=bookings.find(x=>x.id===id),s=stats(b),S=SBY[b.sede];
+  modal(`${b.nene} cumple ${b.edad}`,`<div class="grid2"><div><label class="f">Sede</label><b>${esc(S.name)}</b> · ${esc(b.esp)}<div class="note">${esc(S.dir)}</div></div><div><label class="f">Día y horario</label><b>${fdl(b.fecha)}</b><div class="note">${range(b)}</div></div><div><label class="f">Anfitrión</label><b>${esc(b.anfitrion)}</b><div class="note">${esc(b.tel)}</div></div><div><label class="f">Estado</label>${estadoChip(b)} ${b.congelado?'<span class="chip c-blu">Precio congelado</span>':''}</div></div>
+   <div class="kpis" style="grid-template-columns:repeat(3,1fr);margin:16px 0 0"><div class="kpi"><small>Anotados</small><b>${s.n}/${b.cupo}</b></div><div class="kpi"><small>Falta consentimiento</small><b style="color:${s.sinc?'var(--red)':'inherit'}">${s.sinc}</b></div><div class="kpi"><small>Con alergias</small><b>${s.aler}</b></div></div>`,
+   `<button class="btn" data-close>Cerrar</button><button class="btn" id="dInv">Ver invitación</button><button class="btn dark" id="dCk">Abrir checklist</button>`);
+  $('#dInv').onclick=()=>{closeModal();curInv=b.id;go('i')};
+  $('#dCk').onclick=()=>{closeModal();curCk=b.id;go('c')};
+}
+function newBooking(p){
+  const opts=COLS.filter(c=>!c.s.soon).map(c=>`<option value="${c.s.id}|${c.e}" ${c.s.id===p.sede&&c.e===p.esp?'selected':''}>${c.s.name} · ${c.e}</option>`).join('');
+  modal('Nuevo cumple',`<div class="grid2">
+    <div><label class="f" for="nNene">Cumpleañero/a</label><input id="nNene" value="${esc(p.nene||'')}" placeholder="Nombre"></div>
+    <div><label class="f" for="nEdad">Cumple</label><input id="nEdad" inputmode="numeric" value="${p.edad||''}" placeholder="Años"></div>
+    <div><label class="f" for="nAnf">Anfitrión</label><input id="nAnf" value="${esc(p.anfitrion||'')}" placeholder="Mamá / papá"></div>
+    <div><label class="f" for="nTel">WhatsApp</label><input id="nTel" inputmode="tel" placeholder="223 ..."></div>
+    <div><label class="f" for="nFecha">Fecha</label><input id="nFecha" type="date" value="${p.fecha}"></div>
+    <div><label class="f" for="nTurno">Turno</label><select id="nTurno">${TURNOS.map(t=>`<option ${t===p.turno?'selected':''} value="${t}">${t} a ${addMin(t,DUR)}</option>`).join('')}</select></div>
+    <div><label class="f" for="nCol">Sede y espacio</label><select id="nCol">${opts}</select></div>
+    <div><label class="f" for="nCupo">Cantidad de chicos</label><input id="nCupo" inputmode="numeric" value="${p.cupo||25}"></div>
+    <div><label class="f" for="nEst">Estado</label><select id="nEst"><option value="señado">Señado</option><option value="confirmado">Confirmado (pago total)</option></select></div>
+    <div style="display:flex;align-items:flex-end"><label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:700"><input type="checkbox" id="nCong" ${p.congelado?'checked':''} style="width:18px;height:18px"> Precio congelado</label></div>
+  </div><div id="nMsg"></div>`,`<button class="btn" data-close>Cancelar</button><button class="btn red" id="nOk">Reservar y crear invitación</button>`);
+  $('#nOk').onclick=()=>{
+    const [sede,esp]=$('#nCol').value.split('|'),fecha=$('#nFecha').value,turno=$('#nTurno').value,nene=$('#nNene').value.trim(),edad=parseInt($('#nEdad').value)||0;
+    if(!nene||!edad||!fecha){$('#nMsg').innerHTML='<div class="alert red">Completen nombre, edad y fecha.</div>';return}
+    if(bookings.some(b=>b.fecha===fecha&&b.sede===sede&&b.esp===esp&&b.turno===turno)){$('#nMsg').innerHTML='<div class="alert red">Ese turno ya está ocupado en esa sede. Elijan otro horario o espacio.</div>';return}
+    const b=mkBooking({nene,edad,anfitrion:$('#nAnf').value.trim()||'—',tel:$('#nTel').value.trim()||'—',sede,esp,fecha,turno,cupo:parseInt($('#nCupo').value)||25,estado:$('#nEst').value,congelado:$('#nCong').checked});
+    bookings.push(b);if(p.lead!=null)leads.splice(p.lead,1);
+    modal('¡Cumple reservado!',`<p style="margin-top:0"><b>${esc(nene)} cumple ${edad}</b> · ${fdl(fecha)} · ${range(b)}<br>${esc(SBY[sede].name)} · ${esc(esp)}</p><p class="note">Este es el link que le mandan al anfitrión para que lo comparta con los invitados:</p><div class="share"><code>mrfly.com.ar/cumple/${b.slug}</code><button class="btn sm dark" id="okCopy">Copiar</button></div>`,`<button class="btn" data-close>Listo</button><button class="btn red" id="okInv">Ver la invitación</button>`);
+    $('#okCopy').onclick=()=>copy(invText(b),'Mensaje con el link copiado');
+    $('#okInv').onclick=()=>{closeModal();curInv=b.id;go('i')};
+    if(fecha>=D(0)&&fecha<=D(6))aday=fecha;renderA();
+  };
+}
+const invText=b=>`¡${b.nene} cumple ${b.edad}! 🎉\n${fdl(b.fecha)} de ${range(b)} en Mr. Fly ${SBY[b.sede].name} (${SBY[b.sede].dir}).\nAnotá a tu hijo/a acá: https://mrfly.com.ar/cumple/${b.slug}`;
+
+/* ---------- invitación ---------- */
+let curInv=null,invDone=null,invTalle='';const OLI=()=>bookings.find(b=>b.nene==='Olivia'&&b.fecha===D(0)).id;
+function upcoming(){return bookings.filter(b=>b.fecha>=D(0)&&b.fecha<='2026-12-31').sort((a,b)=>(a.fecha+a.turno)<(b.fecha+b.turno)?-1:1)}
+function renderI(){
+  const list=upcoming();if(!curInv||!bookings.find(b=>b.id===curInv))curInv=OLI();
+  if(!list.find(b=>b.id===curInv))list.unshift(bookings.find(b=>b.id===curInv));
+  $('#iSel').innerHTML=list.slice(0,40).map(b=>`<option value="${b.id}" ${b.id===curInv?'selected':''}>${fd(b.fecha)} ${b.turno} · ${esc(b.nene)} cumple ${b.edad} · ${esc(SBY[b.sede].name)}</option>`).join('');
+  const b=bookings.find(x=>x.id===curInv),S=SBY[b.sede];
+  const conf=Array.from({length:18},(_,k)=>`<i style="left:${k%2?(k*7)%14:84+(k*5)%13}%;top:${(k*29)%92}%;background:${['#e3262b','#ffd23f','#7b3ff2','#2563eb','#fff'][k%5]};transform:rotate(${k*37}deg)"></i>`).join('');
+  $('#invScreen').innerHTML=`<div class="inv-top"><div class="conf">${conf}</div><small>Te invito a mi cumple</small><h3>¡${esc(b.nene)}<br>cumple ${b.edad}!</h3><p>Vení a saltar conmigo en Mr. Fly</p></div>
+   <div class="inv-info"><div><small>Día</small><b>${fdl(b.fecha)}</b></div><div><small>Horario</small><b>${range(b)}</b></div><div><small>Lugar</small><b>${esc(S.name)}</b></div><div><small>Dirección</small><b>${esc(S.dir)}</b></div></div>
+   ${invDone?`<div class="inv-form" style="text-align:center;padding:28px 18px"><div style="font-size:42px">✓</div><h3 style="font-family:var(--display);margin:6px 0">¡${esc(invDone)} está anotado/a!</h3><p class="note">Te esperamos 15 minutos antes. Las medias antideslizantes de Mr. Fly son obligatorias y están incluidas.</p><button class="btn red" id="ivMore" type="button" style="width:100%">Anotar a un hermano/a</button></div>`:
+   `<form class="inv-form" id="ivForm" novalidate><b style="font-size:16px">Confirmá la asistencia</b><div class="note">Tarda un minuto y le ahorra tiempo a todos en la entrada.</div>
+    <div class="row2"><div><label class="f" for="ivN">Nombre y apellido</label><input id="ivN" placeholder="Del chico/a"></div><div><label class="f" for="ivE">Edad</label><input id="ivE" inputmode="numeric" placeholder="Años"></div></div>
+    <div class="row2"><div><label class="f" for="ivA">Adulto responsable</label><input id="ivA" placeholder="Nombre"></div><div><label class="f" for="ivT">WhatsApp</label><input id="ivT" inputmode="tel" placeholder="223 ..."></div></div>
+    <label class="f">Talle de medias antideslizantes</label><div class="sizes" id="ivS">${['XS','S','M','L'].map(t=>`<button type="button" data-t="${t}" aria-pressed="${invTalle===t}">${t}</button>`).join('')}</div><div class="note" style="margin-top:4px">XS hasta 5 años · S 6 a 8 · M 9 a 12 · L 13 o más</div>
+    <label class="f" for="ivAl">Alergias o cuidados especiales</label><input id="ivAl" placeholder="Ej: celíaco, asma (opcional)">
+    <label class="f" for="ivR">¿Quién lo retira?</label><input id="ivR" placeholder="Si es otra persona, poné su nombre">
+    <label class="waiver"><input type="checkbox" id="ivW"><span>Ya completé el <b>consentimiento de Mr. Fly</b>. Sin consentimiento no se puede saltar. <a href="#" id="ivWl">Completarlo ahora</a></span></label>
+    <button class="btn red" type="submit" style="width:100%;margin-top:14px;padding:13px">Confirmar asistencia</button><div id="ivMsg"></div></form>`}`;
+  if(invDone){$('#ivMore').onclick=()=>{invDone=null;invTalle='';renderI()}}
+  else{
+    $('#ivE').oninput=e=>{const v=parseInt(e.target.value);if(v){invTalle=talleDe(v);$$('#ivS button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t===invTalle))}};
+    $$('#ivS button').forEach(x=>x.onclick=()=>{invTalle=x.dataset.t;$$('#ivS button').forEach(y=>y.setAttribute('aria-pressed',y===x))});
+    $('#ivWl').onclick=e=>{e.preventDefault();$('#ivW').checked=true;toast('Acá se abre el consentimiento de Mr. Fly (en la demo lo damos por completado)')};
+    $('#ivForm').onsubmit=e=>{e.preventDefault();const n=$('#ivN').value.trim(),ed=parseInt($('#ivE').value)||0,a=$('#ivA').value.trim(),t=$('#ivT').value.trim();
+      if(!n||!ed||!a||!t){$('#ivMsg').innerHTML='<div class="alert red">Completá nombre, edad, adulto y WhatsApp.</div>';return}
+      b.guests.unshift({id:'g'+Date.now(),nino:n,edad:ed,adulto:a,tel:t,talle:invTalle||talleDe(ed),alergia:$('#ivAl').value.trim(),retira:$('#ivR').value.trim()||a,consent:$('#ivW').checked,in:null,out:null,por:''});
+      invDone=n.split(' ')[0];toast(`${n} quedó anotado/a en la lista del cumple`);renderI()};
+  }
+  const s=stats(b);
+  $('#iLink').textContent='mrfly.com.ar/cumple/'+b.slug;
+  $('#iStats').innerHTML=`<div class="kpi"><small>Confirmados</small><b>${s.n}/${b.cupo}</b></div><div class="kpi"><small>Falta consentimiento</small><b style="color:${s.sinc?'var(--red)':'inherit'}">${s.sinc}</b></div><div class="kpi"><small>Con alergias</small><b>${s.aler}</b></div>`;
+  $('#iList').innerHTML=b.guests.length?b.guests.map(g=>`<div class="hl"><div><b>${esc(g.nino)}</b> <span style="display:inline">· ${g.edad} años</span><span>${esc(g.adulto)} · ${esc(g.tel)}</span></div><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">${g.alergia?`<span class="chip c-warn">${esc(g.alergia)}</span>`:''}${g.consent?'<span class="chip c-ok">Consentimiento</span>':'<span class="chip c-red">Falta consentimiento</span>'}</div></div>`).join(''):'<div class="hl"><span>Todavía no se anotó nadie. Compartan el link.</span></div>';
+}
+$('#iSel').onchange=e=>{curInv=+e.target.value;invDone=null;invTalle='';renderI()};
+$('#iCopy').onclick=()=>copy(invText(bookings.find(b=>b.id===curInv)),'Invitación copiada: péguenla en el grupo de WhatsApp');
+$('#iRemind').onclick=()=>{const b=bookings.find(x=>x.id===curInv),f=b.guests.filter(g=>!g.consent);if(!f.length){toast('Todos completaron el consentimiento');return}copy(`Hola! Para el cumple de ${b.nene} falta completar el consentimiento de Mr. Fly de: ${f.map(g=>g.nino.split(' ')[0]).join(', ')}. Sin consentimiento no pueden saltar. Se completa acá en 2 minutos: https://mrfly.com.ar/consentimiento`,`Recordatorio copiado (${f.length} familia${f.length>1?'s':''})`)};
+
+/* ---------- checklist ---------- */
+let curCk=null,cf='todos',cq='';
+const CF=[['todos','Todos'],['faltan','Faltan llegar'],['adentro','Adentro'],['sinc','Sin consentimiento'],['aler','Con alergias']];
+function renderC(){
+  const today=bookings.filter(b=>b.fecha===D(0)).sort((a,b)=>a.turno<b.turno?-1:1);
+  if(!curCk)curCk=OLI();
+  const list=today.find(b=>b.id===curCk)?today:[bookings.find(b=>b.id===curCk),...today];
+  $('#cSel').innerHTML=list.map(b=>`<option value="${b.id}" ${b.id===curCk?'selected':''}>${b.fecha===D(0)?'Hoy':fd(b.fecha)} ${b.turno} · ${esc(b.nene)} cumple ${b.edad} · ${esc(SBY[b.sede].name)} ${esc(b.esp)}</option>`).join('');
+  const b=bookings.find(x=>x.id===curCk),s=stats(b);
+  $('#cCount').innerHTML=`<div><small>Anotados</small><b>${s.n}</b></div><div><small>Adentro</small><b style="color:var(--ok)">${s.inn}</b></div><div><small>Faltan llegar</small><b>${s.pend}</b></div><div><small>Ya se fueron</small><b>${s.out}</b></div>`;
+  $('#cProg').style.width=(s.n?((s.inn+s.out)/s.n*100):0)+'%';
+  const cnt={todos:s.n,faltan:s.pend,adentro:s.inn,sinc:s.sinc,aler:s.aler};
+  $('#cFil').innerHTML=CF.map(([k,t])=>`<button class="fbtn" aria-pressed="${cf===k}" data-k="${k}">${t} (${cnt[k]})</button>`).join('');
+  $$('#cFil .fbtn').forEach(x=>x.onclick=()=>{cf=x.dataset.k;renderC()});
+  const q=norm(cq);
+  const gs=b.guests.filter(g=>(cf==='todos'||(cf==='faltan'&&!g.in)||(cf==='adentro'&&g.in&&!g.out)||(cf==='sinc'&&!g.consent)||(cf==='aler'&&g.alergia))&&(!q||norm(g.nino+' '+g.adulto).includes(q)))
+    .sort((a,c)=>(!!a.in-!!c.in)||a.nino.localeCompare(c.nino));
+  $('#glist').innerHTML=gs.map(g=>{let acts;
+    if(!g.in)acts=`<button class="bigbtn" data-in="${g.id}">Llegó</button>`;
+    else if(!g.out)acts=`<button class="bigbtn done" data-undo="${g.id}" title="Tocar para deshacer">Adentro · ${g.in}</button><button class="bigbtn ghost" data-out="${g.id}">Se retiró</button>`;
+    else acts=`<span class="chip c-gray" style="justify-content:center;padding:8px">Se fue ${g.out} · con ${esc(g.por.split(' ')[0])}</span>`;
+    return `<div class="g ${g.out?'out':g.in?'in':''}"><div class="av" style="background:${avColor(g.nino)}">${esc(ini(g.nino))}</div><div><b>${esc(g.nino)}</b> <span class="note">· ${g.edad} años</span><div class="meta">${esc(g.adulto)} · ${esc(g.tel)} · Retira: ${esc(g.retira)}</div><div class="tags"><span class="chip c-gray">Medias ${g.talle}</span>${g.alergia?`<span class="chip c-warn">⚠ ${esc(g.alergia)}</span>`:''}${g.consent?'<span class="chip c-ok">Consentimiento ✓</span>':'<span class="chip c-red">Falta consentimiento</span>'}</div></div><div class="acts">${acts}</div></div>`}).join('')||'<div class="g"><div></div><div class="note">No hay chicos en este filtro.</div></div>';
+  $$('#glist [data-in]').forEach(x=>x.onclick=()=>checkIn(b,x.dataset.in));
+  $$('#glist [data-undo]').forEach(x=>x.onclick=()=>{const g=b.guests.find(y=>y.id===x.dataset.undo);g.in=null;sync('Ingreso deshecho');renderC()});
+  $$('#glist [data-out]').forEach(x=>x.onclick=()=>checkOut(b,x.dataset.out));
+}
+function sync(t){$('#syncTxt').textContent=(t?t+' · ':'')+'sincronizado con 3 dispositivos';clearTimeout(sync.h);sync.h=setTimeout(()=>$('#syncTxt').textContent='Sincronizado · 3 dispositivos conectados',2600)}
+function checkIn(b,id){const g=b.guests.find(y=>y.id===id);
+  if(!g.consent){modal('Falta el consentimiento',`<p style="margin-top:0"><b>${esc(g.nino)}</b> no tiene el consentimiento firmado y no puede entrar a la pista hasta completarlo.</p><p class="note">Pueden completarlo en recepción con ${esc(g.adulto)} (${esc(g.tel)}).</p>`,`<button class="btn" data-close>Cancelar</button><button class="btn red" id="wOk">Lo completó en recepción: ingresar</button>`);
+    $('#wOk').onclick=()=>{g.consent=true;g.in=nowHM();closeModal();sync(g.nino.split(' ')[0]+' ingresó');toast(`${g.nino} ingresó con el consentimiento completado`);renderC()};return}
+  g.in=nowHM();sync(g.nino.split(' ')[0]+' ingresó');renderC()}
+function checkOut(b,id){const g=b.guests.find(y=>y.id===id);
+  modal('¿Quién lo retira?',`<p style="margin-top:0">Persona autorizada para retirar a <b>${esc(g.nino)}</b>: <b>${esc(g.retira)}</b></p><label class="f" for="oP">Lo retira</label><input id="oP" value="${esc(g.retira)}"><div id="oMsg"></div>`,`<button class="btn" data-close>Cancelar</button><button class="btn dark" id="oOk">Confirmar salida</button>`);
+  $('#oP').oninput=()=>{$('#oMsg').innerHTML=norm($('#oP').value.trim())!==norm(g.retira)?`<div class="alert red">No es la persona autorizada. Confirmen con ${esc(g.adulto)} (${esc(g.tel)}) antes de entregarlo.</div>`:''};
+  $('#oOk').onclick=()=>{g.out=nowHM();g.por=$('#oP').value.trim()||g.retira;closeModal();sync(g.nino.split(' ')[0]+' se retiró');renderC()};
+}
+$('#cSel').onchange=e=>{curCk=+e.target.value;renderC()};
+$('#cQ').oninput=e=>{cq=e.target.value;renderC()};
+$('#cSim').onclick=()=>{const b=bookings.find(x=>x.id===curCk),p=b.guests.filter(g=>!g.in&&g.consent);if(!p.length){toast('No quedan chicos por llegar con consentimiento');return}const g=pick(p);g.in=nowHM();sync(g.nino.split(' ')[0]+' marcado desde Tablet entrada');toast(`${g.nino} llegó · lo marcaron desde la tablet de la entrada`);renderC()};
+$('#cAdd').onclick=()=>{const b=bookings.find(x=>x.id===curCk);
+  modal('Invitado de último momento',`<div class="grid2"><div><label class="f" for="aN">Nombre y apellido</label><input id="aN"></div><div><label class="f" for="aE">Edad</label><input id="aE" inputmode="numeric"></div><div><label class="f" for="aA">Adulto responsable</label><input id="aA"></div><div><label class="f" for="aT">WhatsApp</label><input id="aT" inputmode="tel"></div></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-weight:700"><input type="checkbox" id="aW" style="width:18px;height:18px"> Completó el consentimiento</label><div id="aMsg"></div>`,`<button class="btn" data-close>Cancelar</button><button class="btn red" id="aOk">Anotar e ingresar</button>`);
+  $('#aOk').onclick=()=>{const n=$('#aN').value.trim(),e=parseInt($('#aE').value)||0,a=$('#aA').value.trim();if(!n||!e||!a){$('#aMsg').innerHTML='<div class="alert red">Completen nombre, edad y adulto.</div>';return}
+    if(!$('#aW').checked){$('#aMsg').innerHTML='<div class="alert red">Sin consentimiento no puede entrar a la pista.</div>';return}
+    b.guests.push({id:'g'+Date.now(),nino:n,edad:e,adulto:a,tel:$('#aT').value.trim()||'—',talle:talleDe(e),alergia:'',retira:a,consent:true,in:nowHM(),out:null,por:''});closeModal();sync(n.split(' ')[0]+' agregado');renderC()}};
+$$('.dev button').forEach(x=>x.onclick=()=>{$$('.dev button').forEach(y=>y.setAttribute('aria-pressed',y===x));$('#frame').className='frame '+x.dataset.d});
+
+/* ---------- hoja del día ---------- */
+function renderH(){
+  const sel=$('#hDay');if(!sel.value)sel.innerHTML=Array.from({length:7},(_,k)=>`<option value="${D(k)}">${k===0?'Hoy · ':''}${fdl(D(k))}</option>`).join('');
+  const day=sel.value||D(0);
+  const list=bookings.filter(b=>b.fecha===day).sort((a,b)=>(a.turno+a.sede)<(b.turno+b.sede)?-1:1);
+  $('#sheets').innerHTML=list.map(b=>{const S=SBY[b.sede],s=stats(b);const t={XS:0,S:0,M:0,L:0};b.guests.forEach(g=>t[g.talle]++);const al=b.guests.filter(g=>g.alergia),sc=b.guests.filter(g=>!g.consent);
+    return `<article class="ps" style="--c:${S.c}"><div class="ps-h"><b>${esc(b.nene)} cumple ${b.edad}</b><span>${esc(S.name)} · ${esc(b.esp)} · Anfitrión ${esc(b.anfitrion)} (${esc(b.tel)})</span></div>
+    <div class="tl"><div><small>Llegada</small><b>${b.turno}</b></div><div><small>Salto</small><b>${addMin(b.turno,10)}</b></div><div><small>Merienda</small><b>${addMin(b.turno,75)}</b></div><div><small>Torta</small><b>${addMin(b.turno,135)}</b></div><div><small>Retiro</small><b>${addMin(b.turno,DUR)}</b></div></div>
+    <div class="ps-b"><div><h5>Chicos</h5><b style="font-size:20px;font-family:var(--display)">${s.n}</b> <span class="note">de ${b.cupo} · ${Math.max(1,Math.ceil(s.n/12))} profe${Math.ceil(s.n/12)>1?'s':''}</span></div><div><h5>Medias para preparar</h5><div class="socks">${Object.entries(t).map(([k,v])=>`<span>${k} ${v}</span>`).join('')}</div></div>
+    <div><h5>Cocina: alergias</h5>${al.length?`<ul>${al.map(g=>`<li><b>${esc(g.nino.split(' ')[0])} ${esc(g.nino.split(' ')[1]?.[0]||'')}.</b> ${esc(g.alergia)}</li>`).join('')}</ul>`:'<span class="note">Sin alergias informadas</span>'}</div>
+    <div><h5>Falta consentimiento</h5>${sc.length?`<ul>${sc.map(g=>`<li>${esc(g.nino)} <span class="note">· ${esc(g.tel)}</span></li>`).join('')}</ul>`:'<span class="chip c-ok">Todos completos</span>'}</div></div></article>`}).join('')||'<div class="card note">No hay cumples para este día.</div>';
+}
+$('#hDay').onchange=renderH;$('#hPrint').onclick=()=>window.print();
+
+/* ---------- tabs ---------- */
+function go(k){$$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===k));['a','i','c','h'].forEach(x=>$('#tab-'+x).hidden=x!==k);({a:renderA,i:renderI,c:renderC,h:renderH})[k]();}
+$$('.tab').forEach(t=>t.onclick=()=>go(t.dataset.tab));
+renderA();
+
+</script>
+</body>
+</html>
