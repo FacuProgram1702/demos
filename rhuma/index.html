@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rhuma · Presupuestos y Stock</title>
-<meta name="description" content="Demo para Rhuma: presupuestos tan rápidos como un Excel, envío o retiro en el local, y stock que se descuenta por fecha cuando el cliente confirma con la seña.">
+<meta name="description" content="Demo para Rhuma: catálogo donde el cliente arma su pedido, presupuestos rápidos como un Excel, stock por fecha que se descuenta con la seña y lista de compras.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap">
@@ -41,12 +41,12 @@ button{font-family:inherit}
 .hero h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4.4vw,46px);line-height:1.05;letter-spacing:-.8px;margin:0 0 12px;max-width:27ch;text-wrap:balance}
 .hero h1 em{font-style:normal;color:var(--yel)}
 .hero p.lead{color:#cfcbc2;max-width:64ch;margin:0 0 24px;font-size:16px}
-.asked{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.asked{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .ask{background:var(--coal-2);border:1px solid var(--coal-3);border-radius:14px;padding:14px 14px 16px}
 .ask q{display:block;font-size:13px;color:#a9a59c;font-style:italic;margin-bottom:8px;quotes:"“" "”"}
 .ask b{display:block;font-family:var(--display);font-size:17px;line-height:1.2;margin-bottom:4px}
 .ask span{font-size:13.5px;color:#d7d3ca}
-.ask:nth-child(1){border-top:3px solid var(--yel)} .ask:nth-child(2){border-top:3px solid var(--blu)} .ask:nth-child(3){border-top:3px solid var(--red)} .ask:nth-child(4){border-top:3px solid #fff}
+.ask:nth-child(3n+1){border-top:3px solid var(--yel)} .ask:nth-child(3n+2){border-top:3px solid var(--blu)} .ask:nth-child(3n){border-top:3px solid var(--red)}
 
 .tabbar{position:sticky;top:0;z-index:20;background:rgba(243,242,238,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .tabs{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
@@ -185,6 +185,28 @@ table.st{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%
 .nx span{font-size:13.5px;color:var(--muted)}
 .nx .tag{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--blu);display:block;margin-bottom:6px}
 
+/* catálogo */
+.k-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+.k-top{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:14px;align-items:end;padding:16px}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.prod{background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;border:2px solid transparent}
+.prod.in{border-color:var(--coal)}
+.ph{height:118px;background:color-mix(in srgb,var(--tone) 16%,#fff);color:color-mix(in srgb,var(--tone) 80%,#000);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.ph svg{width:52px;height:52px}
+.ph span{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;opacity:.6;font-weight:700}
+.pb{padding:11px 12px 12px;display:flex;flex-direction:column;gap:2px;flex:1}
+.pb small{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.pb b{font-size:14.5px;line-height:1.25;flex:1}
+.pp{font-weight:700;font-size:15px;margin:4px 0 8px}
+.pp span{font-size:12px;color:var(--muted);font-weight:500}
+.step{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.step button{border:0;background:#f3f2ee;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink)}
+.step button:hover{background:var(--yel)}
+.step input{border:0;border-radius:0;text-align:center;font-family:var(--mono);padding:7px 4px}
+.cart{position:sticky;top:70px}
+.ci{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.ci .mono{font-weight:700}
+
 /* modal + doc */
 .ov{position:fixed;inset:0;background:rgba(10,10,10,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}
 .modal{background:#fff;border-radius:18px;max-width:860px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.35)}
@@ -222,7 +244,8 @@ footer{border-top:1px solid var(--line);padding-block:18px;font-size:13px;color:
 footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
 @media (max-width:1000px){
-  .q-grid{grid-template-columns:minmax(0,1fr)} .tot{position:static}
+  .q-grid,.k-grid{grid-template-columns:minmax(0,1fr)} .tot,.cart{position:static}
+  .k-top{grid-template-columns:1fr 1fr} .k-top>div:last-child{grid-column:1/-1}
   .asked{grid-template-columns:repeat(2,minmax(0,1fr))}
   .lanes{grid-template-columns:repeat(2,minmax(0,1fr))}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -231,6 +254,7 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
 @media (max-width:640px){
   .fields,.mode-box .fields{grid-template-columns:1fr 1fr}
   .asked,.lanes,.next{grid-template-columns:1fr}
+  .k-top{grid-template-columns:1fr} .prods{grid-template-columns:1fr 1fr}
   .quick{grid-template-columns:1fr} .quick .side{max-width:none;flex-direction:row;flex-wrap:wrap}
   .week{grid-template-columns:repeat(7,minmax(44px,1fr));overflow-x:auto}
   .doc .dh,.doc .foot{grid-template-columns:1fr}
@@ -253,28 +277,68 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
       <span class="pill">Demo hecha por ELETEK para Rhuma</span>
     </div>
     <div class="hero-body">
-      <h1>Presupuestan rápido, como en el Excel, y <em>el stock se descuenta solo</em> cuando el cliente confirma.</h1>
-      <p class="lead">Armamos esta demo con lo que nos contaron y con el formato del presupuesto que nos mandaron. Pueden probar todo: los pedidos y los precios son de ejemplo.</p>
+      <h1>El cliente arma su pedido, ustedes lo completan y <em>el stock se ordena solo.</em></h1>
+      <p class="lead">Armamos esta demo con lo que nos contaron, con el presupuesto que nos mandaron y con su catálogo. Pueden probar todo: los artículos, precios y pedidos son de ejemplo.</p>
       <div class="asked">
-        <div class="ask"><q>Necesito que sea práctico como un Excel</q><b>Carga rápida</b><span>Escriben o pegan “100 copa vino” y se arma la planilla. Con Enter pasan a la fila siguiente.</span></div>
-        <div class="ask"><q>Uno cuando es con envío y otro cuando retiran</q><b>Envío o retiro en el local</b><span>Cada modalidad tiene sus campos: horario de entrega y de retiro, o retira y devuelve con foto de DNI.</span></div>
-        <div class="ask"><q>Que a la hora que lo quieran se baje de stock</q><b>Stock por fecha</b><span>Los presupuestos no tocan el stock. Al cobrar la seña, la mercadería queda reservada para esas fechas.</span></div>
-        <div class="ask"><q>Te mando una imagen para que tengas una idea</q><b>Su mismo presupuesto</b><span>Sale con su formato: sin IVA, válido por 48 hs, con garantía, seña del 50% y saldo.</span></div>
+        <div class="ask"><q>Que el cliente lo arme y nosotros lo seguimos</q><b>Catálogo para clientes</b><span>Eligen la fecha, arman el carrito con fotos y precios, y dejan sus datos. El pedido les llega como presupuesto, sin pasar nada al Excel.</span></div>
+        <div class="ask"><q>Que puedan pedir libremente</q><b>Sin límite al cliente</b><span>El cliente nunca ve el stock y puede pedir lo que quiera. Si falta algo, ustedes lo ven al presupuestar.</span></div>
+        <div class="ask"><q>Tener un control de las cosas que tenemos que comprar</q><b>Lista de compras</b><span>Lo que falta para una reserva confirmada pasa a Compras, con la cantidad y la fecha límite para tenerlo.</span></div>
+        <div class="ask"><q>Necesito que sea práctico como un Excel</q><b>Carga rápida</b><span>Cuando el pedido viene por otro lado, escriben o pegan “100 copa vino” y se arma la planilla.</span></div>
+        <div class="ask"><q>Uno cuando es con envío y otro cuando retiran</q><b>Envío o retiro en el local</b><span>Cada modalidad tiene sus campos: horarios de entrega y retiro, o retira y devuelve con foto de DNI.</span></div>
+        <div class="ask"><q>Que a la hora que lo quieran se baje de stock</q><b>Stock por fecha</b><span>Los presupuestos no tocan el stock. Al cobrar la seña se reserva para esas fechas, con el mismo formato de presupuesto que usan hoy.</span></div>
       </div>
+    </div>
     </div>
   </div>
 </header>
 
 <nav class="tabbar" aria-label="Secciones">
   <div class="container tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="false" data-tab="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 7h14l-1.5 11h-11z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Catálogo del cliente</button>
     <button class="tab" role="tab" aria-selected="true" data-tab="q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Presupuesto</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg>Stock por fecha</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>Compras <span class="cnt" id="cntC" hidden>0</span></button>
     <button class="tab" role="tab" aria-selected="false" data-tab="p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Pedidos <span class="cnt" id="cntP">0</span></button>
     <button class="tab" role="tab" aria-selected="false" data-tab="a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>Agenda del flete</button>
   </div>
 </nav>
 
 <main class="container">
+
+<!-- CATALOGO -->
+<section id="tab-k" role="tabpanel" hidden>
+  <div class="sec-head"><div><h2 class="h2">Así lo ve el cliente</h2><div class="note">Reemplaza el carrito de Pedix: el cliente arma todo y a ustedes les llega como presupuesto, listo para completar. Las fotos y los precios se importan de su catálogo actual.</div></div><span class="chip c-dark">Vista del cliente</span></div>
+  <div class="k-grid">
+    <div>
+      <div class="card k-top">
+        <div><label class="f" for="kEvt">1 · Fecha de tu evento</label><input id="kEvt" type="date"></div>
+        <div><span class="f">2 · ¿Cómo lo querés?</span><div class="seg" id="kMode" role="group" aria-label="Envío o retiro"><button type="button" data-m="envio" aria-pressed="true">Con envío</button><button type="button" data-m="local" aria-pressed="false">Retiro en el local</button></div></div>
+        <div><label class="f" for="kSearch">3 · Buscá y sumá artículos</label><input id="kSearch" placeholder="Copas, manteles, sillas…"></div>
+      </div>
+      <div class="filters" id="kCats" style="margin:14px 0 12px"></div>
+      <div class="prods" id="kGrid"></div>
+    </div>
+    <aside class="card cart" aria-label="Tu pedido">
+      <h3 class="h3">Tu pedido · <span id="kCount" class="mono">0</span> artículos</h3>
+      <div id="kItems"></div>
+      <div class="tot"><div class="row"><span>Subtotal de artículos</span><b id="kSub">$0</b></div></div>
+      <p class="note" style="margin:6px 0 12px">El envío, los horarios y la garantía los completa Rhuma en el presupuesto final.</p>
+      <div id="kForm">
+        <div class="fields" style="grid-template-columns:1fr 1fr">
+          <div><label class="f" for="kNom">Nombre</label><input id="kNom" placeholder="Tu nombre"></div>
+          <div><label class="f" for="kTel">WhatsApp</label><input id="kTel" inputmode="tel" placeholder="11 ..."></div>
+          <div id="kDirW" style="grid-column:1/-1"><label class="f" for="kDir">Dirección de entrega</label><input id="kDir" placeholder="Calle, número, localidad"></div>
+          <div style="grid-column:1/-1"><label class="f" for="kNota">Comentarios</label><input id="kNota" placeholder="Ej: salón en primer piso, sin ascensor"></div>
+        </div>
+        <button class="btn yel" id="kSend" type="button" style="width:100%;margin-top:12px">Enviar pedido a Rhuma</button>
+      </div>
+      <div id="kDone" hidden>
+        <div class="alert ok"><b>¡Pedido <span id="kDoneN"></span> enviado!</b><br>Rhuma lo revisa y te manda el presupuesto final por WhatsApp.</div>
+        <div class="actions" style="margin-top:10px"><button class="btn dark" id="kSee" type="button">Verlo como Rhuma (en Pedidos)</button><button class="btn" id="kAgain" type="button">Hacer otro pedido</button></div>
+      </div>
+    </aside>
+  </div>
+</section>
 
 <!-- PRESUPUESTO -->
 <section id="tab-q" role="tabpanel">
@@ -374,11 +438,20 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
   <div class="legend">
     <span><i style="background:#eef3fd"></i>Parte reservado</span>
     <span><i style="background:var(--warn-soft)"></i>Queda poco (menos del 20%)</span>
-    <span><i style="background:var(--red-soft)"></i>Sin stock</span>
+    <span><i style="background:var(--red-soft)"></i>Sin stock (en negativo = hay que comprar)</span>
     <span><i style="background:var(--yel);border-radius:50%;width:9px;height:9px"></i>Hay presupuestos sin confirmar que lo piden</span>
     <span>El stock total se puede editar cuando compran o dan de baja mercadería.</span>
   </div>
   <div class="card" id="sDetail" style="margin-top:14px" hidden></div>
+</section>
+
+<!-- COMPRAS -->
+<section id="tab-c" role="tabpanel" hidden>
+  <div class="kpis" id="cKpis"></div>
+  <div class="card">
+    <div class="sec-head"><div><h2 class="h2">Lo que hay que comprar</h2><div class="note">Sale solo de las reservas con seña: si para una fecha piden más de lo que tienen, acá queda cuánto comprar y para cuándo. Cuando lo compran, se suma al stock con un clic.</div></div></div>
+    <div style="overflow-x:auto"><table class="list" id="cTbl"></table></div>
+  </div>
 </section>
 
 <!-- PEDIDOS -->
@@ -402,7 +475,7 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
   <h2 class="h2" id="nxT">Lo que podemos sumar después</h2>
   <div class="note">La demo muestra la base. Esto lo agregamos solo si les sirve:</div>
   <div class="next">
-    <div class="nx"><span class="tag">Arranque</span><b>Importamos su Excel actual</b><span>Pasamos sus artículos, precios y stock tal como los tienen hoy. No hay que cargar nada desde cero.</span></div>
+    <div class="nx"><span class="tag">Arranque</span><b>Importamos su catálogo y su Excel</b><span>Pasamos los artículos, fotos y precios de Pedix y el stock de su Excel. No hay que cargar nada desde cero.</span></div>
     <div class="nx"><span class="tag">Clientes</span><b>Recordatorios por WhatsApp</b><span>Avisos automáticos de seña pendiente, de la entrega del día y de la devolución.</span></div>
     <div class="nx"><span class="tag">Flete</span><b>Hoja de ruta en el celular</b><span>El chofer ve las entregas en orden y marca “entregado” o “retirado” con una foto.</span></div>
     <div class="nx"><span class="tag">Devoluciones</span><b>Roturas con foto</b><span>Cada faltante o rotura queda registrado con una foto y se descuenta de la garantía solo.</span></div>
@@ -418,6 +491,7 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const money=n=>'$'+Math.round(n).toLocaleString('es-AR');
 const num=n=>Math.round(n).toLocaleString('es-AR');
@@ -482,9 +556,10 @@ let orders=[
  {id:1042,nombre:'Catering Sabores del Sur',cli:'Sabores del Sur',tel:'11 3388-0912',modo:'local',dir:'',zona:0,evento:D(3),sal:D(2),salH:'9:00',vue:D(4),vueH:'17:00',dni:true,items:it('PL01 300, CU01 300, CU02 300, CR01 200, EX01 6, CZ01 120'),dias:0,gar:null,iva:true,estado:'reservado',creado:NOW-3*24*HOUR},
  {id:1043,nombre:'Cumple de 15 · Valentina',cli:'Marina López',tel:'11 5021-7765',modo:'envio',dir:'Av. del Libertador 5800, Núñez',zona:0,evento:D(4),sal:D(4),salH:FRANJAS[3],vue:D(6),vueH:FRANJAS[1],dni:false,items:it('SI01 120, ME01 12, MA01 12, FD01 1, DE01 1, CR01 120'),dias:1,gar:null,iva:false,estado:'presupuesto',creado:NOW-5*HOUR},
  {id:1044,nombre:'Bautismo de Benjamín',cli:'Carla Méndez',tel:'11 4402-3318',modo:'local',dir:'',zona:0,evento:D(1),sal:D(1),salH:'10:00',vue:D(2),vueH:'12:00',dni:false,items:it('CR02 40, PL02 40, CU03 40, MA04 6'),dias:0,gar:null,iva:false,estado:'presupuesto',creado:NOW-60*HOUR},
+ {id:1047,origen:'web',nombre:'Pedido web · Agustina Paz',cli:'Agustina Paz',tel:'11 3091-4478',modo:'envio',dir:'Moldes 1950, Belgrano',zona:0,evento:D(7),sal:D(7),salH:'(a definir)',vue:D(8),vueH:'(a definir)',dni:false,items:it('CR01 50, PL01 50, PL02 50, CU01 50, CU02 50, MA01 5, ME01 5, SI01 50'),dias:0,gar:null,iva:false,estado:'presupuesto',creado:NOW-70*60e3},
  {id:1045,nombre:'Fiesta fin de año · Colegio San Martín',cli:'Colegio San Martín',tel:'11 4659-1200',modo:'envio',dir:'Av. Rivadavia 17800, Haedo',zona:2,evento:D(9),sal:D(9),salH:FRANJAS[0],vue:D(10),vueH:FRANJAS[2],dni:false,items:it('SI02 200, ME02 25, GZ01 6, MA02 20, HP01 2'),dias:0,gar:null,iva:true,estado:'presupuesto',creado:NOW-20*HOUR}
 ];
-let nextId=1046;
+let nextId=1048;
 
 /* ---------- cálculo de stock ---------- */
 const lav=()=>$('#sLav').checked?1:0;
@@ -539,7 +614,7 @@ function loadQ(o){
   syncDates();$('#lDni').checked=!!q.dni;$('#tDias').value=q.dias||0;$('#tIva').checked=!!q.iva;
   setMode(q.modo,true);
   $('#qTitle').textContent=q.id?`Presupuesto #${q.id}`+(q.nombre?' · '+q.nombre:''):'Nuevo presupuesto'+(q.nombre?' · '+q.nombre:'');
-  $('#qSub').innerHTML=q.id?`${estadoChip(q)} ${vence(q)} <span class="note">· Editando un pedido guardado.</span>`:'Se guarda como presupuesto y no toca el stock hasta que confirmen con la seña.';
+  $('#qSub').innerHTML=q.id?`${estadoChip(q)} ${vence(q)} ${q.origen==='web'&&q.estado==='presupuesto'?'<span class="chip c-dark">Lo armó el cliente desde el catálogo</span> <span class="note">· Completen zona de envío, horarios y garantía, y envíenle el presupuesto.</span>':'<span class="note">· Editando un pedido guardado.</span>'}`:'Se guarda como presupuesto y no toca el stock hasta que confirmen con la seña.';
   $('#tAlert').innerHTML='';$('#qMsg').innerHTML='';
   renderRows();
 }
@@ -610,7 +685,7 @@ function updRow(i){
   const i0=BY[r.c];pu.textContent=money(i0.price);st.textContent=r.q?money(i0.price*r.q):'';
   const a=availRange(r.c,q.sal,q.vue,q.id),p=pendRange(r.c,q.sal,q.vue,q.id);
   let h='';
-  if(r.q>a){h=`<span class="chip c-red">Faltan ${num(r.q-a)} · libres ${num(Math.max(0,a))}</span>`;tr.classList.add('bad')}
+  if(r.q>a){h=`<span class="chip c-red">Faltan ${num(r.q-a)} · van a compras</span>`;tr.classList.add('bad')}
   else if(r.q&&a-r.q<i0.stock*.2)h=`<span class="chip c-warn">Alcanza · libres ${num(a)}</span>`;
   else h=`<span class="chip c-ok">${r.q?'Alcanza · ':''}libres ${num(a)}</span>`;
   if(p)h+=` <span class="chip c-yel" title="Presupuestos sin seña que piden este artículo en esas fechas">${num(p)} en presup. sin seña</span>`;
@@ -624,7 +699,7 @@ function totals(keepGar){
   $('#tIvaV').textContent=money(t.iva);$('#tTot').textContent=money(t.tot);$('#tSen').textContent=money(t.sena);$('#tSal').textContent=money(t.saldo);
   const sh=shortages(q);
   $('#bConf').disabled=false;
-  $('#tAlert').innerHTML=sh.length?`<div class="alert red"><b>Para esas fechas falta mercadería:</b><br>${sh.map(s=>`${num(s.falta)} × ${esc(BY[s.c].name)} (libres ${num(s.quedan)})`).join('<br>')}<br>Pueden guardarlo como presupuesto, pero no reservarlo hasta ajustarlo.</div>`:'';
+  $('#tAlert').innerHTML=sh.length?`<div class="alert blu"><b>No le dicen que no al cliente.</b> Para esas fechas faltan:<br>${sh.map(s=>`${num(s.falta)} × ${esc(BY[s.c].name)}`).join('<br>')}<br>Pueden confirmarlo igual: al cobrar la seña, lo que falta pasa a la lista de <b>Compras</b> con la fecha límite (${fd(q.sal)}).</div>`:'';
 }
 function cleanQ(){const o=JSON.parse(JSON.stringify(q));o.items=o.items.filter(r=>r.c&&r.q>0);return o}
 function validate(o){
@@ -639,9 +714,9 @@ function store(o){
   if(k>=0){o.creado=orders[k].creado;orders[k]=o}else{o.id=nextId++;o.creado=Date.now();orders.push(o)}
   return o;
 }
-$('#bSave').onclick=()=>{const o=cleanQ();if(!validate(o))return;if(o.estado!=='presupuesto'&&shortages(o).length){toast('Esta reserva quedaría sin stock: ajusten cantidades o fechas');return}if(!o.id)o.estado='presupuesto';const s=store(o);loadQ(s);counts();toast(`Presupuesto #${s.id} guardado. El stock no se tocó.`)};
-$('#bConf').onclick=()=>{const o=cleanQ();if(!validate(o))return;const sh=shortages(o);if(sh.length){totals();$('#tAlert').scrollIntoView({behavior:'smooth',block:'center'});toast('No se puede reservar: falta mercadería para esas fechas');return}
-  if(o.estado==='presupuesto')o.estado='reservado';const s=store(o);loadQ(s);counts();toast(`Reserva #${s.id} confirmada: el stock queda reservado del ${fd(s.sal)} al ${fd(s.vue)}.`)};
+$('#bSave').onclick=()=>{const o=cleanQ();if(!validate(o))return;if(!o.id)o.estado='presupuesto';const s=store(o);loadQ(s);counts();toast(`Presupuesto #${s.id} guardado. El stock no se tocó.`)};
+$('#bConf').onclick=()=>{const o=cleanQ();if(!validate(o))return;const sh=shortages(o);
+  if(o.estado==='presupuesto')o.estado='reservado';o.completar=false;const s=store(o);loadQ(s);counts();toast(sh.length?`Reserva #${s.id} confirmada. ${sh.length} artículo${sh.length>1?'s':''} pasa${sh.length>1?'n':''} a Compras: comprar antes del ${fd(s.sal)}.`:`Reserva #${s.id} confirmada: el stock queda reservado del ${fd(s.sal)} al ${fd(s.vue)}.`)};
 $('#bDoc').onclick=()=>{const o=cleanQ();if(!o.items.length){toast('Agreguen artículos para ver el presupuesto');return}showDoc(o)};
 $('#bNew').onclick=()=>{loadQ(blankQ());$('#fCli').focus()};
 $('#addRow').onclick=()=>{q.items.push({c:'',q:0});renderRows(['art',q.items.length-1])};
@@ -691,7 +766,7 @@ function showDoc(o){
 /* ---------- pedidos ---------- */
 let pf='todos';
 const PF=[['todos','Todos'],['presupuesto','Presupuestos'],['reservado','Reservados'],['entregado','En el evento'],['cerrado','Cerrados']];
-function counts(){$('#cntP').textContent=orders.filter(o=>o.estado==='presupuesto').length}
+function counts(){$('#cntP').textContent=orders.filter(o=>o.estado==='presupuesto').length;const n=buyList().filter(x=>x.falta>0).length;$('#cntC').textContent=n;$('#cntC').hidden=!n}
 function renderP(){
   const pres=orders.filter(o=>o.estado==='presupuesto'),venc=pres.filter(o=>Date.now()-o.creado>48*HOUR);
   const res=orders.filter(o=>o.estado==='reservado'||o.estado==='entregado');
@@ -702,18 +777,18 @@ function renderP(){
   $$('#pFil .fbtn').forEach(b=>b.onclick=()=>{pf=b.dataset.k;renderP()});
   const list=orders.filter(o=>pf==='todos'||o.estado===pf).sort((a,b)=>a.sal<b.sal?-1:1);
   $('#pTbl').innerHTML=`<thead><tr><th>N°</th><th>Evento</th><th>Modalidad</th><th>Sale → vuelve</th><th style="text-align:right">Total</th><th>Estado</th><th></th></tr></thead><tbody>${list.map(o=>{const t=calc(o);let a='';
-    if(o.estado==='presupuesto')a=`<button class="btn sm" data-a="open" data-id="${o.id}">Abrir</button><button class="btn sm yel" data-a="conf" data-id="${o.id}">Cobré la seña</button>`;
+    if(o.estado==='presupuesto')a=`<button class="btn sm ${o.origen==='web'?'dark':''}" data-a="open" data-id="${o.id}">${o.origen==='web'?'Completar presupuesto':'Abrir'}</button><button class="btn sm yel" data-a="conf" data-id="${o.id}">Cobré la seña</button>`;
     if(o.estado==='reservado')a=`<button class="btn sm" data-a="open" data-id="${o.id}">Abrir</button><button class="btn sm" data-a="doc" data-id="${o.id}">Presupuesto</button><button class="btn sm dark" data-a="out" data-id="${o.id}">${o.modo==='envio'?'Salió el flete':'Lo retiraron'}</button>`;
     if(o.estado==='entregado')a=`<button class="btn sm dark" data-a="ret" data-id="${o.id}">Registrar devolución</button>`;
     if(o.estado==='cerrado')a=`<span class="note">${o.ctrl?(o.ctrl.cargo?'Cargo por roturas '+money(o.ctrl.cargo)+' · '+esc(o.ctrl.txt):'Volvió todo bien'):''}</span>`;
-    return `<tr><td class="mono">#${o.id}</td><td><b>${esc(o.nombre)}</b><span class="sub">${esc(o.cli)} · ${o.items.reduce((s,r)=>s+r.q,0)} artículos</span></td><td>${modoTxt(o)}${o.modo==='local'?`<span class="sub">${o.dni?'DNI recibido':'Falta foto del DNI'}</span>`:''}</td><td>${fd(o.sal)} → ${fd(o.vue)}<span class="sub">${esc(o.salH)} / ${esc(o.vueH)}</span></td><td class="mono" style="text-align:right">${money(t.tot)}</td><td>${estadoChip(o)} ${vence(o)}</td><td><div class="acts">${a}</div></td></tr>`}).join('')}</tbody>`;
+    return `<tr><td class="mono">#${o.id}</td><td><b>${esc(o.nombre)}</b>${o.origen==='web'?' <span class="chip c-dark">Del catálogo</span>':''}<span class="sub">${esc(o.cli)} · ${o.items.reduce((s,r)=>s+r.q,0)} artículos</span></td><td>${modoTxt(o)}${o.modo==='local'?`<span class="sub">${o.dni?'DNI recibido':'Falta foto del DNI'}</span>`:''}</td><td>${fd(o.sal)} → ${fd(o.vue)}<span class="sub">${esc(o.salH)} / ${esc(o.vueH)}</span></td><td class="mono" style="text-align:right">${money(t.tot)}</td><td>${estadoChip(o)} ${vence(o)}</td><td><div class="acts">${a}</div></td></tr>`}).join('')}</tbody>`;
   $$('#pTbl [data-a]').forEach(b=>b.onclick=()=>act(b.dataset.a,+b.dataset.id));
 }
 function act(a,id){
   const o=orders.find(x=>x.id===id);if(!o)return;
   if(a==='open'){loadQ(o);go('q');window.scrollTo({top:$('.tabbar').offsetTop,behavior:'smooth'})}
   if(a==='doc')showDoc(o);
-  if(a==='conf'){const sh=shortages(o);if(sh.length){toast(`No alcanza: faltan ${num(sh[0].falta)} × ${BY[sh[0].c].name}. Ábranlo para ajustarlo.`);return}o.estado='reservado';toast(`#${o.id} reservado: el stock queda tomado del ${fd(o.sal)} al ${fd(o.vue)}`);rerender()}
+  if(a==='conf'){const sh=shortages(o);o.estado='reservado';toast(sh.length?`#${o.id} reservado. Faltan ${num(sh[0].falta)} × ${BY[sh[0].c].name}${sh.length>1?' y más':''}: quedó en Compras.`:`#${o.id} reservado: el stock queda tomado del ${fd(o.sal)} al ${fd(o.vue)}`);rerender()}
   if(a==='out'){o.estado='entregado';toast(`#${o.id} ${o.modo==='envio'?'entregado':'retirado'}. Queda pendiente la devolución.`);rerender()}
   if(a==='ret')control(o);
   if(a==='load')hoja(o);
@@ -787,12 +862,84 @@ function detail(c,d){
 $('#sQ').oninput=renderS;
 $('#sLav').onchange=()=>{renderS();refreshAll();toast($('#sLav').checked?'Se bloquea un día extra para lavado y control':'Sin día extra de lavado')};
 
+
+/* ---------- compras (lo que falta comprar) ---------- */
+function horizon(){let m=D(0);orders.forEach(o=>{if(o.vue&&o.estado!=='cerrado'){const v=addDays(o.vue,1);if(v>m)m=v}});return days(D(0),m)}
+function buyList(){
+  const ds=horizon(),out=[];
+  for(const i of CAT){
+    let falta=0,fecha=null,pot=0,fechaP=null;
+    for(const d of ds){const u=usedOn(i.c,d),p=pendOn(i.c,d);const f=u-i.stock,fp=u+p-i.stock;if(f>falta){falta=f}if(f>0&&!fecha)fecha=d;if(fp>pot){pot=fp}if(fp>0&&!fechaP)fechaP=d}
+    if(falta>0||pot>0){
+      const who=orders.filter(o=>OCC.includes(o.estado)&&o.items.some(r=>r.c===i.c)&&fecha&&covers(o,fecha,lav()));
+      out.push({i,falta,fecha,pot,fechaP,who});
+    }
+  }
+  return out.sort((a,b)=>(b.falta>0)-(a.falta>0)||String(a.fecha||a.fechaP).localeCompare(String(b.fecha||b.fechaP)));
+}
+function renderC(){
+  const L=buyList(),conf=L.filter(x=>x.falta>0),pot=L.filter(x=>x.falta===0);
+  const costo=conf.reduce((s,x)=>s+x.falta*x.i.repo,0);
+  const first=conf.map(x=>x.fecha).sort()[0];
+  $('#cKpis').innerHTML=`<div class="kpi"><small>Artículos para comprar</small><b>${conf.length}</b><span class="note">por reservas ya confirmadas</span></div><div class="kpi"><small>Primera fecha límite</small><b>${first?fd(first):'—'}</b><span class="note">tiene que estar antes de esa salida</span></div><div class="kpi"><small>Costo estimado</small><b>${money(costo)}</b><span class="note">a valor de reposición de ejemplo</span></div><div class="kpi"><small>Posibles compras</small><b>${pot.length}</b><span class="note">si se confirman los presupuestos</span></div>`;
+  const row=(x,posible)=>`<tr><td><b>${esc(x.i.name)}</b><span class="sub">${x.i.c} · stock actual ${num(x.i.stock)}</span></td><td class="mono" style="text-align:right;font-size:16px;font-weight:700;color:${posible?'var(--warn)':'var(--red)'}">${num(posible?x.pot:x.falta)}</td><td>${fd(posible?x.fechaP:x.fecha)}<span class="sub">${posible?'si confirman':'antes de que salga'}</span></td><td>${posible?'<span class="note">Presupuestos sin seña</span>':x.who.map(o=>`<span class="chip c-blu" style="margin:0 4px 4px 0">#${o.id} ${esc(o.nombre.split(' · ')[0])}</span>`).join('')}${!posible&&x.pot>x.falta?`<span class="sub">Si confirman los presupuestos, serían ${num(x.pot)}</span>`:''}</td><td class="mono" style="text-align:right">${money((posible?x.pot:x.falta)*x.i.repo)}</td><td><div class="acts">${posible?'':`<button class="btn sm dark" data-buy="${x.i.c}" data-n="${x.falta}">Ya los compramos</button>`}</div></td></tr>`;
+  $('#cTbl').innerHTML=`<thead><tr><th>Artículo</th><th style="text-align:right">Comprar</th><th>Para el</th><th>Pedidos que lo necesitan</th><th style="text-align:right">Costo estimado</th><th></th></tr></thead><tbody>${conf.map(x=>row(x,false)).join('')||'<tr><td colspan="6" class="note">No hay nada para comprar: todas las reservas confirmadas tienen stock.</td></tr>'}${pot.length?`<tr><td colspan="6" style="background:#faf9f6;font-weight:700;font-size:13px;color:var(--muted)">POSIBLES: aparecen si confirman los presupuestos pendientes</td></tr>${pot.map(x=>row(x,true)).join('')}`:''}</tbody>`;
+  $$('#cTbl [data-buy]').forEach(b=>b.onclick=()=>{const i=BY[b.dataset.buy],n=+b.dataset.n;i.stock+=n;toast(`Se sumaron ${num(n)} × ${i.name} al stock (ahora ${num(i.stock)})`);rerender()});
+}
+
+/* ---------- catálogo para clientes ---------- */
+const ICON={
+ 'Vajilla':'<circle cx="32" cy="32" r="20"/><circle cx="32" cy="32" r="12"/>',
+ 'Cristalería':'<path d="M22 12h20c0 12-4 19-10 19s-10-7-10-19z"/><path d="M32 31v17M24 50h16"/>',
+ 'Cubertería':'<path d="M24 12v14M20 12v10a4 4 0 0 0 8 0V12M24 26v26"/><path d="M40 12c-5 4-5 14 0 18v22"/>',
+ 'Mantelería':'<path d="M12 22h40l-4 8H16z"/><path d="M16 30l-2 20M48 30l2 20M24 30v10M40 30v10"/>',
+ 'Mobiliario':'<path d="M22 10v26h20V10M20 36h24M22 36l-2 18M42 36l2 18M22 18h20"/>',
+ 'Artefactos':'<rect x="14" y="20" width="36" height="26" rx="4"/><path d="M20 20v-6h24v6M14 30h36"/><circle cx="24" cy="38" r="2"/>'
+};
+const TONE={'Vajilla':'#ffc928','Cristalería':'#1f5fd6','Cubertería':'#e0392e','Mantelería':'#ffc928','Mobiliario':'#1f5fd6','Artefactos':'#e0392e'};
+let kcat='Todos',kq='',cart={},kmode='envio',sentId=null;
+function renderK(){
+  if(!$('#kEvt').value)$('#kEvt').value=D(12);
+  $('#kCats').innerHTML=['Todos',...CATS].map(c=>`<button class="fbtn" aria-pressed="${kcat===c}" data-c="${c}">${c}</button>`).join('');
+  $$('#kCats .fbtn').forEach(b=>b.onclick=()=>{kcat=b.dataset.c;renderK()});
+  const qs=norm(kq);
+  const list=CAT.filter(i=>(kcat==='Todos'||i.cat===kcat)&&(!qs||norm(i.name).includes(qs)));
+  $('#kGrid').innerHTML=list.map(i=>{const n=cart[i.c]||0;return `<article class="prod${n?' in':''}"><div class="ph" style="--tone:${TONE[i.cat]}"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[i.cat]}</svg><span>foto del artículo</span></div><div class="pb"><small>${i.cat}</small><b>${esc(i.name)}</b><div class="pp mono">${money(i.price)} <span>c/u</span></div><div class="step"><button type="button" data-k="${i.c}" data-d="-1" aria-label="Quitar uno">−</button><input data-k="${i.c}" value="${n||''}" placeholder="0" inputmode="numeric" aria-label="Cantidad de ${esc(i.name)}"><button type="button" data-k="${i.c}" data-d="1" aria-label="Agregar uno">+</button></div></div></article>`}).join('')||'<p class="note">No encontramos artículos con ese nombre.</p>';
+  $$('#kGrid .step button').forEach(b=>b.onclick=()=>{const c=b.dataset.k,step=BY[c].stock>=100?10:1;cart[c]=Math.max(0,(cart[c]||0)+(+b.dataset.d)*step);if(!cart[c])delete cart[c];renderK()});
+  $$('#kGrid .step input').forEach(inp=>inp.onchange=()=>{const v=parseInt(inp.value.replace(/\D/g,''))||0;if(v)cart[inp.dataset.k]=v;else delete cart[inp.dataset.k];renderK()});
+  renderCart();
+}
+function renderCart(){
+  const ks=Object.keys(cart),sub=ks.reduce((s,c)=>s+BY[c].price*cart[c],0);
+  $('#kMode').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===kmode));
+  $('#kDirW').hidden=kmode!=='envio';
+  $('#kItems').innerHTML=ks.length?ks.map(c=>`<div class="ci"><span class="mono">${num(cart[c])}</span><span>${esc(BY[c].name)}</span><b class="mono">${money(BY[c].price*cart[c])}</b><button class="x" data-rm="${c}" aria-label="Quitar ${esc(BY[c].name)}">✕</button></div>`).join(''):'<div class="empty">Tu pedido está vacío. Sumá artículos con el botón +.</div>';
+  $$('#kItems [data-rm]').forEach(b=>b.onclick=()=>{delete cart[b.dataset.rm];renderK()});
+  $('#kSub').textContent=money(sub);$('#kCount').textContent=ks.reduce((s,c)=>s+cart[c],0);
+  $('#kDone').hidden=!sentId;$('#kForm').hidden=!!sentId;
+  if(sentId)$('#kDoneN').textContent='#'+sentId;
+}
+$('#kSearch').oninput=e=>{kq=e.target.value;renderK()};
+$$('#kMode button').forEach(b=>b.onclick=()=>{kmode=b.dataset.m;renderCart()});
+$('#kSend').onclick=()=>{
+  const ks=Object.keys(cart),nom=$('#kNom').value.trim(),tel=$('#kTel').value.trim(),evt=$('#kEvt').value,dir=$('#kDir').value.trim();
+  if(!ks.length){toast('Sumá al menos un artículo');return}
+  if(!evt){toast('Elegí la fecha del evento');$('#kEvt').focus();return}
+  if(!nom||!tel){toast('Completá tu nombre y tu WhatsApp');(nom?$('#kTel'):$('#kNom')).focus();return}
+  if(kmode==='envio'&&!dir){toast('Completá la dirección de entrega');$('#kDir').focus();return}
+  const o={id:nextId++,origen:'web',nombre:'Pedido web · '+nom,cli:nom,tel,modo:kmode,dir,zona:0,evento:evt,sal:kmode==='envio'?evt:addDays(evt,-1),salH:'(a definir)',vue:addDays(evt,1),vueH:'(a definir)',dni:false,items:ks.map(c=>({c,q:cart[c]})),dias:0,gar:null,iva:false,estado:'presupuesto',creado:Date.now(),nota:$('#kNota').value.trim()};
+  orders.push(o);sentId=o.id;cart={};counts();renderK();toast(`Pedido #${o.id} enviado a Rhuma`);
+};
+$('#kAgain').onclick=()=>{sentId=null;['#kNom','#kTel','#kDir','#kNota'].forEach(s=>$(s).value='');renderK()};
+$('#kSee').onclick=()=>{pf='presupuesto';go('p');window.scrollTo({top:$('.tabbar').offsetTop,behavior:'smooth'})};
+
 /* ---------- tabs ---------- */
-function go(k){$$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===k));['q','s','p','a'].forEach(x=>$('#tab-'+x).hidden=x!==k);if(k==='s')renderS();if(k==='p')renderP();if(k==='a')renderA();if(k==='q')refreshAll()}
+function go(k){$$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===k));['k','q','s','c','p','a'].forEach(x=>$('#tab-'+x).hidden=x!==k);if(k==='k')renderK();if(k==='c')renderC();if(k==='s')renderS();if(k==='p')renderP();if(k==='a')renderA();if(k==='q')refreshAll()}
 $$('.tab').forEach(t=>t.onclick=()=>go(t.dataset.tab));
 function rerender(){counts();const k=$('.tab[aria-selected="true"]').dataset.tab;go(k)}
 
-loadQ(exampleQ());counts();
+loadQ(exampleQ());counts();go('k');
+
 
 </script>
 </body>
