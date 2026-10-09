@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Rosalía · Pedidos mayoristas</title>
+<meta name="description" content="Demo para La Rosalía: portal mayorista donde cada comercio ve los precios actualizados, arma su pedido por cajas y lo repite con un toque, y la fábrica recibe todo ordenado para producir y despachar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap">
+<style>
+:root{
+  --choc:#4a2c1d; --choc-2:#6b4330; --caramel:#c98a3d; --caramel-soft:#f7ead6; --cream:#fbf6ee; --paper:#f6efe4;
+  --ok:#2e8a56; --ok-soft:#e2f3e8; --warn:#b36a12; --warn-soft:#fbefd9; --bad:#c0392b; --bad-soft:#fbe4e1; --blu:#3b6fb0; --blu-soft:#e6eef9;
+  --text:#2b1a10; --muted:#7c6a5d; --line:#eadfce; --surface:#fff;
+  --display:"Fraunces",Georgia,serif; --body:"Nunito Sans","Segoe UI",Arial,sans-serif;
+  --shadow:0 1px 2px rgba(74,44,29,.05),0 10px 26px rgba(74,44,29,.09);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--paper);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font-family:inherit} [hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--caramel);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--muted)}
+.container{max-width:1180px;margin:0 auto;padding-inline:16px}
+
+/* top */
+.hero{background:var(--choc);color:#fff;position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.hero:before{content:"";position:absolute;right:-120px;top:-160px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(201,138,61,.35),transparent 65%)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:14px;position:relative}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:42px;height:42px;border-radius:50%;background:var(--caramel);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--choc);font-size:18px}
+.brand b{font-family:var(--display);font-size:21px;display:block;line-height:1.05}
+.brand small{color:#dccabc;font-size:12px}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 11px;color:#f1e6dc;white-space:nowrap}
+.hero-body{padding-block:4px 26px;position:relative}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4.4vw,44px);line-height:1.08;margin:0 0 10px;max-width:24ch}
+.hero h1 em{font-style:normal;color:#f2c98d}
+.hero p{color:#e8d9cc;margin:0;max-width:64ch;font-size:15.5px}
+.tabbar{position:sticky;top:0;z-index:30;background:rgba(246,239,228,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font-weight:800;font-size:14.5px;border:0;border-radius:12px;background:transparent;color:var(--muted);padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab[aria-selected="true"]{background:var(--choc);color:#fff}
+.tab .bdg{background:var(--caramel);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px}
+main{padding-block:18px 50px}
+
+.card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+.h2{font-family:var(--display);font-size:26px;line-height:1.1;margin:0 0 4px}
+.h3{font-weight:800;font-size:16px;margin:0 0 8px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.btn{font-weight:800;font-size:14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;cursor:pointer;white-space:nowrap}
+.btn.dark{background:var(--choc);border-color:var(--choc);color:#fff}
+.btn.car{background:var(--caramel);border-color:var(--caramel);color:#fff}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-bad{background:var(--bad-soft);color:var(--bad)} .c-blu{background:var(--blu-soft);color:var(--blu)} .c-gray{background:#f1ebe2;color:var(--muted)} .c-car{background:var(--caramel-soft);color:#8c5a1c}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;width:100%;min-width:0}
+label.f{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+
+/* portal */
+.pt-wrap{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start;justify-content:center}
+.side-notes{position:sticky;top:76px}
+.side-notes .n{display:flex;gap:12px;margin-bottom:14px}
+.side-notes .n i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--choc);color:#f2c98d;font-style:normal;font-weight:800;display:grid;place-items:center;font-size:14px}
+.side-notes .n b{display:block}
+.side-notes .n span{font-size:14px;color:var(--muted)}
+.portal{scroll-margin-top:64px;background:var(--cream);border-radius:26px;box-shadow:0 18px 46px rgba(74,44,29,.18);overflow:hidden;border:8px solid #2b1a10;position:relative}
+.p-head{background:var(--choc);color:#fff;padding:16px 16px 14px}
+.p-head small{color:#e6cdb6;font-size:12px}
+.p-head b{display:block;font-size:18px;margin-top:2px}
+.p-head .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.p-tabs{display:flex;gap:6px;margin-top:12px}
+.p-tabs button{border:0;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;background:rgba(255,255,255,.12);color:#f1e2d4;cursor:pointer}
+.p-tabs button[aria-pressed="true"]{background:#fff;color:var(--choc)}
+.p-body{padding:12px 12px 96px;min-height:560px}
+.banner{background:var(--caramel-soft);color:#7a4c14;border-radius:12px;padding:9px 12px;font-size:13px;font-weight:700;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.repeat{background:#fff;border:2px solid var(--caramel);border-radius:14px;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.repeat b{display:block;font-size:14px}
+.repeat span{font-size:12.5px;color:var(--muted)}
+.cats{display:flex;gap:6px;overflow-x:auto;margin:0 -12px 10px;padding:0 12px;scrollbar-width:none;position:sticky;top:0}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--muted);cursor:pointer}
+.cats button[aria-pressed="true"]{background:var(--choc);border-color:var(--choc);color:#fff}
+.prod{display:grid;grid-template-columns:62px minmax(0,1fr);gap:11px;background:#fff;border-radius:14px;padding:10px;margin-bottom:8px;align-items:center}
+.prod svg{width:62px;height:62px;display:block}
+.prod b{display:block;font-size:14.5px;line-height:1.2}
+.prod .d{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+.prod .pr{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.prod .pr strong{font-size:15px}
+.prod .pr small{font-size:11.5px;color:var(--muted);font-weight:600;display:block}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:32px;height:32px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:18px;font-weight:800;color:var(--choc);cursor:pointer;line-height:1}
+.step button.add{background:var(--choc);border-color:var(--choc);color:#fff}
+.step span{min-width:22px;text-align:center;font-weight:800;font-size:16px}
+.cartbar{position:absolute;left:10px;right:10px;bottom:10px;background:var(--choc);color:#fff;border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:0;width:calc(100% - 20px);text-align:left;box-shadow:0 10px 24px rgba(43,26,16,.35)}
+.cartbar small{display:block;font-size:12px;color:#e6cdb6}
+.cartbar b{font-size:16px}
+.cartbar .go{background:var(--caramel);border-radius:10px;padding:8px 12px;font-weight:800;font-size:14px}
+.sheet .line{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.opts{display:grid;gap:7px;margin:6px 0 12px}
+.opts label{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 11px;cursor:pointer;font-size:13.5px}
+.opts input{width:auto;margin-top:3px;accent-color:var(--choc)}
+.opts label:has(input:checked){border-color:var(--choc);background:#fff9f1}
+.opts b{display:block;font-size:14px}
+.min{border-radius:12px;padding:9px 11px;font-size:13px;font-weight:700;margin:8px 0}
+.done{text-align:center;padding:26px 8px}
+.done .ck{width:68px;height:68px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 10px}
+.ord{background:#fff;border-radius:14px;padding:11px 12px;margin-bottom:8px}
+.ord .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.track{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:9px}
+.track i{height:5px;border-radius:3px;background:#efe5d7}
+.track i.on{background:var(--ok)}
+.track-l{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10.5px;color:var(--muted);margin-top:3px;font-weight:700}
+
+/* panel */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+.kpi small{font-size:12px;color:var(--muted);font-weight:700}
+.kpi b{display:block;font-family:var(--display);font-size:24px;line-height:1.15}
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+.t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.t td{padding:10px 8px;border-bottom:1px solid #f3ece1;vertical-align:middle}
+.t tr.new td{background:#fff6e6}
+.t tr.click{cursor:pointer}
+.t tr.click:hover td{background:#fdf9f3}
+.t .r{text-align:right;white-space:nowrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;color:var(--muted)}
+.fbtn[aria-pressed="true"]{background:var(--choc);color:#fff;border-color:var(--choc)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+.bar{height:9px;border-radius:5px;background:#f1e8db;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--caramel);border-radius:5px}
+.disp{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.disp h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.disp ul{margin:0;padding-left:18px;font-size:13.5px;color:#4d3a2d}
+.price-in{width:110px;text-align:right;padding:7px 9px;font-weight:700}
+.det{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fffdf9;margin-top:12px}
+.det .line{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px dashed var(--line)}
+
+footer{border-top:1px solid var(--line);padding-block:18px 30px;font-size:13px;color:var(--muted)}
+footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(30px);background:var(--choc);color:#fff;border-radius:14px;padding:12px 16px;font-weight:700;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transition:.25s;z-index:100;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:900px){
+  .pt-wrap{grid-template-columns:minmax(0,1fr)}
+  .side-notes{display:none}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+@media (max-width:520px){
+  .container{padding-inline:12px}
+  .portal{border:0;border-radius:18px;box-shadow:var(--shadow)}
+  .pill{display:none}
+  .t .hm{display:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <div class="topbar">
+      <div class="brand"><div class="logo">R</div><div><b>La Rosalía</b><small>Tapas de alfajores · Tandil</small></div></div>
+      <span class="pill">Demo hecha por ELETEK para La Rosalía</span>
+    </div>
+    <div class="hero-body">
+      <h1>Cada comercio arma su pedido <em>por cajas, con los precios al día</em>.</h1>
+      <p>Sin catálogo en PDF y sin pasar pedidos del WhatsApp a mano: los clientes piden desde el celular, repiten el último pedido con un toque, y la fábrica ve todo junto para producir y despachar.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="container tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="pt">📱 Lo que ve el cliente</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="pe">Pedidos <span class="bdg" id="bdgNew">2</span></button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="pr">Producir y despachar</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="li">Precios y clientes</button>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- PORTAL -->
+<section id="pt">
+  <div class="pt-wrap">
+    <div class="portal">
+      <div class="p-head">
+        <div class="row"><div><small>La Rosalía · Pedidos mayoristas</small><b id="pCli">Panadería Don Julio</b></div><span class="chip c-car" id="pCity">Azul</span></div>
+        <div class="p-tabs"><button aria-pressed="true" data-pv="cat">Hacer pedido</button><button aria-pressed="false" data-pv="mis">Mis pedidos</button></div>
+      </div>
+      <div class="p-body" id="pBody"></div>
+      <button class="cartbar" id="cartbar" hidden></button>
+    </div>
+    <div class="side-notes">
+      <h2 class="h2" style="margin-bottom:14px">Así lo usa un comercio</h2>
+      <div class="n"><i>1</i><div><b>Entra desde su link</b><span>Cada cliente tiene su link. Lo abre desde el celular, sin instalar nada y sin contraseñas.</span></div></div>
+      <div class="n"><i>2</i><div><b>Ve los precios del día</b><span>Cuando La Rosalía actualiza la lista, todos la ven al instante. Probá cambiar un precio en “Precios y clientes”.</span></div></div>
+      <div class="n"><i>3</i><div><b>Pide por cajas o repite</b><span>Suma cajas con + y –, o repite el último pedido con un toque. El sistema avisa si no llega al mínimo.</span></div></div>
+      <div class="n"><i>4</i><div><b>Elige cómo lo recibe</b><span>Retiro en fábrica, reparto en Tandil o por transporte a todo el país.</span></div></div>
+      <div class="n"><i>5</i><div><b>Sigue su pedido</b><span>Ve si está recibido, en producción, listo o despachado, con el número de guía del transporte.</span></div></div>
+      <p class="note" style="margin-top:18px">Después de confirmar un pedido, mirá la pestaña “Pedidos”: aparece arriba de todo y se suma a lo que hay que producir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PEDIDOS -->
+<section id="pe" hidden>
+  <div class="sec-head"><div><h2 class="h2">Pedidos</h2><div class="note">Todos los pedidos juntos, con su estado. Tocá uno para ver el detalle.</div></div><div class="filters" id="peF"></div></div>
+  <div class="kpis" id="peK"></div>
+  <div class="grid2">
+    <div class="card tw" style="padding:6px 8px"><table class="t" id="peT"></table></div>
+    <div class="card" id="peD"></div>
+  </div>
+</section>
+
+<!-- PRODUCCIÓN -->
+<section id="pr" hidden>
+  <div class="sec-head"><div><h2 class="h2">Qué producir y qué despachar</h2><div class="note">Suma automática de todos los pedidos que todavía no salieron.</div></div></div>
+  <div class="grid2">
+    <div class="card"><h3 class="h3">Para producir</h3><div class="tw"><table class="t" id="prT"></table></div><p class="note" style="margin:10px 0 0">El stock lo actualiza la fábrica al terminar cada tanda. “A producir” = cajas pedidas − stock.</p></div>
+    <div><h3 class="h3" style="margin-left:4px">Despachos</h3><div id="dsp"></div></div>
+  </div>
+</section>
+
+<!-- PRECIOS Y CLIENTES -->
+<section id="li" hidden>
+  <div class="grid2">
+    <div class="card">
+      <div class="sec-head" style="margin-bottom:8px"><div><h2 class="h2">Lista de precios</h2><div class="note" id="liV"></div></div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><span class="note" style="font-weight:700">Aumentar todo</span><input id="pct" type="number" value="8" style="width:80px"><span class="note">%</span><button class="btn sm dark" id="pctB">Aplicar</button><button class="btn sm" id="sendL">Avisar a los clientes</button></div>
+      <div class="tw"><table class="t" id="liT"></table></div>
+    </div>
+    <div class="card">
+      <h2 class="h2">Clientes</h2><div class="note" style="margin-bottom:8px">Quién compra, desde dónde y quién hace rato que no pide.</div>
+      <div class="tw"><table class="t" id="clT"></table></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · software a medida desde Mar del Plata</span><span>Clientes, precios y cantidades de ejemplo</span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$ ' + Math.round(n).toLocaleString('es-AR');
+const DS = ['dom','lun','mar','mié','jue','vie','sáb'];
+const T0 = new Date(); const TODAY = new Date(T0.getFullYear(), T0.getMonth(), T0.getDate());
+const addD = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const dd = d => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 3200); };
+
+/* ilustraciones */
+function cookie(top, rim, opt = {}){
+  const s = opt.mini ? 18 : 24, cx = 31, cy = 31;
+  const dots = opt.dots ? Array.from({length:7}, (_,i) => { const a = i/7*Math.PI*2; return `<circle cx="${cx+Math.cos(a)*s*.55}" cy="${cy+Math.sin(a)*s*.55}" r="1.6" fill="${rim}" opacity=".55"/>`; }).join('') : '';
+  const stack = opt.stack ? `<ellipse cx="${cx}" cy="${cy+9}" rx="${s}" ry="${s*.42}" fill="${rim}"/><ellipse cx="${cx}" cy="${cy+5}" rx="${s}" ry="${s*.42}" fill="${top}"/>` : '';
+  return `<svg viewBox="0 0 62 62"><rect width="62" height="62" rx="14" fill="#f7efe3"/>${stack}<ellipse cx="${cx}" cy="${cy+2}" rx="${s}" ry="${s*.42}" fill="${rim}"/><ellipse cx="${cx}" cy="${cy-1}" rx="${s}" ry="${s*.42}" fill="${top}"/>${dots}</svg>`;
+}
+function alfajor(cover, filling){
+  return `<svg viewBox="0 0 62 62"><rect width="62" height="62" rx="14" fill="#f7efe3"/><ellipse cx="31" cy="38" rx="21" ry="9" fill="${cover}"/><rect x="10" y="29" width="42" height="9" fill="${cover}"/><rect x="11" y="27" width="40" height="4" rx="2" fill="${filling}"/><ellipse cx="31" cy="27" rx="21" ry="9" fill="${cover}" /><ellipse cx="31" cy="25.5" rx="17" ry="6" fill="#fff" opacity=".12"/></svg>`;
+}
+function minis(){
+  return `<svg viewBox="0 0 62 62"><rect width="62" height="62" rx="14" fill="#f7efe3"/><ellipse cx="20" cy="26" rx="11" ry="5" fill="#d98fa0"/><ellipse cx="20" cy="24" rx="11" ry="5" fill="#f2b8c4"/><ellipse cx="42" cy="26" rx="11" ry="5" fill="#86b2d6"/><ellipse cx="42" cy="24" rx="11" ry="5" fill="#b5d3ee"/><ellipse cx="31" cy="42" rx="11" ry="5" fill="#86c193"/><ellipse cx="31" cy="40" rx="11" ry="5" fill="#b6e0bd"/></svg>`;
+}
+function cono(){
+  return `<svg viewBox="0 0 62 62"><rect width="62" height="62" rx="14" fill="#f7efe3"/><path d="M19 30 L31 52 L43 30 Z" fill="#c8955b"/><path d="M19 30 Q31 12 43 30 Z" fill="#5a3322"/><path d="M24 23 q4 -3 8 0" stroke="#7a4a33" stroke-width="2" fill="none"/></svg>`;
+}
+function paquete(c){
+  return `<svg viewBox="0 0 62 62"><rect width="62" height="62" rx="14" fill="#f7efe3"/><rect x="14" y="14" width="34" height="36" rx="6" fill="${c}"/><rect x="14" y="14" width="34" height="9" rx="4" fill="#fff" opacity=".35"/><ellipse cx="31" cy="35" rx="10" ry="4.5" fill="#fff" opacity=".55"/><text x="31" y="47" font-size="7" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">350 g</text></svg>`;
+}
+const V = ['#ecd2a4','#c99f63'], C = ['#6b4330','#4a2c1d'];
+
+/* catálogo (precios de ejemplo) */
+const CATS = [['tap','Tapas'],['min','Minis'],['paq','Tapitas en paquete'],['gal','Galletitas'],['alf','Alfajores']];
+const P = [
+  {id:'cv', c:'tap', n:'Tapa clásica vainilla', d:'6 cm · 9 g · caja x 300 tapas', p:24500, img:()=>cookie(...V)},
+  {id:'cc', c:'tap', n:'Tapa clásica cacao', d:'6 cm · 9 g · caja x 300 tapas', p:26800, img:()=>cookie(...C)},
+  {id:'cmm', c:'tap', n:'Tapa clásica marrón marrón', d:'6 cm · caja x 300 tapas', p:27900, img:()=>cookie('#8a5a3c','#5e3a26')},
+  {id:'ser', c:'tap', n:'Tapa Serrano vainilla', d:'6 cm · caja x 300 tapas', p:25900, img:()=>cookie('#e6c48e','#b8894e',{dots:1})},
+  {id:'m1v', c:'min', n:'Mini vainilla', d:'4 cm · 5 g · caja x 600 tapas', p:23900, img:()=>cookie(...V,{mini:1,stack:1})},
+  {id:'m1c', c:'min', n:'Mini cacao', d:'4 cm · 5 g · caja x 600 tapas', p:25900, img:()=>cookie(...C,{mini:1,stack:1})},
+  {id:'mcol', c:'min', n:'Minis de colores', d:'4 cm · rosa, celeste y verde · caja x 600', p:28500, img:minis},
+  {id:'m2v', c:'min', n:'Mini 2 vainilla', d:'4,5 cm · 6 g · caja x 500 tapas', p:24900, img:()=>cookie(...V,{mini:1})},
+  {id:'tpv', c:'paq', n:'Tapitas vainilla', d:'4,5 cm · caja x 20 paquetes de 350 g', p:41800, img:()=>paquete('#d7a861')},
+  {id:'tpc', c:'paq', n:'Tapitas cacao', d:'4,5 cm · caja x 20 paquetes de 350 g', p:44600, img:()=>paquete('#6b4330')},
+  {id:'gv', c:'gal', n:'Galletita vainilla', d:'5,5 cm · caja a granel x 4 kg', p:22800, img:()=>cookie('#efd9b0','#cfa86f',{dots:1})},
+  {id:'gl', c:'gal', n:'Galletita limón', d:'5,5 cm · caja a granel x 4 kg', p:23400, img:()=>cookie('#f3e3a0','#d6bd5c',{dots:1})},
+  {id:'ach', c:'alf', n:'Alfajor de dulce de leche bañado', d:'Chocolate · caja x 24', p:19800, img:()=>alfajor('#4a2c1d','#c98a3d')},
+  {id:'agl', c:'alf', n:'Alfajor glaseado', d:'Dulce de leche · caja x 24', p:18600, img:()=>alfajor('#f4ece0','#c98a3d')},
+  {id:'afr', c:'alf', n:'Alfajor de fruta', d:'Caja x 24', p:17900, img:()=>alfajor('#e7c48d','#b8434f')},
+  {id:'ami', c:'alf', n:'Mini alfajores', d:'Caja x 24', p:13900, img:()=>alfajor('#6b4330','#c98a3d')},
+  {id:'con', c:'alf', n:'Conitos de dulce de leche', d:'Caja x 24', p:16900, img:cono},
+];
+const PM = Object.fromEntries(P.map(p => [p.id, p]));
+let listDate = addD(TODAY, -8);
+const MIN = 4;
+
+/* clientes y pedidos de ejemplo */
+const CLI = [
+  {id:1, n:'Panadería Don Julio', city:'Azul', tel:'2281 ••• 214', last:[['cv',4],['cc',3],['m1v',2]], days:7},
+  {id:2, n:'Dulce Abril (emprendimiento)', city:'Mar del Plata', tel:'223 ••• 870', last:[['mcol',2],['m1c',2]], days:3},
+  {id:3, n:'Confitería La Esquina', city:'Olavarría', tel:'2284 ••• 552', last:[['cc',6],['ser',3]], days:12},
+  {id:4, n:'Alfajores del Abuelo', city:'Bahía Blanca', tel:'291 ••• 330', last:[['cv',10],['cc',10]], days:5},
+  {id:5, n:'Kiosco Centro', city:'Tandil', tel:'249 ••• 118', last:[['ach',3],['ami',2]], days:2},
+  {id:6, n:'Distribuidora Serrana', city:'Tandil', tel:'249 ••• 905', last:[['tpv',6],['tpc',6]], days:9},
+  {id:7, n:'Panificadora Sol', city:'Necochea', tel:'2262 ••• 471', last:[['cv',5],['gv',2]], days:41},
+  {id:8, n:'Dulcería Mariel', city:'Rosario', tel:'341 ••• 096', last:[['m1v',4],['mcol',3]], days:16},
+  {id:9, n:'Almacén Los Pinos', city:'Balcarce', tel:'2266 ••• 380', last:[['agl',2],['afr',2]], days:52},
+  {id:10, n:'Pastelería Bianca', city:'La Plata', tel:'221 ••• 645', last:[['cmm',4],['m2v',3]], days:20},
+];
+const CM = Object.fromEntries(CLI.map(c => [c.id, c]));
+const ENV = {ret:'Retiro en fábrica', rep:'Reparto en Tandil', tra:'Transporte'};
+const EST = [['rec','Recibido','c-blu'],['pro','En producción','c-warn'],['lis','Listo','c-car'],['des','Despachado','c-ok']];
+const EM = Object.fromEntries(EST.map(e => [e[0], e]));
+let nro = 1040;
+const mk = (cid, items, st, env, ago, extra={}) => ({nro:nro++, cid, items:items.map(([id,q]) => [id,q,PM[id].p]), st, env, date:addD(TODAY,-ago), pay:extra.pay||'Transferencia', tra:extra.tra||'', guia:extra.guia||'', isNew:!!extra.isNew});
+const ORD = [
+  mk(4, [['cv',10],['cc',10]], 'des', 'tra', 5, {tra:'Expreso Sur', guia:'ES-58213'}),
+  mk(6, [['tpv',6],['tpc',6]], 'des', 'rep', 4),
+  mk(10, [['cmm',4],['m2v',3]], 'lis', 'tra', 2, {tra:'Transporte Atlántico'}),
+  mk(3, [['cc',6],['ser',3],['cv',2]], 'pro', 'tra', 2, {tra:'Expreso Sur'}),
+  mk(8, [['m1v',4],['mcol',3]], 'pro', 'tra', 1, {tra:'Transporte Litoral'}),
+  mk(1, [['cv',4],['cc',3],['m1v',2]], 'pro', 'tra', 1, {tra:'Expreso Sur', pay:'Cuenta corriente'}),
+  mk(5, [['ach',3],['ami',2],['con',2]], 'rec', 'rep', 0, {isNew:true}),
+  mk(2, [['mcol',2],['m1c',2],['m1v',1]], 'rec', 'tra', 0, {tra:'Transporte Atlántico', isNew:true}),
+];
+const STOCK = {cv:6, cc:4, cmm:0, ser:2, m1v:3, m1c:1, mcol:0, m2v:2, tpv:4, tpc:2, gv:3, gl:2, ach:5, agl:4, afr:3, ami:6, con:2};
+const total = o => o.items.reduce((a,[,q,p]) => a + q*p, 0);
+const cajas = o => o.items.reduce((a,[,q]) => a + q, 0);
+
+/* tabs */
+function showTab(id){ $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id)); $$('main > section').forEach(s => s.hidden = s.id !== id); if (id === 'pe') renderPE(); if (id === 'pr') renderPR(); if (id === 'li') renderLI(); window.scrollTo({top: Math.min(scrollY, $('.tabbar').offsetTop), behavior:'smooth'}); }
+$$('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+/* ---------- portal ---------- */
+const ME = CM[1];
+let cart = {}, cat = 'tap', pv = 'cat', step = 'cat', envSel = 'tra', paySel = 'Transferencia', lastNro = null;
+$$('[data-pv]').forEach(b => b.onclick = () => { pv = b.dataset.pv; step = 'cat'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderPT(); });
+const cartQ = () => Object.values(cart).reduce((a,b) => a+b, 0);
+const cartT = () => Object.entries(cart).reduce((a,[id,q]) => a + q*PM[id].p, 0);
+function renderPT(){
+  const body = $('#pBody'), bar = $('#cartbar');
+  if (pv === 'mis'){
+    bar.hidden = true;
+    const mine = ORD.filter(o => o.cid === ME.id).sort((a,b) => b.nro - a.nro);
+    body.innerHTML = `<div class="h3" style="margin:4px 2px 10px">Mis pedidos</div>` + mine.map(o => { const i = EST.findIndex(e => e[0] === o.st); return `<div class="ord"><div class="top"><b>Pedido #${o.nro}</b><span class="chip ${EM[o.st][2]}">${EM[o.st][1]}</span></div><div class="note">${dd(o.date)} · ${cajas(o)} cajas · ${money(total(o))}${o.guia ? ` · Guía ${o.guia}` : ''}</div><div class="track">${EST.map((e,k) => `<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="track-l">${EST.map(e => `<span>${e[1]}</span>`).join('')}</div></div>`; }).join('') + `<div class="ord"><div class="top"><b>Pedido #1012</b><span class="chip c-ok">Despachado</span></div><div class="note">${dd(addD(TODAY,-21))} · 9 cajas · Guía ES-55180</div></div>`;
+    return;
+  }
+  if (step === 'done'){
+    bar.hidden = true;
+    body.innerHTML = `<div class="done"><div class="ck"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg></div><h3 class="h2">¡Pedido enviado!</h3><p class="note" style="font-size:14.5px">Pedido <b>#${lastNro}</b>. Te llegó la confirmación por WhatsApp y te avisamos cuando se despache.</p><button class="btn dark" id="seeMine" style="margin-top:8px">Ver mis pedidos</button> <button class="btn" id="again" style="margin-top:8px">Hacer otro</button></div><div class="banner" style="margin-top:14px">👀 Ahora mirá la pestaña <b>Pedidos</b>: tu pedido aparece arriba.</div>`;
+    $('#seeMine').onclick = () => { pv = 'mis'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x.dataset.pv === 'mis')); renderPT(); };
+    $('#again').onclick = () => { step = 'cat'; renderPT(); };
+    return;
+  }
+  if (step === 'cart'){
+    bar.hidden = true;
+    const q = cartQ(), t = cartT(), ok = q >= MIN;
+    body.innerHTML = `<button class="btn sm" id="back">← Seguir agregando</button><div class="h3" style="margin:12px 2px 6px">Tu pedido</div>
+    <div class="card sheet" style="padding:6px 12px">${Object.entries(cart).map(([id,qq]) => `<div class="line"><span>${qq} × ${esc(PM[id].n)}</span><b class="num">${money(qq*PM[id].p)}</b></div>`).join('')}<div class="line" style="border:0;font-size:16px"><b>Total</b><b class="num">${money(t)}</b></div></div>
+    <div class="min ${ok?'c-ok':'c-warn'}">${ok ? `✓ ${q} cajas · supera el mínimo de ${MIN} cajas` : `Faltan ${MIN-q} cajas para el pedido mínimo de ${MIN}`}</div>
+    <label class="f" style="margin:12px 2px 4px">¿Cómo lo recibís?</label>
+    <div class="opts">${[['tra','Por transporte a todo el país','Elegís el expreso. El flete lo pagás al recibir.'],['rep','Reparto en Tandil','Martes y viernes'],['ret','Retiro en fábrica','Av. Buzón 438, Tandil']].map(([k,a,b]) => `<label><input type="radio" name="env" value="${k}" ${envSel===k?'checked':''}><span><b>${a}</b>${b}</span></label>`).join('')}</div>
+    <div id="traBox" ${envSel==='tra'?'':'hidden'}><label class="f">Transporte</label><select id="traSel"><option>Expreso Sur</option><option>Transporte Atlántico</option><option>Transporte Litoral</option><option>Otro (lo indico en la nota)</option></select></div>
+    <label class="f" style="margin:12px 2px 4px">Pago</label>
+    <div class="opts">${['Transferencia','Cuenta corriente','Efectivo al retirar'].map(k => `<label><input type="radio" name="pay" value="${k}" ${paySel===k?'checked':''}><span><b>${k}</b></span></label>`).join('')}</div>
+    <label class="f">Nota (opcional)</label><textarea id="nota" rows="2" placeholder="Ej.: entregar antes del jueves"></textarea>
+    <button class="btn dark" id="conf" style="width:100%;margin-top:12px;padding:13px" ${ok?'':'disabled'}>Confirmar pedido · ${money(t)}</button>`;
+    $('#back').onclick = () => { step = 'cat'; renderPT(); };
+    $$('input[name=env]').forEach(r => r.onchange = () => { envSel = r.value; $('#traBox').hidden = envSel !== 'tra'; });
+    $$('input[name=pay]').forEach(r => r.onchange = () => paySel = r.value);
+    $('#conf').onclick = () => {
+      const o = {nro:nro++, cid:ME.id, items:Object.entries(cart).map(([id,q]) => [id,q,PM[id].p]), st:'rec', env:envSel, date:TODAY, pay:paySel, tra: envSel==='tra' ? $('#traSel').value : '', guia:'', isNew:true, mine:true};
+      ORD.push(o); lastNro = o.nro; ME.last = Object.entries(cart).map(([id,q]) => [id,q]); ME.days = 0;
+      cart = {}; step = 'done'; selNro = o.nro; renderPT(); badge();
+      toast(`Pedido #${o.nro} recibido en La Rosalía`);
+    };
+    return;
+  }
+  // catálogo
+  const lastTxt = ME.last.map(([id,q]) => `${q} ${PM[id].n.replace('Tapa clásica ','clásica ').toLowerCase()}`).join(' · ');
+  body.innerHTML = `<div class="banner">🏷️ Lista de precios vigente desde el ${dd(listDate)}</div>
+  <div class="repeat"><div><b>Repetir mi último pedido</b><span>${esc(lastTxt)}</span></div><button class="btn sm car" id="rep">Repetir</button></div>
+  <div class="cats">${CATS.map(([k,l]) => `<button data-c="${k}" aria-pressed="${cat===k}">${l}</button>`).join('')}</div>
+  ${P.filter(p => p.c === cat).map(p => { const q = cart[p.id]||0; return `<div class="prod">${p.img()}<div><b>${esc(p.n)}</b><div class="d">${esc(p.d)}</div><div class="pr"><div><strong class="num">${money(p.p)}</strong><small>por caja</small></div><div class="step">${q ? `<button data-m="${p.id}" aria-label="Quitar una caja">−</button><span>${q}</span>` : ''}<button class="add" data-a="${p.id}" aria-label="Agregar una caja">+</button></div></div></div></div>`; }).join('')}`;
+  $('#rep').onclick = () => { ME.last.forEach(([id,q]) => cart[id] = (cart[id]||0) + q); renderPT(); toast('Se cargó tu último pedido. Podés ajustar las cantidades.'); };
+  $$('#pBody .cats button').forEach(b => b.onclick = () => { cat = b.dataset.c; renderPT(); });
+  $$('#pBody [data-a]').forEach(b => b.onclick = () => { cart[b.dataset.a] = (cart[b.dataset.a]||0) + 1; renderPT(); });
+  $$('#pBody [data-m]').forEach(b => b.onclick = () => { const id = b.dataset.m; cart[id]--; if (!cart[id]) delete cart[id]; renderPT(); });
+  const q = cartQ();
+  bar.hidden = !q;
+  bar.innerHTML = `<span><small>${q} ${q===1?'caja':'cajas'}${q < MIN ? ` · mínimo ${MIN}` : ''}</small><b class="num">${money(cartT())}</b></span><span class="go">Ver pedido →</span>`;
+  bar.onclick = () => { step = 'cart'; renderPT(); $('.portal').scrollIntoView({behavior:'smooth', block:'start'}); };
+}
+
+/* ---------- pedidos ---------- */
+let peF = 'act', selNro = null;
+function badge(){ const n = ORD.filter(o => o.st === 'rec').length; $('#bdgNew').textContent = n; $('#bdgNew').hidden = !n; }
+function renderPE(){
+  const F = [['act','En curso'],['rec','Nuevos'],['des','Despachados'],['all','Todos']];
+  $('#peF').innerHTML = F.map(([k,l]) => `<button class="fbtn" data-k="${k}" aria-pressed="${peF===k}">${l}</button>`).join('');
+  $$('#peF .fbtn').forEach(b => b.onclick = () => { peF = b.dataset.k; renderPE(); });
+  const act = ORD.filter(o => o.st !== 'des');
+  $('#peK').innerHTML = `<div class="kpi"><small>Pedidos nuevos</small><b>${ORD.filter(o=>o.st==='rec').length}</b></div><div class="kpi"><small>En curso</small><b>${act.length}</b></div><div class="kpi"><small>Cajas por despachar</small><b class="num">${act.reduce((a,o)=>a+cajas(o),0)}</b></div><div class="kpi"><small>Vendido esta semana</small><b class="num">${money(ORD.filter(o => (TODAY - o.date)/864e5 < 7).reduce((a,o)=>a+total(o),0))}</b></div>`;
+  const L = ORD.filter(o => peF === 'all' || (peF === 'act' ? o.st !== 'des' : o.st === peF)).sort((a,b) => b.nro - a.nro);
+  if (!selNro || !ORD.find(o => o.nro === selNro)) selNro = (L[0]||ORD[0]).nro;
+  $('#peT').innerHTML = `<thead><tr><th>#</th><th>Cliente</th><th class="hm">Fecha</th><th class="r">Cajas</th><th class="r hm">Total</th><th>Estado</th></tr></thead><tbody>` + L.map(o => { const c = CM[o.cid]; return `<tr class="click ${o.isNew?'new':''}" data-n="${o.nro}"><td class="num">${o.nro}</td><td><b>${esc(c.n)}</b><div class="note">${esc(c.city)} · ${o.env==='tra' ? esc(o.tra) : ENV[o.env]}</div></td><td class="hm num">${dd(o.date)}</td><td class="r num">${cajas(o)}</td><td class="r hm num">${money(total(o))}</td><td><span class="chip ${EM[o.st][2]}">${EM[o.st][1]}</span></td></tr>`; }).join('') + '</tbody>';
+  $$('#peT tr[data-n]').forEach(r => r.onclick = () => { selNro = +r.dataset.n; renderPE(); if (innerWidth < 900) $('#peD').scrollIntoView({behavior:'smooth'}); });
+  renderPD();
+}
+function renderPD(){
+  const o = ORD.find(o => o.nro === selNro); if (!o) return; const c = CM[o.cid];
+  const i = EST.findIndex(e => e[0] === o.st), nx = EST[i+1];
+  $('#peD').innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><div><h3 class="h2" style="font-size:22px">Pedido #${o.nro}</h3><div class="note">${esc(c.n)} · ${esc(c.city)} · WhatsApp ${c.tel}</div></div><span class="chip ${EM[o.st][2]}">${EM[o.st][1]}</span></div>
+  <div class="det">${o.items.map(([id,q,p]) => `<div class="line"><span>${q} × ${esc(PM[id].n)}</span><b class="num">${money(q*p)}</b></div>`).join('')}<div class="line" style="border:0"><b>Total · ${cajas(o)} cajas</b><b class="num">${money(total(o))}</b></div></div>
+  <div class="note" style="margin-top:10px">Entrega: <b>${ENV[o.env]}${o.tra ? ' · ' + esc(o.tra) : ''}</b> · Pago: <b>${esc(o.pay)}</b>${o.guia ? ` · Guía <b>${o.guia}</b>` : ''}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">${nx ? `<button class="btn dark" id="adv">Pasar a “${nx[1]}”</button>` : ''}<button class="btn" id="rem">Remito / etiqueta</button><button class="btn" id="wa">Escribirle</button></div>
+  <p class="note" style="margin:10px 0 0">Cada cambio de estado le avisa al cliente por WhatsApp.</p>`;
+  const adv = $('#adv'); if (adv) adv.onclick = () => {
+    o.st = nx[0]; o.isNew = false;
+    if (o.st === 'des' && o.env === 'tra') o.guia = 'ES-' + (58000 + o.nro);
+    toast(`#${o.nro} → ${nx[1]}. ${esc(c.n.split(' (')[0])} recibió el aviso por WhatsApp.`);
+    badge(); renderPE();
+  };
+  $('#rem').onclick = () => toast('Remito y etiqueta con destino y bultos, listos para imprimir');
+  $('#wa').onclick = () => toast(`Se abre el chat con ${c.n}`);
+}
+
+/* ---------- producción y despacho ---------- */
+function renderPR(){
+  const need = {};
+  ORD.filter(o => o.st === 'rec' || o.st === 'pro').forEach(o => o.items.forEach(([id,q]) => need[id] = (need[id]||0) + q));
+  const rows = P.filter(p => need[p.id]).map(p => ({p, n:need[p.id], s:STOCK[p.id]||0})).sort((a,b) => (b.n-b.s) - (a.n-a.s));
+  const mx = Math.max(1, ...rows.map(r => r.n));
+  $('#prT').innerHTML = `<thead><tr><th>Producto</th><th class="r">Pedido</th><th class="r hm">Stock</th><th class="r">A producir</th><th class="hm"></th></tr></thead><tbody>` + rows.map(r => { const a = Math.max(0, r.n - r.s); return `<tr><td><b>${esc(r.p.n)}</b><div class="note">${esc(r.p.d.split(' · ').slice(-1)[0])}</div></td><td class="r num">${r.n}</td><td class="r hm num">${r.s}</td><td class="r num"><b>${a ? a + (a===1?' caja':' cajas') : '<span class="chip c-ok">Alcanza</span>'}</b></td><td class="hm"><div class="bar"><i style="width:${r.n/mx*100}%"></i></div></td></tr>`; }).join('') + '</tbody>';
+  const ready = ORD.filter(o => o.st === 'lis' || o.st === 'pro');
+  const groups = {};
+  ready.forEach(o => { const k = o.env === 'tra' ? o.tra : ENV[o.env]; (groups[k] = groups[k] || []).push(o); });
+  $('#dsp').innerHTML = Object.entries(groups).map(([k,L]) => `<div class="disp"><h4>${esc(k)} <span class="chip c-gray">${L.reduce((a,o)=>a+cajas(o),0)} cajas</span></h4><ul>${L.map(o => `<li>#${o.nro} ${esc(CM[o.cid].n)} · ${esc(CM[o.cid].city)} · ${cajas(o)} cajas <span class="chip ${EM[o.st][2]}">${EM[o.st][1]}</span></li>`).join('')}</ul><button class="btn sm" style="margin-top:8px" data-g="${esc(k)}">Imprimir hoja de despacho</button></div>`).join('') || '<div class="note">No hay pedidos para despachar.</div>';
+  $$('#dsp [data-g]').forEach(b => b.onclick = () => toast(`Hoja de despacho de ${b.dataset.g} lista para imprimir`));
+}
+
+/* ---------- precios y clientes ---------- */
+function renderLI(){
+  $('#liV').textContent = `Vigente desde el ${dd(listDate)} · los clientes la ven al instante`;
+  $('#liT').innerHTML = `<thead><tr><th>Producto</th><th class="hm">Presentación</th><th class="r">Precio por caja</th></tr></thead><tbody>` + P.map(p => `<tr><td><b>${esc(p.n)}</b></td><td class="hm note">${esc(p.d)}</td><td class="r"><input class="price-in num" data-p="${p.id}" value="${p.p}" inputmode="numeric" aria-label="Precio de ${esc(p.n)}"></td></tr>`).join('') + '</tbody>';
+  $$('#liT [data-p]').forEach(i => i.onchange = () => { const v = parseInt(i.value.replace(/\D/g,''),10); if (v > 0){ PM[i.dataset.p].p = v; listDate = TODAY; renderLI(); renderPT(); toast(`${PM[i.dataset.p].n}: ${money(v)}. Ya lo ven todos los clientes.`); } });
+  $('#clT').innerHTML = `<thead><tr><th>Cliente</th><th class="hm">Último pedido</th><th></th></tr></thead><tbody>` + [...CLI].sort((a,b) => b.days - a.days).map(c => `<tr><td><b>${esc(c.n)}</b><div class="note">${esc(c.city)}</div></td><td class="hm">${c.days ? `hace ${c.days} días` : 'hoy'}</td><td class="r">${c.days >= 30 ? `<button class="btn sm car" data-c="${c.id}">Avisar</button>` : `<span class="chip c-ok">Activo</span>`}</td></tr>`).join('') + '</tbody>';
+  $$('#clT [data-c]').forEach(b => b.onclick = () => { const c = CM[b.dataset.c]; toast(`Mensaje enviado a ${c.n}: “¡Hola! Te dejamos la lista nueva y tu link para pedir.”`); b.outerHTML = '<span class="chip c-blu">Avisado</span>'; });
+}
+$('#pctB').onclick = () => { const k = 1 + (parseFloat($('#pct').value)||0)/100; P.forEach(p => p.p = Math.round(p.p*k/100)*100); listDate = TODAY; renderLI(); renderPT(); toast(`Lista actualizada ${$('#pct').value}%. Los clientes ya ven los precios nuevos.`); };
+$('#sendL').onclick = () => toast(`Aviso de lista nueva enviado por WhatsApp a ${CLI.length} clientes, con su link para pedir`);
+
+renderPT(); badge();
+})();
+</script>
+</body>
+</html>
