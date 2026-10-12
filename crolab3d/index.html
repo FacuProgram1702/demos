@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Crolab3D · Portal de casos</title>
-<meta name="description" content="Demo para Crolab3D: portal donde cada odontólogo carga su caso con los archivos, aprueba el diseño, sigue en qué etapa está y recibe el envío; y el tablero del laboratorio con producción y envíos a todo el país.">
+<title>Crolab3D · Casos, precios y cuentas</title>
+<meta name="description" content="Demo para Crolab3D: portal de casos para odontólogos y laboratorios, registro de ingresos, pendientes y entregas, listas de precios separadas, cuentas corrientes con resumen mensual y envíos por encomienda.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
+
 :root{
   --navy:#0e2233; --navy-2:#16354d; --teal:#0f9b8e; --teal-2:#0b7b71; --teal-soft:#dff4f1; --mint:#7fe0d2;
   --ok:#17875a; --ok-soft:#e1f4ea; --warn:#b8690c; --warn-soft:#fcefdb; --bad:#c23a3a; --bad-soft:#fbe5e5; --blu:#2f6fd0; --blu-soft:#e6eefb; --pur:#7446c9; --pur-soft:#efe8fb;
@@ -154,6 +155,26 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
   .t .hm{display:none}
   .p-body{padding:12px 10px 18px}
 }
+
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted)}
+.fbtn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.num{font-variant-numeric:tabular-nums}
+.cl-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:16px;align-items:start}
+.cli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:7px;cursor:pointer;width:100%;text-align:left;color:var(--text);font-size:14px}
+.cli[aria-current="true"]{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-soft)}
+.cli b{display:block}
+.saldo{font-family:var(--display);font-size:28px;line-height:1.1}
+.sum{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.sum h4{margin:0 0 2px;font-family:var(--display);font-size:18px}
+.sum .tot{display:flex;justify-content:space-between;font-weight:800;padding-top:8px;margin-top:6px;border-top:2px solid var(--navy)}
+.price-in{width:110px;text-align:right;padding:7px 9px;font-weight:700}
+.datein{width:auto;padding:7px 10px;font-weight:700}
+.pc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.pc div{background:#f6f9fa;border-radius:12px;padding:10px 12px}
+.pc small{display:block;font-size:11.5px;color:var(--muted);font-weight:700}
+.pc b{font-family:var(--display);font-size:20px}
+@media (max-width:900px){.cl-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -164,18 +185,20 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
       <span class="pill">Demo hecha por ELETEK para Crolab3D</span>
     </div>
     <div class="hero-body">
-      <h1>Cada caso, del archivo al envío, <em>en un solo lugar</em>.</h1>
-      <p>El odontólogo carga el caso con sus archivos y las piezas, aprueba el diseño desde el celular y sigue en qué etapa está, hasta el número de guía. El laboratorio ve todos los casos ordenados por etapa y fecha de entrega.</p>
+      <h1>Cada trabajo, cada cliente y cada cuenta, <em>bajo control</em>.</h1>
+      <p>Registro de lo que ingresa, lo pendiente y lo entregado, con la fecha de salida que define el laboratorio. Listas de precios para odontólogos y para laboratorios, cuentas corrientes con resumen mensual y envíos por encomienda con su número de seguimiento.</p>
     </div>
   </div>
 </header>
 
 <nav class="tabbar" aria-label="Secciones">
   <div class="container tabs" role="tablist">
-    <button class="tab" role="tab" aria-selected="true" data-tab="pt">📱 Lo que ve el odontólogo</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="cs">Casos <span class="bdg" id="bdg">2</span></button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="pr">Producción y envíos</button>
-    <button class="tab" role="tab" aria-selected="false" data-tab="od">Odontólogos</button>
+    <button class="tab" role="tab" aria-selected="true" data-tab="pt">📱 Lo que ve el cliente</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="cs">Trabajos <span class="bdg" id="bdg">2</span></button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="rg">Registro</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="cc">Clientes y cuentas</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="lp">Listas de precios</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="pr">Producción y encomiendas</button>
   </div>
 </nav>
 
@@ -184,45 +207,56 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
   <div class="pt-wrap">
     <div class="portal">
       <div class="p-head">
-        <div class="row"><div><small>Crolab3D · Portal de casos</small><b>Dr. Martín Sosa</b></div><span class="chip c-teal">Tandil</span></div>
-        <div class="p-tabs"><button aria-pressed="true" data-pv="nuevo">Nuevo caso</button><button aria-pressed="false" data-pv="mis">Mis casos <span id="pend"></span></button></div>
+        <div class="row"><div><small>Crolab3D · Portal de clientes</small><b>Dr. Martín Sosa</b></div><span class="chip c-teal">Odontólogo · Tandil</span></div>
+        <div class="p-tabs"><button aria-pressed="true" data-pv="nuevo">Nuevo trabajo</button><button aria-pressed="false" data-pv="mis">Mis trabajos <span id="pend"></span></button><button aria-pressed="false" data-pv="cta">Mi cuenta</button></div>
       </div>
       <div class="p-body" id="pBody"></div>
     </div>
     <div class="side-notes">
-      <h2 class="h2" style="margin-bottom:14px">Así lo usa un odontólogo</h2>
-      <div class="n"><i>1</i><div><b>Carga el caso</b><span>Elige el tipo de trabajo, marca las piezas en el odontograma y sube los archivos del escaneo. Sin WhatsApp ni mails sueltos.</span></div></div>
-      <div class="n"><i>2</i><div><b>Aprueba el diseño</b><span>Cuando el laboratorio sube el diseño, le llega un aviso. Lo ve y lo aprueba o pide cambios desde el celular.</span></div></div>
-      <div class="n"><i>3</i><div><b>Sigue el caso</b><span>Ve en qué etapa está cada trabajo y la fecha estimada de entrega.</span></div></div>
-      <div class="n"><i>4</i><div><b>Recibe el envío</b><span>Cuando sale, le llega el número de guía del transporte, esté en la provincia que esté.</span></div></div>
-      <p class="note" style="margin-top:18px">Probá cargar un caso y después mirá la pestaña “Casos”: aparece en la columna “Recibido”.</p>
+      <h2 class="h2" style="margin-bottom:14px">Así lo usa un cliente</h2>
+      <div class="n"><i>1</i><div><b>Carga el trabajo</b><span>Tipo de trabajo, piezas en el odontograma y archivos del escaneo. Sin WhatsApp ni mails sueltos.</span></div></div>
+      <div class="n"><i>2</i><div><b>Ve la fecha de salida</b><span>La define el laboratorio según cada trabajo. El cliente la ve apenas se confirma.</span></div></div>
+      <div class="n"><i>3</i><div><b>Aprueba el diseño</b><span>Lo ve y lo aprueba o pide cambios desde el celular.</span></div></div>
+      <div class="n"><i>4</i><div><b>Sigue la encomienda</b><span>Cuando sale, recibe el número de seguimiento.</span></div></div>
+      <div class="n"><i>5</i><div><b>Consulta su cuenta</b><span>Ve su saldo y el resumen del mes, con cada trabajo entregado y cada pago.</span></div></div>
+      <p class="note" style="margin-top:18px">Funciona igual para odontólogos y para laboratorios: cada uno con su lista de precios.</p>
     </div>
   </div>
 </section>
 
 <section id="cs" hidden>
-  <div class="sec-head"><div><h2 class="h2">Casos</h2><div class="note">Todos los trabajos por etapa. Tocá uno para ver el detalle y avanzarlo.</div></div></div>
+  <div class="sec-head"><div><h2 class="h2">Trabajos</h2><div class="note">Todos los trabajos por etapa. Tocá uno para ver el detalle, fijar la fecha de salida y avanzarlo.</div></div></div>
   <div class="kpis" id="kpis"></div>
   <div class="board-wrap"><div class="board" id="board"></div></div>
   <div class="det-grid" id="det"></div>
 </section>
 
-<section id="pr" hidden>
-  <div class="sec-head"><div><h2 class="h2">Producción y envíos</h2><div class="note">Qué entra en la próxima tanda y qué sale hoy, agrupado por transporte.</div></div></div>
-  <div class="grid2">
-    <div class="card" id="tanda"></div>
-    <div id="envios"></div>
+<section id="rg" hidden>
+  <div class="sec-head"><div><h2 class="h2">Registro de trabajos</h2><div class="note">Lo que ingresó, lo que está pendiente y lo que se entregó, con su importe.</div></div><div class="filters" id="rgF"></div></div>
+  <div class="kpis" id="rgK"></div>
+  <div class="card tw" style="padding:6px 8px"><table class="t" id="rgT"></table></div>
+</section>
+
+<section id="cc" hidden>
+  <div class="sec-head"><div><h2 class="h2">Clientes y cuentas corrientes</h2><div class="note">Cada cliente con sus trabajos, su saldo y el resumen del mes.</div></div><div class="filters" id="ccF"></div></div>
+  <div class="cl-grid"><div id="clList"></div><div class="card" id="clDet"></div></div>
+</section>
+
+<section id="lp" hidden>
+  <div class="card">
+    <div class="sec-head" style="margin-bottom:8px"><div><h2 class="h2">Listas de precios</h2><div class="note" id="lpV"></div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="note" style="font-weight:700">Aumentar</span><select id="lpW" style="width:auto"><option value="both">las dos listas</option><option value="od">odontólogos</option><option value="lab">laboratorios</option></select><input id="lpP" type="number" value="10" style="width:76px"><span class="note">%</span><button class="btn sm dark" id="lpA">Aplicar</button></div></div>
+    <div class="tw"><table class="t" id="lpT"></table></div>
+    <p class="note" style="margin:10px 0 0">El importe de cada trabajo se calcula solo con la lista del cliente. Los precios son de ejemplo.</p>
   </div>
 </section>
 
-<section id="od" hidden>
-  <div class="card">
-    <div class="sec-head" style="margin-bottom:8px"><div><h2 class="h2">Odontólogos</h2><div class="note">Cada uno con su link al portal. Casos del mes y desde dónde trabajan.</div></div><button class="btn teal" id="inv">Invitar a un odontólogo</button></div>
-    <div class="tw"><table class="t" id="odT"></table></div>
-  </div>
+<section id="pr" hidden>
+  <div class="sec-head"><div><h2 class="h2">Producción y encomiendas</h2><div class="note">Qué entra en la próxima tanda y qué sale, agrupado por empresa de encomiendas.</div></div></div>
+  <div class="grid2"><div class="card" id="tanda"></div><div id="envios"></div></div>
 </section>
 </main>
-<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · software a medida desde Mar del Plata</span><span>Odontólogos, pacientes y casos de ejemplo</span></div></footer>
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · software a medida desde Mar del Plata</span><span>Clientes, pacientes, trabajos y precios de ejemplo</span></div></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -230,68 +264,94 @@ footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:
 'use strict';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$ ' + Math.round(n).toLocaleString('es-AR');
 const DS = ['dom','lun','mar','mié','jue','vie','sáb'];
+const MN = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const T0 = new Date(); const TODAY = new Date(T0.getFullYear(), T0.getMonth(), T0.getDate());
 const addD = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 const addWork = (d,n) => { let x = new Date(d); while (n > 0){ x = addD(x,1); if (x.getDay() !== 0 && x.getDay() !== 6) n--; } return x; };
 const dd = d => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
 const fd = d => `${DS[d.getDay()]} ${dd(d)}`;
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const fromIso = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 3400); };
 
+/* tipos y precios (de ejemplo) */
 const TYPES = [
-  {id:'est', n:'Estructura sinterizada', d:'Corona o unidad metálica'},
-  {id:'pue', n:'Puente sinterizado', d:'Varias piezas unidas'},
-  {id:'bar', n:'Barra sobre implantes', d:'Atornillada'},
-  {id:'ppr', n:'Esquelético (PPR)', d:'Estructura removible'},
-  {id:'pro', n:'Provisorio impreso', d:'Resina'},
-  {id:'otr', n:'Otro trabajo', d:'Lo detallás en la nota'},
+  {id:'est', n:'Estructura sinterizada', d:'Corona o unidad metálica', u:'pieza'},
+  {id:'pue', n:'Puente sinterizado', d:'Varias piezas unidas', u:'pieza'},
+  {id:'bar', n:'Barra sobre implantes', d:'Atornillada', u:'pieza'},
+  {id:'ppr', n:'Esquelético (PPR)', d:'Estructura removible', u:'trabajo'},
+  {id:'pro', n:'Provisorio impreso', d:'Resina', u:'pieza'},
+  {id:'mod', n:'Modelo impreso', d:'Modelo de trabajo', u:'trabajo'},
 ];
 const TM = Object.fromEntries(TYPES.map(t => [t.id, t]));
-const ST = [['rec','Recibido','c-gray'],['dis','En diseño','c-blu'],['apr','Esperando aprobación','c-warn'],['pro','En producción','c-pur'],['ter','Terminación','c-teal'],['env','Enviado','c-ok']];
+const PRICE = {
+  od:  {est:38000, pue:38000, bar:46000, ppr:96000, pro:15000, mod:14000},
+  lab: {est:30000, pue:30000, bar:37000, ppr:78000, pro:11500, mod:10500},
+};
+let listDate = addD(TODAY, -20);
+const ST = [['rec','Ingresado','c-gray'],['dis','En diseño','c-blu'],['apr','Esperando aprobación','c-warn'],['pro','En producción','c-pur'],['ter','Listo para salir','c-teal'],['env','Entregado','c-ok']];
 const SM = Object.fromEntries(ST.map(s => [s[0], s]));
-const OD = [
-  {id:1, n:'Dr. Martín Sosa', c:'Tandil', tr:'Transporte Sierras'},
-  {id:2, n:'Dra. Laura Benítez', c:'Mar del Plata', tr:'Retira en el laboratorio'},
-  {id:3, n:'Clínica Dental Sur', c:'Bahía Blanca', tr:'Expreso Atlántico'},
-  {id:4, n:'Dra. Paula Ríos', c:'Córdoba', tr:'Transporte Centro'},
-  {id:5, n:'Dr. Andrés Vega', c:'Mendoza', tr:'Transporte Centro'},
-  {id:6, n:'Odontología Integral Norte', c:'Rosario', tr:'Expreso Atlántico'},
-  {id:7, n:'Dr. Diego Paz', c:'Neuquén', tr:'Transporte Patagonia'},
-  {id:8, n:'Dra. Carla Ruiz', c:'Necochea', tr:'Expreso Atlántico'},
-  {id:9, n:'Centro Odontológico Patagonia', c:'Comodoro Rivadavia', tr:'Transporte Patagonia'},
+const CL = [
+  {id:1, n:'Dr. Martín Sosa', k:'od', c:'Tandil', enc:'Expreso Sierras'},
+  {id:2, n:'Dra. Laura Benítez', k:'od', c:'Mar del Plata', enc:'Retira en el laboratorio'},
+  {id:3, n:'Clínica Dental Sur', k:'od', c:'Bahía Blanca', enc:'Encomiendas del Atlántico'},
+  {id:4, n:'Dra. Paula Ríos', k:'od', c:'Córdoba', enc:'Encomiendas Centro'},
+  {id:5, n:'Dr. Andrés Vega', k:'od', c:'Mendoza', enc:'Encomiendas Centro'},
+  {id:6, n:'Laboratorio Dental Costa', k:'lab', c:'Necochea', enc:'Encomiendas del Atlántico'},
+  {id:7, n:'Lab. Prótesis Sur', k:'lab', c:'Bahía Blanca', enc:'Encomiendas del Atlántico'},
+  {id:8, n:'Laboratorio Andes', k:'lab', c:'Mendoza', enc:'Encomiendas Centro'},
+  {id:9, n:'Dr. Diego Paz', k:'od', c:'Neuquén', enc:'Expreso Patagonia'},
 ];
-const OM = Object.fromEntries(OD.map(o => [o.id, o]));
-const ME = OM[1];
-let nro = 2318;
-const UNITS = c => c.teeth.length;
-const mk = (od, type, teeth, st, ago, extra={}) => {
+const CM = Object.fromEntries(CL.map(c => [c.id, c]));
+const ME = CM[1];
+const KN = {od:'Odontólogo', lab:'Laboratorio'};
+const units = c => TM[c.type].u === 'pieza' ? c.teeth.length : 1;
+const amount = c => units(c) * PRICE[CM[c.cl].k][c.type];
+
+let nro = 2301;
+const mk = (cl, type, teeth, st, ago, salida, extra={}) => {
   const rec = addD(TODAY, -ago);
-  return {nro:nro++, od, type, teeth, st, rec, due:addWork(rec, 3), pac: extra.pac || 'Paciente ' + String.fromCharCode(65 + nro % 20) + '.' + String.fromCharCode(66 + nro % 17) + '.', files: extra.files || ['maxilar_superior.stl','antagonista.stl','registro_mordida.stl'], note: extra.note || '', guia: extra.guia || '', change: extra.change || '', isNew: !!extra.isNew,
-    hist: extra.hist || [[rec, 'Caso recibido con 3 archivos']]};
+  const c = {nro:nro++, cl, type, teeth, st, rec, out: salida == null ? null : addWork(rec, salida), pac: extra.pac || 'Paciente ' + String.fromCharCode(65 + nro % 20) + '.' + String.fromCharCode(66 + nro % 17) + '.', files:['maxilar_superior.stl','antagonista.stl','registro_mordida.stl'], note:'', track:'', change:'', isNew:!!extra.isNew, hist:[], sent:null};
+  return c;
 };
 const C = [
-  mk(3,'pue',[14,15,16],'env',4,{guia:'EA-77410'}),
-  mk(5,'est',[36],'env',4,{guia:'TC-30218'}),
-  mk(6,'bar',[32,33,34,42,43,44],'ter',3),
-  mk(9,'ppr',[46,47,36,37],'ter',3),
-  mk(1,'est',[26],'pro',2),
-  mk(4,'pue',[11,12,21],'pro',2),
-  mk(7,'est',[46],'pro',2),
-  mk(8,'pue',[24,25,26],'apr',1,{change:''}),
-  mk(1,'pue',[44,45,46],'apr',1),
-  mk(2,'est',[16],'dis',1),
-  mk(3,'bar',[12,13,14,22,23,24],'dis',0),
-  mk(6,'est',[21],'rec',0,{isNew:true}),
-  mk(4,'pro',[11,21],'rec',0,{isNew:true}),
+  mk(3,'pue',[14,15,16],'env',14,4), mk(5,'est',[36],'env',12,3), mk(6,'pue',[24,25,26],'env',11,3), mk(2,'est',[16],'env',10,2), mk(8,'ppr',[46,47],'env',9,5), mk(1,'pue',[34,35,36],'env',8,4), mk(7,'est',[11],'env',7,3), mk(4,'bar',[32,33,42,43],'env',6,5),
+  mk(6,'bar',[32,33,34,42,43,44],'ter',5,5), mk(9,'ppr',[46,47,36,37],'ter',4,4),
+  mk(1,'est',[26],'pro',3,3), mk(4,'pue',[11,12,21],'pro',3,4), mk(7,'est',[46],'pro',2,3), mk(8,'mod',[11],'pro',2,2),
+  mk(3,'pue',[24,25,26],'apr',1,4), mk(1,'pue',[44,45,46],'apr',1,4),
+  mk(2,'est',[16],'dis',1,3), mk(6,'bar',[12,13,14,22,23,24],'dis',0,6),
+  mk(5,'est',[21],'rec',0,null,{isNew:true}), mk(7,'pro',[11,21],'rec',0,null,{isNew:true}),
 ];
+const LBL = ['Ingresó con 3 archivos','Diseño en curso','Diseño enviado para aprobar','Diseño aprobado · a producción','Listo para salir','Entregado'];
 C.forEach(c => {
-  const i = ST.findIndex(s => s[0] === c.st), labels = ['Caso recibido con 3 archivos','Diseño en curso','Diseño subido para aprobar','Diseño aprobado · a producción','Terminación y control','Enviado'];
-  c.hist = []; for (let k = 0; k <= i; k++) c.hist.push([addD(c.rec, Math.min(k, 3)), labels[k] + (k === 5 && c.guia ? ` · guía ${c.guia}` : '')]);
+  const i = ST.findIndex(s => s[0] === c.st);
+  for (let k = 0; k <= i; k++) c.hist.push([addD(c.rec, Math.min(k, 3)), LBL[k]]);
+  if (c.out) c.hist.splice(1, 0, [c.rec, `Fecha de salida fijada: ${fd(c.out)}`]);
+  if (c.st === 'env'){ c.sent = c.out; const o = CM[c.cl]; c.track = o.enc.startsWith('Retira') ? 'Retirado' : 'ENC-' + (480000 + c.nro*7); c.hist[c.hist.length-1][1] = o.enc.startsWith('Retira') ? 'Retirado por el cliente' : `Enviado por ${o.enc} · seguimiento ${c.track}`; c.hist[c.hist.length-1][0] = c.sent; }
 });
+/* pagos y saldos anteriores (de ejemplo) */
+const PAY = [];
+const PREV = {};
+CL.forEach((c,i) => { PREV[c.id] = [0, 85000, 120000, 46000, 0, 152000, 64000, 98000, 38000][i]; });
+const mStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+[[2,85000,5,'Transferencia'],[3,120000,4,'Transferencia'],[6,152000,3,'Transferencia'],[7,30000,2,'Efectivo'],[8,98000,6,'Transferencia'],[5,38000,1,'Transferencia']].forEach(([cl,a,ago,m]) => PAY.push({cl, a, date:addD(TODAY,-ago), m}));
 
-function showTab(id){ $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id)); $$('main > section').forEach(s => s.hidden = s.id !== id); if (id === 'cs') renderCS(); if (id === 'pr') renderPR(); if (id === 'od') renderOD(); scrollTo({top: Math.min(scrollY, $('.tabbar').offsetTop), behavior:'smooth'}); }
+/* tabs */
+function showTab(id){ $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id)); $$('main > section').forEach(s => s.hidden = s.id !== id); ({cs:renderCS, rg:renderRG, cc:renderCC, lp:renderLP, pr:renderPR})[id]?.(); scrollTo({top: Math.min(scrollY, $('.tabbar').offsetTop), behavior:'smooth'}); }
 $$('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
-function badge(){ const n = C.filter(c => c.st === 'rec').length; $('#bdg').textContent = n; $('#bdg').hidden = !n; const p = C.filter(c => c.od === ME.id && c.st === 'apr').length; $('#pend').innerHTML = p ? `<span class="chip c-warn" style="padding:0 7px;margin-left:3px">${p}</span>` : ''; }
+function badge(){ const n = C.filter(c => c.st === 'rec').length; $('#bdg').textContent = n; $('#bdg').hidden = !n; const p = C.filter(c => c.cl === ME.id && c.st === 'apr').length; $('#pend').innerHTML = p ? `<span class="chip c-warn" style="padding:0 7px;margin-left:3px">${p}</span>` : ''; }
+
+/* cuenta corriente */
+function ledger(cid){
+  const mv = [];
+  C.filter(c => c.cl === cid && c.st === 'env').forEach(c => mv.push({date:c.sent, t:`Trabajo #${c.nro} · ${TM[c.type].n} (${units(c)} ${units(c)===1?TM[c.type].u:TM[c.type].u+'s'})`, debe:amount(c), haber:0}));
+  PAY.filter(p => p.cl === cid).forEach(p => mv.push({date:p.date, t:`Pago · ${p.m}`, debe:0, haber:p.a}));
+  mv.sort((a,b) => a.date - b.date);
+  let s = PREV[cid] || 0; const rows = mv.map(m => { s += m.debe - m.haber; return {...m, saldo:s}; });
+  return {prev: PREV[cid] || 0, rows, saldo: s};
+}
 
 /* render del diseño */
 function renderSVG(c){
@@ -299,8 +359,7 @@ function renderSVG(c){
   let g = '', x0 = (w - unit*n)/2;
   for (let i = 0; i < n; i++){
     const x = x0 + i*unit;
-    g += `<path d="M${x+6} 120 Q${x+4} 70 ${x+unit*0.5} 58 Q${x+unit-4} 70 ${x+unit-6} 120 Q${x+unit*0.5} 132 ${x+6} 120Z" fill="url(#mt)" stroke="#9fb3c2" stroke-width="1"/>`;
-    g += `<path d="M${x+unit*0.25} 74 Q${x+unit*0.5} 64 ${x+unit*0.75} 74" stroke="#ffffff" stroke-opacity=".5" stroke-width="3" fill="none"/>`;
+    g += `<path d="M${x+6} 120 Q${x+4} 70 ${x+unit*0.5} 58 Q${x+unit-4} 70 ${x+unit-6} 120 Q${x+unit*0.5} 132 ${x+6} 120Z" fill="url(#mt)" stroke="#9fb3c2" stroke-width="1"/><path d="M${x+unit*0.25} 74 Q${x+unit*0.5} 64 ${x+unit*0.75} 74" stroke="#fff" stroke-opacity=".5" stroke-width="3" fill="none"/>`;
     if (i < n-1 && (c.type === 'pue' || c.type === 'bar')) g += `<rect x="${x+unit-10}" y="98" width="20" height="14" rx="5" fill="url(#mt)"/>`;
   }
   if (c.type === 'bar') g += `<rect x="${x0}" y="122" width="${unit*n}" height="10" rx="5" fill="#8fa3b3"/>`;
@@ -308,118 +367,160 @@ function renderSVG(c){
 }
 
 /* ---------- portal ---------- */
-let pv = 'nuevo', step = 'form', form = {type:'pue', teeth:[], files:[], env:'tra'}, sel = null, lastNro = null;
+let pv = 'nuevo', step = 'form', form = {type:'pue', teeth:[], files:[], env:'enc'}, sel = null, lastNro = null;
 $$('[data-pv]').forEach(b => b.onclick = () => { pv = b.dataset.pv; step = pv === 'nuevo' ? 'form' : 'list'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderPT(); });
 const UP = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28], LO = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
 function odoHTML(sel){ const row = arr => `<div class="row">${arr.map((t,i) => `<button type="button" class="${i===8?'mid':''}" data-t="${t}" aria-pressed="${sel.includes(t)}" aria-label="Pieza ${t}">${t}</button>`).join('')}</div>`; return `<div class="odo"><div class="lbl"><span>Derecha</span><span>Superior</span><span>Izquierda</span></div>${row(UP)}${row(LO)}<div class="lbl" style="margin-top:4px;margin-bottom:0"><span></span><span>Inferior</span><span></span></div></div>`; }
 function renderPT(){
   const b = $('#pBody');
+  if (pv === 'cta'){
+    const L = ledger(ME.id), mov = L.rows.filter(r => r.date >= mStart);
+    b.innerHTML = `<div class="h3" style="margin:2px 2px 8px">Mi cuenta corriente</div><div class="card" style="padding:14px"><div class="note">Saldo al ${dd(TODAY)}</div><div class="saldo num">${money(L.saldo)}</div></div>
+    <div class="sum"><h4>Resumen de ${MN[TODAY.getMonth()]}</h4><div class="note" style="margin-bottom:8px">Saldo anterior: ${money(L.prev)}</div>${mov.map(r => `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)"><span>${dd(r.date)} · ${esc(r.t)}</span><b class="num">${r.debe ? money(r.debe) : '− ' + money(r.haber)}</b></div>`).join('') || '<div class="note">Sin movimientos este mes</div>'}<div class="tot"><span>Saldo</span><span class="num">${money(L.saldo)}</span></div></div>
+    <button class="btn" id="pdf" style="width:100%;margin-top:10px">Descargar resumen en PDF</button>`;
+    $('#pdf').onclick = () => toast('Resumen mensual descargado en PDF');
+    return;
+  }
   if (pv === 'nuevo' && step === 'form'){
     const ok = form.teeth.length && form.files.length;
-    b.innerHTML = `<div class="h3" style="margin:2px 2px 8px">Nuevo caso</div>
+    b.innerHTML = `<div class="h3" style="margin:2px 2px 8px">Nuevo trabajo</div>
     <label class="f" style="margin-top:0">Paciente (iniciales o código)</label><input id="fPac" value="${esc(form.pac || '')}" placeholder="Ej.: J.P. o ficha 0458">
     <label class="f">Tipo de trabajo</label><div class="types">${TYPES.map(t => `<button type="button" data-ty="${t.id}" aria-pressed="${form.type===t.id}">${t.n}<span>${t.d}</span></button>`).join('')}</div>
     <label class="f">Piezas · tocá las que van</label>${odoHTML(form.teeth)}
     <div class="note" style="margin:5px 2px 0">${form.teeth.length ? `Seleccionadas: <b>${form.teeth.slice().sort((a,b)=>a-b).join(', ')}</b>` : 'Ninguna pieza seleccionada'}</div>
     <label class="f">Archivos del escaneo</label><div class="files">${form.files.map(f => `<div class="file"><i>STL</i><span>${esc(f)}</span><span class="note">✓</span></div>`).join('')}<button type="button" class="drop" id="add">${form.files.length ? '+ Agregar otro archivo' : '📎 Adjuntar archivos (STL, fotos, PDF)'}</button></div>
-    <label class="f">¿Cómo lo recibís?</label><div class="opts"><label><input type="radio" name="env" value="tra" ${form.env==='tra'?'checked':''}><span><b>Envío por transporte</b>${esc(ME.tr)} · a ${esc(ME.c)}</span></label><label><input type="radio" name="env" value="ret" ${form.env==='ret'?'checked':''}><span><b>Retiro en el laboratorio</b>Mar del Plata</span></label></div>
-    <label class="f">Nota para el laboratorio (opcional)</label><textarea id="fNote" rows="2" placeholder="Ej.: espacio para cerámica 1,5 mm">${esc(form.note || '')}</textarea>
-    <div class="note" style="margin:10px 2px">Entrega estimada: <b>${fd(addWork(TODAY,3))}</b> (3 días hábiles)</div>
-    <button class="btn teal" id="send" style="width:100%;padding:13px" ${ok?'':'disabled'}>Enviar caso al laboratorio</button>
+    <label class="f">¿Cómo lo recibís?</label><div class="opts"><label><input type="radio" name="env" value="enc" ${form.env==='enc'?'checked':''}><span><b>Por encomienda</b>${esc(ME.enc)} · a ${esc(ME.c)}</span></label><label><input type="radio" name="env" value="ret" ${form.env==='ret'?'checked':''}><span><b>Retiro en el laboratorio</b>Mar del Plata</span></label></div>
+    <label class="f">Nota para el laboratorio (opcional)</label><textarea id="fNote" rows="2" placeholder="Ej.: lo necesito para el jueves si se puede">${esc(form.note || '')}</textarea>
+    <div class="note" style="margin:10px 2px">📅 La <b>fecha de salida</b> la confirma el laboratorio según el trabajo. Te avisamos apenas esté fijada.</div>
+    <button class="btn teal" id="send" style="width:100%;padding:13px" ${ok?'':'disabled'}>Enviar trabajo al laboratorio</button>
     ${ok ? '' : '<div class="note" style="text-align:center;margin-top:6px">Marcá al menos una pieza y adjuntá los archivos</div>'}`;
     const keep = () => { form.pac = $('#fPac').value; form.note = $('#fNote').value; };
     $$('#pBody [data-ty]').forEach(x => x.onclick = () => { keep(); form.type = x.dataset.ty; renderPT(); });
     $$('#pBody [data-t]').forEach(x => x.onclick = () => { keep(); const t = +x.dataset.t; form.teeth = form.teeth.includes(t) ? form.teeth.filter(y => y !== t) : [...form.teeth, t]; renderPT(); });
-    $('#add').onclick = () => { keep(); const pool = ['maxilar_superior.stl','maxilar_inferior.stl','registro_mordida.stl','foto_color.jpg']; const f = pool.find(p => !form.files.includes(p)); if (f) form.files.push(f); if (form.files.length === 1){ form.files.push('antagonista.stl'); } renderPT(); };
+    $('#add').onclick = () => { keep(); const pool = ['maxilar_superior.stl','antagonista.stl','registro_mordida.stl','foto_referencia.jpg']; const f = pool.find(p => !form.files.includes(p)); if (f) form.files.push(f); if (form.files.length === 1) form.files.push('antagonista.stl'); renderPT(); };
     $$('input[name=env]').forEach(r => r.onchange = () => form.env = r.value);
     $('#send').onclick = () => {
       keep();
-      const c = {nro:nro++, od:ME.id, type:form.type, teeth:form.teeth.slice().sort((a,b)=>a-b), st:'rec', rec:TODAY, due:addWork(TODAY,3), pac: form.pac.trim() || 'Paciente nuevo', files:form.files.slice(), note:form.note, guia:'', change:'', isNew:true, env:form.env, hist:[[TODAY, `Caso recibido con ${form.files.length} archivos`]]};
-      C.push(c); lastNro = c.nro; selC = c.nro; form = {type:'pue', teeth:[], files:[], env:'tra'}; step = 'done'; renderPT(); badge();
-      toast(`Caso #${c.nro} recibido en Crolab3D`);
+      const c = {nro:nro++, cl:ME.id, type:form.type, teeth:form.teeth.slice().sort((a,b)=>a-b), st:'rec', rec:TODAY, out:null, pac: (form.pac||'').trim() || 'Paciente nuevo', files:form.files.slice(), note:form.note, track:'', change:'', isNew:true, env:form.env, hist:[[TODAY, `Ingresó con ${form.files.length} archivos`]], sent:null};
+      C.push(c); lastNro = c.nro; selC = c.nro; form = {type:'pue', teeth:[], files:[], env:'enc'}; step = 'done'; renderPT(); badge();
+      toast(`Trabajo #${c.nro} ingresado en Crolab3D`);
     };
     return;
   }
   if (step === 'done'){
-    b.innerHTML = `<div class="done"><div class="ck"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg></div><h3 class="h2">¡Caso enviado!</h3><p class="note" style="font-size:14.5px">Caso <b>#${lastNro}</b>. Te avisamos por WhatsApp cuando el diseño esté listo para aprobar.</p><button class="btn dark" id="goMis">Ver mis casos</button></div><div class="note" style="background:var(--teal-soft);color:var(--teal-2);border-radius:12px;padding:10px 12px;font-weight:600">👀 Mirá la pestaña <b>Casos</b>: tu caso aparece en “Recibido”.</div>`;
+    b.innerHTML = `<div class="done"><div class="ck"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg></div><h3 class="h2">¡Trabajo enviado!</h3><p class="note" style="font-size:14.5px">Trabajo <b>#${lastNro}</b>. Te avisamos por WhatsApp cuando el laboratorio fije la fecha de salida.</p><button class="btn dark" id="goMis">Ver mis trabajos</button></div><div class="note" style="background:var(--teal-soft);color:var(--teal-2);border-radius:12px;padding:10px 12px;font-weight:600">👀 Mirá la pestaña <b>Trabajos</b>: aparece en “Ingresado”, y ahí el laboratorio le pone la fecha de salida.</div>`;
     $('#goMis').onclick = () => { pv = 'mis'; step = 'list'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x.dataset.pv === 'mis')); renderPT(); };
     return;
   }
   if (step === 'approve'){
     const c = C.find(c => c.nro === sel);
-    b.innerHTML = `<button class="btn sm" id="back">← Mis casos</button><div class="h3" style="margin:12px 2px 4px">Diseño del caso #${c.nro}</div><div class="note" style="margin:0 2px 10px">${esc(TM[c.type].n)} · piezas ${c.teeth.join(', ')} · ${esc(c.pac)}</div>
-    <div class="render">${renderSVG(c)}<small>Vista del diseño · en el sistema real se ve el render que sube el laboratorio, con zoom y giro</small></div>
-    <div class="note" style="margin:10px 2px">Espesor mínimo 0,4 mm · conectores 9 mm² · espacio para cerámica 1,5 mm</div>
-    <button class="btn teal" id="ok" style="width:100%;padding:13px">Aprobar diseño</button>
+    b.innerHTML = `<button class="btn sm" id="back">← Mis trabajos</button><div class="h3" style="margin:12px 2px 4px">Diseño del trabajo #${c.nro}</div><div class="note" style="margin:0 2px 10px">${esc(TM[c.type].n)} · piezas ${c.teeth.join(', ')} · ${esc(c.pac)}</div>
+    <div class="render">${renderSVG(c)}<small>Vista del diseño · en el sistema real se ve el render que sube el laboratorio</small></div>
+    <button class="btn teal" id="ok" style="width:100%;padding:13px;margin-top:12px">Aprobar diseño</button>
     <label class="f">¿Querés pedir un cambio?</label><textarea id="chg" rows="2" placeholder="Ej.: aumentar el conector entre 45 y 46"></textarea>
     <button class="btn" id="ch" style="width:100%;margin-top:8px">Pedir cambios</button>`;
     $('#back').onclick = () => { step = 'list'; renderPT(); };
-    $('#ok').onclick = () => { c.st = 'pro'; c.hist.push([TODAY, 'Diseño aprobado por el odontólogo · a producción']); step = 'list'; renderPT(); badge(); toast(`Diseño del caso #${c.nro} aprobado. Pasa a producción.`); };
+    $('#ok').onclick = () => { c.st = 'pro'; c.hist.push([TODAY, 'Diseño aprobado por el cliente · a producción']); step = 'list'; renderPT(); badge(); toast(`Diseño del trabajo #${c.nro} aprobado. Pasa a producción.`); };
     $('#ch').onclick = () => { const t = $('#chg').value.trim() || 'Ajustar conectores'; c.st = 'dis'; c.change = t; c.hist.push([TODAY, `Pidió cambios: “${t}”`]); step = 'list'; renderPT(); badge(); toast('Pedido de cambio enviado al laboratorio'); };
     return;
   }
-  // lista
-  const mine = C.filter(c => c.od === ME.id).sort((a,b) => (b.st === 'apr') - (a.st === 'apr') || b.nro - a.nro);
-  b.innerHTML = `<div class="h3" style="margin:2px 2px 10px">Mis casos</div>` + mine.map(c => { const i = ST.findIndex(s => s[0] === c.st); return `<div class="cs"><div class="top"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div><div class="note">${esc(c.pac)} · piezas ${c.teeth.join(', ')}</div><div class="track">${ST.map((s,k) => `<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="note" style="margin-top:6px">${c.st === 'env' ? `Enviado · guía <b>${c.guia}</b>` : `Entrega estimada ${fd(c.due)}`}</div>${c.st === 'apr' ? `<button class="btn teal sm" data-ap="${c.nro}" style="margin-top:8px;width:100%">Ver y aprobar el diseño</button>` : ''}</div>`; }).join('') +
-  `<div class="cs"><div class="top"><b>#2290 · Puente sinterizado</b><span class="chip c-ok">Enviado</span></div><div class="note">Paciente R.L. · piezas 34, 35, 36 · guía TS-11982</div></div>`;
+  const mine = C.filter(c => c.cl === ME.id).sort((a,b) => (b.st === 'apr') - (a.st === 'apr') || b.nro - a.nro);
+  b.innerHTML = `<div class="h3" style="margin:2px 2px 10px">Mis trabajos</div>` + mine.map(c => { const i = ST.findIndex(s => s[0] === c.st); return `<div class="cs"><div class="top"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div><div class="note">${esc(c.pac)} · piezas ${c.teeth.join(', ')}</div><div class="track">${ST.map((s,k) => `<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="note" style="margin-top:6px">${c.st === 'env' ? (c.track === 'Retirado' ? `Retirado el ${fd(c.sent)}` : `Enviado el ${fd(c.sent)} · seguimiento <b>${c.track}</b>`) : c.out ? `Sale del laboratorio el <b>${fd(c.out)}</b>` : 'Fecha de salida: a confirmar por el laboratorio'}</div>${c.st === 'apr' ? `<button class="btn teal sm" data-ap="${c.nro}" style="margin-top:8px;width:100%">Ver y aprobar el diseño</button>` : ''}</div>`; }).join('');
   $$('#pBody [data-ap]').forEach(x => x.onclick = () => { sel = +x.dataset.ap; step = 'approve'; renderPT(); });
 }
 
-/* ---------- casos (laboratorio) ---------- */
+/* ---------- trabajos ---------- */
 let selC = null;
 function renderCS(){
   const act = C.filter(c => c.st !== 'env');
-  const late = act.filter(c => c.due < TODAY).length;
-  const units = C.filter(c => c.st === 'pro').reduce((a,c) => a + UNITS(c), 0);
-  $('#kpis').innerHTML = `<div class="kpi"><small>Casos en curso</small><b>${act.length}</b></div><div class="kpi"><small>Nuevos para revisar</small><b>${C.filter(c=>c.st==='rec').length}</b></div><div class="kpi"><small>Esperando aprobación</small><b>${C.filter(c=>c.st==='apr').length}</b></div><div class="kpi"><small>Unidades en producción</small><b>${units}</b></div>`;
-  $('#board').innerHTML = ST.map(([k,l]) => { const L = C.filter(c => c.st === k).sort((a,b) => a.due - b.due); return `<div class="col"><h4>${l}<span>${L.length}</span></h4>${L.map(c => { const o = OM[c.od], dueTxt = c.st === 'env' ? `Guía ${c.guia}` : `Entrega ${fd(c.due)}`; const urg = c.st !== 'env' && c.due <= addD(TODAY,1); return `<button class="kc ${c.isNew?'new':''}" data-n="${c.nro}" aria-current="${c.nro===selC}"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><div class="m">${esc(o.n)} · ${esc(o.c)}</div><div class="f"><span class="chip ${urg?'c-warn':'c-gray'}">${dueTxt}</span><span class="note">${UNITS(c)} ${UNITS(c)===1?'pieza':'piezas'}</span></div>${c.change ? `<div class="chip c-bad" style="margin-top:6px">Cambio pedido</div>` : ''}</button>`; }).join('') || '<div class="note" style="padding:6px">Sin casos</div>'}</div>`; }).join('');
+  $('#kpis').innerHTML = `<div class="kpi"><small>Pendientes</small><b>${act.length}</b></div><div class="kpi"><small>Sin fecha de salida</small><b>${act.filter(c=>!c.out).length}</b></div><div class="kpi"><small>Salen hoy o mañana</small><b>${act.filter(c=>c.out && c.out <= addWork(TODAY,1)).length}</b></div><div class="kpi"><small>Esperando aprobación</small><b>${C.filter(c=>c.st==='apr').length}</b></div>`;
+  $('#board').innerHTML = ST.map(([k,l]) => { const L = C.filter(c => c.st === k).sort((a,b) => (a.out||addD(TODAY,99)) - (b.out||addD(TODAY,99))).slice(0, k === 'env' ? 4 : 99); const n = C.filter(c => c.st === k).length; return `<div class="col"><h4>${l}<span>${n}</span></h4>${L.map(c => { const o = CM[c.cl]; const urg = c.st !== 'env' && c.out && c.out <= addWork(TODAY,1); const dt = c.st === 'env' ? `Entregado ${dd(c.sent)}` : c.out ? `Sale ${fd(c.out)}` : 'Sin fecha de salida'; return `<button class="kc ${c.isNew?'new':''}" data-n="${c.nro}" aria-current="${c.nro===selC}"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><div class="m">${esc(o.n)} · ${esc(o.c)}</div><div class="f"><span class="chip ${!c.out && c.st!=='env' ? 'c-bad' : urg ? 'c-warn' : 'c-gray'}">${dt}</span><span class="note">${units(c)} ${TM[c.type].u}${units(c)===1?'':'s'}</span></div>${c.change ? `<div class="chip c-bad" style="margin-top:6px">Cambio pedido</div>` : ''}</button>`; }).join('') || '<div class="note" style="padding:6px">Sin trabajos</div>'}${k === 'env' && n > 4 ? `<div class="note" style="padding:4px 6px">y ${n-4} más en el Registro</div>` : ''}</div>`; }).join('');
   $$('#board .kc').forEach(x => x.onclick = () => { selC = +x.dataset.n; renderCS(); $('#det').scrollIntoView({behavior:'smooth', block:'start'}); });
   renderDet();
 }
-const NEXT = {rec:['dis','Empezar diseño'], dis:['apr','Subir diseño para aprobar'], apr:null, pro:['ter','Pasar a terminación'], ter:['env','Marcar como enviado']};
+const NEXT = {rec:['dis','Empezar diseño'], dis:['apr','Enviar diseño para aprobar'], apr:null, pro:['ter','Marcar listo para salir'], ter:['env','Despachar / entregar']};
 function renderDet(){
   const c = C.find(c => c.nro === selC) || C.find(c => c.st === 'rec') || C[0]; selC = c.nro;
-  const o = OM[c.od], nx = NEXT[c.st];
-  $('#det').innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3 class="h2" style="font-size:22px">Caso #${c.nro} · ${esc(TM[c.type].n)}</h3><div class="note">${esc(o.n)} · ${esc(o.c)} · ${esc(c.pac)}</div></div><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div>
+  const o = CM[c.cl], nx = NEXT[c.st];
+  $('#det').innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3 class="h2" style="font-size:22px">Trabajo #${c.nro} · ${esc(TM[c.type].n)}</h3><div class="note">${esc(o.n)} (${KN[o.k].toLowerCase()}) · ${esc(o.c)} · ${esc(c.pac)}</div></div><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div>
+    <div class="pc"><div><small>Fecha de salida del laboratorio</small>${c.st === 'env' ? `<b>${fd(c.sent)}</b>` : `<input type="date" class="datein" id="outIn" value="${c.out ? iso(c.out) : ''}">`}</div><div><small>Importe · lista ${KN[o.k].toLowerCase()}s</small><b class="num">${money(amount(c))}</b><div class="note">${units(c)} × ${money(PRICE[o.k][c.type])}</div></div></div>
     <label class="f">Piezas</label><div class="mini-odo">${[...UP,...LO].map(t => `<i class="${c.teeth.includes(t)?'on':''}">${t}</i>`).join('')}</div>
     <label class="f">Archivos</label><div class="files">${c.files.map(f => `<div class="file"><i>${f.endsWith('.jpg')?'JPG':'STL'}</i><span>${esc(f)}</span><button class="btn sm" data-dl>Descargar</button></div>`).join('')}</div>
-    ${c.note ? `<label class="f">Nota del odontólogo</label><div class="note" style="font-size:14px;color:var(--text)">${esc(c.note)}</div>` : ''}
+    ${c.note ? `<label class="f">Nota del cliente</label><div style="font-size:14px">${esc(c.note)}</div>` : ''}
     ${c.change ? `<div class="chip c-bad" style="margin-top:12px;white-space:normal;padding:8px 10px;border-radius:10px">Cambio pedido: ${esc(c.change)}</div>` : ''}
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${nx ? `<button class="btn teal" id="adv">${nx[1]}</button>` : `<span class="chip c-warn" style="padding:8px 12px">Esperando que el odontólogo apruebe</span><button class="btn" id="rem">Recordarle</button>`}<button class="btn" id="wa">Escribirle</button></div>
-    <p class="note" style="margin:10px 0 0">Cada cambio de etapa le avisa al odontólogo por WhatsApp.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${nx ? `<button class="btn teal" id="adv">${nx[1]}</button>` : `<span class="chip c-warn" style="padding:8px 12px">Esperando que el cliente apruebe</span><button class="btn" id="rem">Recordarle</button>`}<button class="btn" id="wa">Escribirle</button></div>
+    <p class="note" style="margin:10px 0 0">Cada cambio, y la fecha de salida, le llegan al cliente por WhatsApp. Al entregar, el importe se carga solo en su cuenta corriente.</p></div>
   <div class="card"><div class="h3">Historial</div><ul class="hist">${c.hist.map(([d,t]) => `<li><span>${fd(d)}</span><span>${esc(t)}</span></li>`).join('')}</ul>
-    <div class="note" style="margin-top:12px">Entrega comprometida: <b>${fd(c.due)}</b> · ${c.env === 'ret' ? 'Retira en el laboratorio' : 'Envío por ' + esc(o.tr)}</div>
-    ${['apr','pro','ter','env'].includes(c.st) ? `<div class="render" style="margin-top:12px">${renderSVG(c)}<small>Diseño enviado al odontólogo</small></div>` : ''}</div>`;
+    <div class="note" style="margin-top:12px">${c.env === 'ret' || o.enc.startsWith('Retira') ? 'Retira en el laboratorio' : 'Sale por encomienda: ' + esc(o.enc)}</div>
+    ${['apr','pro','ter','env'].includes(c.st) ? `<div class="render" style="margin-top:12px">${renderSVG(c)}<small>Diseño enviado al cliente</small></div>` : ''}</div>`;
   $$('#det [data-dl]').forEach(x => x.onclick = () => toast('Archivo descargado para abrir en el programa de diseño'));
   $('#wa').onclick = () => toast(`Se abre el chat con ${o.n}`);
+  const oi = $('#outIn'); if (oi) oi.onchange = () => { if (!oi.value) return; c.out = fromIso(oi.value); c.isNew = false; c.hist.push([TODAY, `Fecha de salida fijada: ${fd(c.out)}`]); toast(`${o.n} recibió la fecha de salida: ${fd(c.out)}`); renderCS(); renderPT(); };
   const rem = $('#rem'); if (rem) rem.onclick = () => toast(`Recordatorio enviado a ${o.n}: “Tenés un diseño para aprobar”`);
   const adv = $('#adv'); if (adv) adv.onclick = () => {
-    const labels = {dis:'Diseño en curso', apr:'Diseño subido para aprobar', ter:'Terminación y control', env:'Enviado'};
+    if (c.st === 'rec' && !c.out){ toast('Primero fijá la fecha de salida del trabajo'); $('#outIn').focus(); return; }
     c.st = nx[0]; c.isNew = false; c.change = '';
-    if (c.st === 'env') c.guia = (o.tr.startsWith('Retira') ? 'RET-' : 'TS-') + (12000 + c.nro);
-    c.hist.push([TODAY, labels[c.st] + (c.st === 'env' && c.guia ? ` · guía ${c.guia}` : '')]);
-    toast(c.st === 'apr' ? `${o.n} recibió el diseño para aprobar` : c.st === 'env' ? `${o.n} recibió la guía ${c.guia}` : `Caso #${c.nro}: ${SM[c.st][1]}. Se le avisó a ${o.n}.`);
+    if (c.st === 'env'){ c.sent = TODAY; c.track = o.enc.startsWith('Retira') ? 'Retirado' : 'ENC-' + (480000 + c.nro*7); c.hist.push([TODAY, c.track === 'Retirado' ? 'Retirado por el cliente' : `Enviado por ${o.enc} · seguimiento ${c.track}`]); toast(`${o.n} recibió el seguimiento ${c.track}. Se cargaron ${money(amount(c))} en su cuenta.`); }
+    else { c.hist.push([TODAY, LBL[ST.findIndex(s => s[0] === c.st)]]); toast(c.st === 'apr' ? `${o.n} recibió el diseño para aprobar` : `Trabajo #${c.nro}: ${SM[c.st][1]}. Se le avisó a ${o.n}.`); }
     badge(); renderCS(); renderPT();
   };
 }
 
-/* ---------- producción y envíos ---------- */
-function renderPR(){
-  const P = C.filter(c => c.st === 'pro'), u = P.reduce((a,c) => a + UNITS(c), 0), cap = 24;
-  $('#tanda').innerHTML = `<div class="h3">Próxima tanda de sinterizado</div><div class="note">Mañana 8:00 · capacidad de ejemplo: ${cap} unidades</div><div class="cap"><i style="width:${Math.min(100,u/cap*100)}%"></i></div><div class="note" style="margin-bottom:10px"><b>${u}</b> de ${cap} unidades · ${cap-u > 0 ? `quedan ${cap-u} lugares` : 'completa'}</div>
-  <div class="tw"><table class="t"><thead><tr><th>Caso</th><th>Trabajo</th><th class="hm">Odontólogo</th><th class="r">Unid.</th><th class="r">Entrega</th></tr></thead><tbody>${P.sort((a,b)=>a.due-b.due).map(c => `<tr><td>#${c.nro}</td><td>${esc(TM[c.type].n)}</td><td class="hm">${esc(OM[c.od].n)}</td><td class="r">${UNITS(c)}</td><td class="r">${fd(c.due)}</td></tr>`).join('') || '<tr><td colspan="5" class="note">Sin casos en producción</td></tr>'}</tbody></table></div>`;
-  const out = C.filter(c => c.st === 'ter' || (c.st === 'env' && (TODAY - c.rec)/864e5 < 6)), g = {};
-  out.forEach(c => { const k = c.env === 'ret' ? 'Retira en el laboratorio' : OM[c.od].tr; (g[k] = g[k] || []).push(c); });
-  $('#envios').innerHTML = `<h3 class="h3" style="margin-left:4px">Envíos</h3>` + Object.entries(g).map(([k,L]) => `<div class="disp"><h4>${esc(k)} <span class="chip c-gray">${L.length} ${L.length===1?'caja':'cajas'}</span></h4><ul>${L.map(c => `<li>#${c.nro} · ${esc(OM[c.od].n)} (${esc(OM[c.od].c)}) <span class="chip ${SM[c.st][2]}">${c.st==='env' ? 'Guía ' + c.guia : 'Listo para despachar'}</span></li>`).join('')}</ul><button class="btn sm" style="margin-top:8px" data-g="${esc(k)}">Imprimir etiquetas y remitos</button></div>`).join('');
-  $$('#envios [data-g]').forEach(x => x.onclick = () => toast(`Etiquetas y remitos de ${x.dataset.g} listos para imprimir`));
+/* ---------- registro ---------- */
+let rgF = 'pen';
+function renderRG(){
+  const F = [['ing','Ingresos del mes'],['pen','Pendientes'],['ent','Entregados del mes'],['all','Todos']];
+  $('#rgF').innerHTML = F.map(([k,l]) => `<button class="fbtn" data-k="${k}" aria-pressed="${rgF===k}">${l}</button>`).join('');
+  $$('#rgF .fbtn').forEach(b => b.onclick = () => { rgF = b.dataset.k; renderRG(); });
+  const ing = C.filter(c => c.rec >= mStart), pen = C.filter(c => c.st !== 'env'), ent = C.filter(c => c.st === 'env' && c.sent >= mStart);
+  $('#rgK').innerHTML = `<div class="kpi"><small>Ingresaron este mes</small><b>${ing.length}</b></div><div class="kpi"><small>Pendientes</small><b>${pen.length}</b></div><div class="kpi"><small>Entregados este mes</small><b>${ent.length}</b></div><div class="kpi"><small>Facturado este mes</small><b class="num">${money(ent.reduce((a,c)=>a+amount(c),0))}</b></div>`;
+  const L = (rgF === 'ing' ? ing : rgF === 'pen' ? pen : rgF === 'ent' ? ent : C).slice().sort((a,b) => b.nro - a.nro);
+  $('#rgT').innerHTML = `<thead><tr><th>#</th><th>Ingreso</th><th>Cliente</th><th class="hm">Trabajo</th><th>Salida</th><th>Estado</th><th class="r">Importe</th></tr></thead><tbody>` + L.map(c => { const o = CM[c.cl]; return `<tr><td class="num">${c.nro}</td><td class="num">${dd(c.rec)}</td><td><b>${esc(o.n)}</b><div class="note">${KN[o.k]} · ${esc(o.c)}</div></td><td class="hm">${esc(TM[c.type].n)}<div class="note">piezas ${c.teeth.join(', ')}</div></td><td class="num">${c.st==='env' ? dd(c.sent) : c.out ? dd(c.out) : '<span class="chip c-bad">Sin fecha</span>'}</td><td><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></td><td class="r num">${money(amount(c))}</td></tr>`; }).join('') + '</tbody>';
 }
 
-/* ---------- odontólogos ---------- */
-function renderOD(){
-  $('#odT').innerHTML = `<thead><tr><th>Odontólogo</th><th>Ciudad</th><th class="r">Casos del mes</th><th class="r hm">En curso</th><th></th></tr></thead><tbody>` + OD.map(o => { const L = C.filter(c => c.od === o.id); return `<tr><td><b>${esc(o.n)}</b></td><td>${esc(o.c)}</td><td class="r">${L.length + (o.id*3)%7}</td><td class="r hm">${L.filter(c=>c.st!=='env').length}</td><td class="r"><button class="btn sm" data-l="${o.id}">Enviar link</button></td></tr>`; }).join('') + '</tbody>';
-  $$('#odT [data-l]').forEach(x => x.onclick = () => toast(`Link del portal enviado a ${OM[x.dataset.l].n} por WhatsApp`));
+/* ---------- clientes y cuentas ---------- */
+let ccF = 'all', ccSel = 1, showSum = false;
+function renderCC(){
+  const F = [['all','Todos'],['od','Odontólogos'],['lab','Laboratorios']];
+  $('#ccF').innerHTML = F.map(([k,l]) => `<button class="fbtn" data-k="${k}" aria-pressed="${ccF===k}">${l}</button>`).join('');
+  $$('#ccF .fbtn').forEach(b => b.onclick = () => { ccF = b.dataset.k; renderCC(); });
+  const L = CL.filter(c => ccF === 'all' || c.k === ccF);
+  if (!L.find(c => c.id === ccSel)) ccSel = L[0].id;
+  $('#clList').innerHTML = L.map(c => { const s = ledger(c.id).saldo; return `<button class="cli" data-c="${c.id}" aria-current="${c.id===ccSel}"><span><b>${esc(c.n)}</b><span class="note">${KN[c.k]} · ${esc(c.c)}</span></span><span style="text-align:right"><span class="note">Saldo</span><br><b class="num" style="color:${s>0?'var(--warn)':'var(--ok)'}">${money(s)}</b></span></button>`; }).join('');
+  $$('#clList .cli').forEach(b => b.onclick = () => { ccSel = +b.dataset.c; showSum = false; renderCC(); if (innerWidth < 900) $('#clDet').scrollIntoView({behavior:'smooth'}); });
+  const c = CM[ccSel], Lg = ledger(c.id), cs = C.filter(x => x.cl === c.id), mov = Lg.rows.filter(r => r.date >= mStart);
+  $('#clDet').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start"><div><h3 class="h2" style="font-size:24px">${esc(c.n)}</h3><div class="note">${KN[c.k]} · ${esc(c.c)} · lista de precios ${KN[c.k].toLowerCase()}s · ${esc(c.enc)}</div></div><div style="text-align:right"><div class="note">Saldo</div><div class="saldo num">${money(Lg.saldo)}</div></div></div>
+  <div class="pc"><div><small>Trabajos pendientes</small><b>${cs.filter(x=>x.st!=='env').length}</b></div><div><small>Entregados este mes</small><b>${cs.filter(x=>x.st==='env' && x.sent>=mStart).length}</b></div></div>
+  <label class="f">Cuenta corriente · ${MN[TODAY.getMonth()]}</label>
+  <div class="tw"><table class="t"><thead><tr><th>Fecha</th><th>Movimiento</th><th class="r">Debe</th><th class="r">Haber</th><th class="r">Saldo</th></tr></thead><tbody><tr><td class="num">${dd(mStart)}</td><td>Saldo anterior</td><td></td><td></td><td class="r num">${money(Lg.prev)}</td></tr>${Lg.rows.map(r => `<tr><td class="num">${dd(r.date)}</td><td>${esc(r.t)}</td><td class="r num">${r.debe?money(r.debe):''}</td><td class="r num">${r.haber?money(r.haber):''}</td><td class="r num">${money(r.saldo)}</td></tr>`).join('')}</tbody></table></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn dark" id="sumB">Resumen mensual</button><button class="btn" id="payB">Registrar pago</button></div>
+  <div id="payBox" hidden style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><input id="payA" type="number" placeholder="Importe" style="width:150px"><select id="payM" style="width:auto"><option>Transferencia</option><option>Efectivo</option><option>Cheque</option></select><button class="btn teal" id="payOk">Guardar</button></div>
+  ${showSum ? `<div class="sum"><h4>Resumen de ${MN[TODAY.getMonth()]} · ${esc(c.n)}</h4><div class="note" style="margin-bottom:8px">Crolab3D · Laboratorio dental digital · Mar del Plata</div><div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0"><span>Saldo anterior</span><b class="num">${money(Lg.prev)}</b></div>${mov.map(r => `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:4px 0;border-bottom:1px dashed var(--line)"><span>${dd(r.date)} · ${esc(r.t)}</span><b class="num">${r.debe ? money(r.debe) : '− ' + money(r.haber)}</b></div>`).join('')}<div class="tot"><span>Saldo a pagar</span><span class="num">${money(Lg.saldo)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn teal sm" id="sumWa">Enviar por WhatsApp</button><button class="btn sm" id="sumPdf">Descargar PDF</button></div></div>` : ''}`;
+  $('#sumB').onclick = () => { showSum = !showSum; renderCC(); };
+  $('#payB').onclick = () => { $('#payBox').hidden = !$('#payBox').hidden; };
+  $('#payOk').onclick = () => { const a = +$('#payA').value; if (!(a > 0)) { toast('Ingresá el importe del pago'); return; } PAY.push({cl:c.id, a, date:TODAY, m:$('#payM').value}); toast(`Pago de ${money(a)} registrado. Nuevo saldo: ${money(ledger(c.id).saldo)}`); renderCC(); renderPT(); };
+  const sw = $('#sumWa'); if (sw) sw.onclick = () => toast(`Resumen de ${MN[TODAY.getMonth()]} enviado a ${c.n} por WhatsApp`);
+  const sp = $('#sumPdf'); if (sp) sp.onclick = () => toast('Resumen mensual descargado en PDF');
 }
-$('#inv').onclick = () => toast('Se genera un link personal para el odontólogo y se le manda por WhatsApp');
+
+/* ---------- listas de precios ---------- */
+function renderLP(){
+  $('#lpV').textContent = `Vigentes desde el ${dd(listDate)}. Una lista para odontólogos y otra para laboratorios.`;
+  $('#lpT').innerHTML = `<thead><tr><th>Trabajo</th><th class="hm">Unidad</th><th class="r">Odontólogos</th><th class="r">Laboratorios</th></tr></thead><tbody>` + TYPES.map(t => `<tr><td><b>${esc(t.n)}</b><div class="note">${esc(t.d)}</div></td><td class="hm">por ${t.u}</td><td class="r"><input class="price-in num" data-k="od" data-t="${t.id}" value="${PRICE.od[t.id]}" inputmode="numeric" aria-label="Precio odontólogos ${esc(t.n)}"></td><td class="r"><input class="price-in num" data-k="lab" data-t="${t.id}" value="${PRICE.lab[t.id]}" inputmode="numeric" aria-label="Precio laboratorios ${esc(t.n)}"></td></tr>`).join('') + '</tbody>';
+  $$('#lpT .price-in').forEach(i => i.onchange = () => { const v = parseInt(i.value.replace(/\D/g,''),10); if (v > 0){ PRICE[i.dataset.k][i.dataset.t] = v; listDate = TODAY; renderLP(); toast(`${TM[i.dataset.t].n} para ${i.dataset.k==='od'?'odontólogos':'laboratorios'}: ${money(v)}`); } });
+}
+$('#lpA').onclick = () => { const k = 1 + (parseFloat($('#lpP').value)||0)/100, w = $('#lpW').value; ['od','lab'].filter(x => w === 'both' || w === x).forEach(x => TYPES.forEach(t => PRICE[x][t.id] = Math.round(PRICE[x][t.id]*k/100)*100)); listDate = TODAY; renderLP(); toast(`Lista actualizada ${$('#lpP').value}%. Los trabajos nuevos ya usan los precios nuevos.`); };
+
+/* ---------- producción y encomiendas ---------- */
+function renderPR(){
+  const P = C.filter(c => c.st === 'pro'), u = P.reduce((a,c) => a + c.teeth.length, 0), cap = 24;
+  $('#tanda').innerHTML = `<div class="h3">Próxima tanda de producción</div><div class="note">Capacidad de ejemplo: ${cap} unidades</div><div class="cap"><i style="width:${Math.min(100,u/cap*100)}%"></i></div><div class="note" style="margin-bottom:10px"><b>${u}</b> de ${cap} unidades</div>
+  <div class="tw"><table class="t"><thead><tr><th>#</th><th>Trabajo</th><th class="hm">Cliente</th><th class="r">Unid.</th><th class="r">Sale</th></tr></thead><tbody>${P.sort((a,b)=>(a.out||0)-(b.out||0)).map(c => `<tr><td>${c.nro}</td><td>${esc(TM[c.type].n)}</td><td class="hm">${esc(CM[c.cl].n)}</td><td class="r">${c.teeth.length}</td><td class="r">${c.out?fd(c.out):'—'}</td></tr>`).join('') || '<tr><td colspan="5" class="note">Sin trabajos en producción</td></tr>'}</tbody></table></div>`;
+  const out = C.filter(c => c.st === 'ter' || (c.st === 'env' && (TODAY - c.sent)/864e5 < 5)), g = {};
+  out.forEach(c => { const k = CM[c.cl].enc; (g[k] = g[k] || []).push(c); });
+  $('#envios').innerHTML = `<h3 class="h3" style="margin-left:4px">Encomiendas</h3>` + Object.entries(g).map(([k,L]) => `<div class="disp"><h4>${esc(k)} <span class="chip c-gray">${L.length} ${L.length===1?'paquete':'paquetes'}</span></h4><ul>${L.map(c => `<li>#${c.nro} · ${esc(CM[c.cl].n)} (${esc(CM[c.cl].c)}) <span class="chip ${SM[c.st][2]}">${c.st==='env' ? (c.track==='Retirado'?'Retirado':'Seguimiento ' + c.track) : 'Listo para salir'}</span></li>`).join('')}</ul><button class="btn sm" style="margin-top:8px" data-g="${esc(k)}">Imprimir etiquetas y remitos</button></div>`).join('');
+  $$('#envios [data-g]').forEach(x => x.onclick = () => toast(`Etiquetas y remitos de ${x.dataset.g} listos para imprimir`));
+}
 
 renderPT(); badge();
 })();
