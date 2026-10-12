@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crolab3D · Portal de casos</title>
+<meta name="description" content="Demo para Crolab3D: portal donde cada odontólogo carga su caso con los archivos, aprueba el diseño, sigue en qué etapa está y recibe el envío; y el tablero del laboratorio con producción y envíos a todo el país.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --navy:#0e2233; --navy-2:#16354d; --teal:#0f9b8e; --teal-2:#0b7b71; --teal-soft:#dff4f1; --mint:#7fe0d2;
+  --ok:#17875a; --ok-soft:#e1f4ea; --warn:#b8690c; --warn-soft:#fcefdb; --bad:#c23a3a; --bad-soft:#fbe5e5; --blu:#2f6fd0; --blu-soft:#e6eefb; --pur:#7446c9; --pur-soft:#efe8fb;
+  --paper:#f2f5f7; --surface:#fff; --text:#122130; --muted:#627181; --line:#e1e7ec;
+  --display:"Space Grotesk","Segoe UI",Arial,sans-serif; --body:"Inter","Segoe UI",Arial,sans-serif;
+  --shadow:0 1px 2px rgba(14,34,51,.05),0 10px 26px rgba(14,34,51,.08);
+}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--paper);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font-family:inherit} [hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.note{font-size:13px;color:var(--muted)}
+.container{max-width:1200px;margin:0 auto;padding-inline:16px}
+.hero{background:var(--navy);color:#fff;position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.hero:before{content:"";position:absolute;right:-140px;top:-180px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(15,155,142,.38),transparent 65%)}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:14px;position:relative}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--teal);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#fff;font-size:15px}
+.brand b{font-family:var(--display);font-size:21px;display:block;line-height:1.05}
+.brand small{color:#a9bccb;font-size:12px}
+.pill{font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 11px;color:#dbe6ee;white-space:nowrap}
+.hero-body{padding-block:4px 26px;position:relative}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4.3vw,44px);line-height:1.08;margin:0 0 10px;max-width:24ch}
+.hero h1 em{font-style:normal;color:var(--mint)}
+.hero p{color:#c9d7e2;margin:0;max-width:66ch;font-size:15.5px}
+.tabbar{position:sticky;top:0;z-index:30;background:rgba(242,245,247,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font-weight:700;font-size:14.5px;border:0;border-radius:12px;background:transparent;color:var(--muted);padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab[aria-selected="true"]{background:var(--navy);color:#fff}
+.tab .bdg{background:var(--teal);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px}
+main{padding-block:18px 50px}
+.card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+.h2{font-family:var(--display);font-size:26px;line-height:1.1;margin:0 0 4px}
+.h3{font-weight:800;font-size:16px;margin:0 0 8px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.btn{font-weight:700;font-size:14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;cursor:pointer;white-space:nowrap}
+.btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.teal{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-bad{background:var(--bad-soft);color:var(--bad)} .c-blu{background:var(--blu-soft);color:var(--blu)} .c-gray{background:#eef2f5;color:var(--muted)} .c-teal{background:var(--teal-soft);color:var(--teal-2)} .c-pur{background:var(--pur-soft);color:var(--pur)}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;width:100%;min-width:0}
+label.f{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 2px 5px}
+
+/* portal */
+.pt-wrap{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start;justify-content:center}
+.side-notes{position:sticky;top:76px}
+.side-notes .n{display:flex;gap:12px;margin-bottom:14px}
+.side-notes .n i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--mint);font-style:normal;font-weight:800;display:grid;place-items:center;font-size:14px}
+.side-notes .n b{display:block}
+.side-notes .n span{font-size:14px;color:var(--muted)}
+.portal{scroll-margin-top:64px;background:#f6f9fa;border-radius:26px;box-shadow:0 18px 46px rgba(14,34,51,.2);overflow:hidden;border:8px solid #0b1823}
+.p-head{background:var(--navy);color:#fff;padding:16px 16px 14px}
+.p-head small{color:#a9bccb;font-size:12px}
+.p-head b{display:block;font-size:18px;margin-top:2px}
+.p-head .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.p-tabs{display:flex;gap:6px;margin-top:12px}
+.p-tabs button{border:0;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;background:rgba(255,255,255,.12);color:#dbe6ee;cursor:pointer}
+.p-tabs button[aria-pressed="true"]{background:#fff;color:var(--navy)}
+.p-body{padding:12px 14px 18px;min-height:600px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.types button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 10px;text-align:left;font-size:13px;font-weight:700;cursor:pointer;color:var(--text)}
+.types button span{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+.types button[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.odo{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 8px}
+.odo .row{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:2px}
+.odo .row+.row{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.odo button{height:34px;border:1.5px solid var(--line);border-radius:7px;background:#fbfcfd;font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer;padding:0}
+.odo button.mid{margin-left:4px}
+.odo button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.odo .lbl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin:0 2px 4px;font-weight:600}
+.files{display:flex;flex-direction:column;gap:6px}
+.file{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 10px;font-size:13px}
+.file i{font-style:normal;background:var(--teal-soft);color:var(--teal-2);border-radius:7px;padding:3px 6px;font-size:10.5px;font-weight:800}
+.file span{flex:1}
+.drop{border:1.5px dashed #b8c6d2;border-radius:12px;padding:12px;text-align:center;font-size:13.5px;color:var(--muted);cursor:pointer;background:#fff;width:100%}
+.opts{display:grid;gap:7px}
+.opts label{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 11px;cursor:pointer;font-size:13.5px}
+.opts input{width:auto;margin-top:3px;accent-color:var(--teal)}
+.opts label:has(input:checked){border-color:var(--teal);background:#f3fbfa}
+.opts b{display:block;font-size:14px}
+.cs{background:#fff;border-radius:14px;padding:11px 12px;margin-bottom:9px;border:1px solid var(--line)}
+.cs .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.track{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin-top:9px}
+.track i{height:5px;border-radius:3px;background:#e5ebf0}
+.track i.on{background:var(--teal)}
+.render{background:radial-gradient(circle at 50% 40%,#2a4a63,#0e2233);border-radius:16px;padding:10px;text-align:center}
+.render svg{width:100%;max-width:340px;height:auto}
+.render small{display:block;color:#9fb4c4;font-size:11.5px;margin-top:4px}
+.done{text-align:center;padding:30px 8px}
+.done .ck{width:66px;height:66px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 10px}
+
+/* lab */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+.kpi small{font-size:12px;color:var(--muted);font-weight:600}
+.kpi b{display:block;font-family:var(--display);font-size:25px;line-height:1.15}
+.board-wrap{overflow-x:auto;padding-bottom:6px}
+.board{display:grid;grid-template-columns:repeat(6,minmax(190px,1fr));gap:10px;min-width:1150px}
+.col{background:#e8eef2;border-radius:14px;padding:9px}
+.col h4{margin:2px 4px 9px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.col h4 span{background:#fff;border-radius:999px;padding:1px 8px;font-size:12px;color:var(--muted)}
+.kc{background:#fff;border-radius:11px;padding:9px 10px;margin-bottom:8px;cursor:pointer;border:1.5px solid transparent;text-align:left;width:100%;color:var(--text);font-size:12.5px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.kc:hover{border-color:#c8d5df}
+.kc[aria-current="true"]{border-color:var(--teal)}
+.kc b{font-size:13px;display:block}
+.kc .m{color:var(--muted);margin:2px 0 6px}
+.kc .f{display:flex;justify-content:space-between;gap:6px;align-items:center;flex-wrap:wrap}
+.kc.new{box-shadow:0 0 0 2px var(--mint)}
+.det-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+.hist{margin:0;padding:0;list-style:none}
+.hist li{display:grid;grid-template-columns:86px 1fr;gap:10px;font-size:13.5px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.hist li span{color:var(--muted);font-variant-numeric:tabular-nums}
+.mini-odo{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;margin:6px 0 2px}
+.mini-odo i{height:16px;border-radius:3px;background:#edf1f4;font-style:normal;font-size:8.5px;display:grid;place-items:center;color:#9aa8b4}
+.mini-odo i.on{background:var(--teal);color:#fff}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.cap{height:12px;border-radius:7px;background:#e5ebf0;overflow:hidden;margin:6px 0 4px}
+.cap i{display:block;height:100%;background:var(--teal)}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+.t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.t td{padding:9px 8px;border-bottom:1px solid #eef2f5;vertical-align:middle}
+.t .r{text-align:right;white-space:nowrap}
+.tw{overflow-x:auto}
+.disp{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.disp h4{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.disp ul{margin:0;padding-left:18px;font-size:13.5px}
+footer{border-top:1px solid var(--line);padding-block:18px 30px;font-size:13px;color:var(--muted)}
+footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(30px);background:var(--navy);color:#fff;border-radius:14px;padding:12px 16px;font-weight:600;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transition:.25s;z-index:100;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (max-width:900px){
+  .pt-wrap,.det-grid,.grid2{grid-template-columns:minmax(0,1fr)}
+  .side-notes{display:none}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+@media (max-width:520px){
+  .container{padding-inline:12px}
+  .portal{border:0;border-radius:18px;box-shadow:var(--shadow)}
+  .pill{display:none}
+  .t .hm{display:none}
+  .p-body{padding:12px 10px 18px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <div class="topbar">
+      <div class="brand"><div class="logo">C3D</div><div><b>Crolab3D</b><small>Laboratorio dental digital · Mar del Plata</small></div></div>
+      <span class="pill">Demo hecha por ELETEK para Crolab3D</span>
+    </div>
+    <div class="hero-body">
+      <h1>Cada caso, del archivo al envío, <em>en un solo lugar</em>.</h1>
+      <p>El odontólogo carga el caso con sus archivos y las piezas, aprueba el diseño desde el celular y sigue en qué etapa está, hasta el número de guía. El laboratorio ve todos los casos ordenados por etapa y fecha de entrega.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="container tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="pt">📱 Lo que ve el odontólogo</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="cs">Casos <span class="bdg" id="bdg">2</span></button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="pr">Producción y envíos</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="od">Odontólogos</button>
+  </div>
+</nav>
+
+<main class="container">
+<section id="pt">
+  <div class="pt-wrap">
+    <div class="portal">
+      <div class="p-head">
+        <div class="row"><div><small>Crolab3D · Portal de casos</small><b>Dr. Martín Sosa</b></div><span class="chip c-teal">Tandil</span></div>
+        <div class="p-tabs"><button aria-pressed="true" data-pv="nuevo">Nuevo caso</button><button aria-pressed="false" data-pv="mis">Mis casos <span id="pend"></span></button></div>
+      </div>
+      <div class="p-body" id="pBody"></div>
+    </div>
+    <div class="side-notes">
+      <h2 class="h2" style="margin-bottom:14px">Así lo usa un odontólogo</h2>
+      <div class="n"><i>1</i><div><b>Carga el caso</b><span>Elige el tipo de trabajo, marca las piezas en el odontograma y sube los archivos del escaneo. Sin WhatsApp ni mails sueltos.</span></div></div>
+      <div class="n"><i>2</i><div><b>Aprueba el diseño</b><span>Cuando el laboratorio sube el diseño, le llega un aviso. Lo ve y lo aprueba o pide cambios desde el celular.</span></div></div>
+      <div class="n"><i>3</i><div><b>Sigue el caso</b><span>Ve en qué etapa está cada trabajo y la fecha estimada de entrega.</span></div></div>
+      <div class="n"><i>4</i><div><b>Recibe el envío</b><span>Cuando sale, le llega el número de guía del transporte, esté en la provincia que esté.</span></div></div>
+      <p class="note" style="margin-top:18px">Probá cargar un caso y después mirá la pestaña “Casos”: aparece en la columna “Recibido”.</p>
+    </div>
+  </div>
+</section>
+
+<section id="cs" hidden>
+  <div class="sec-head"><div><h2 class="h2">Casos</h2><div class="note">Todos los trabajos por etapa. Tocá uno para ver el detalle y avanzarlo.</div></div></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="board-wrap"><div class="board" id="board"></div></div>
+  <div class="det-grid" id="det"></div>
+</section>
+
+<section id="pr" hidden>
+  <div class="sec-head"><div><h2 class="h2">Producción y envíos</h2><div class="note">Qué entra en la próxima tanda y qué sale hoy, agrupado por transporte.</div></div></div>
+  <div class="grid2">
+    <div class="card" id="tanda"></div>
+    <div id="envios"></div>
+  </div>
+</section>
+
+<section id="od" hidden>
+  <div class="card">
+    <div class="sec-head" style="margin-bottom:8px"><div><h2 class="h2">Odontólogos</h2><div class="note">Cada uno con su link al portal. Casos del mes y desde dónde trabajan.</div></div><button class="btn teal" id="inv">Invitar a un odontólogo</button></div>
+    <div class="tw"><table class="t" id="odT"></table></div>
+  </div>
+</section>
+</main>
+<footer><div class="container"><span>Demo desarrollada por <b>ELETEK</b> · @eletek.digital · software a medida desde Mar del Plata</span><span>Odontólogos, pacientes y casos de ejemplo</span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DS = ['dom','lun','mar','mié','jue','vie','sáb'];
+const T0 = new Date(); const TODAY = new Date(T0.getFullYear(), T0.getMonth(), T0.getDate());
+const addD = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const addWork = (d,n) => { let x = new Date(d); while (n > 0){ x = addD(x,1); if (x.getDay() !== 0 && x.getDay() !== 6) n--; } return x; };
+const dd = d => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+const fd = d => `${DS[d.getDay()]} ${dd(d)}`;
+let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 3400); };
+
+const TYPES = [
+  {id:'est', n:'Estructura sinterizada', d:'Corona o unidad metálica'},
+  {id:'pue', n:'Puente sinterizado', d:'Varias piezas unidas'},
+  {id:'bar', n:'Barra sobre implantes', d:'Atornillada'},
+  {id:'ppr', n:'Esquelético (PPR)', d:'Estructura removible'},
+  {id:'pro', n:'Provisorio impreso', d:'Resina'},
+  {id:'otr', n:'Otro trabajo', d:'Lo detallás en la nota'},
+];
+const TM = Object.fromEntries(TYPES.map(t => [t.id, t]));
+const ST = [['rec','Recibido','c-gray'],['dis','En diseño','c-blu'],['apr','Esperando aprobación','c-warn'],['pro','En producción','c-pur'],['ter','Terminación','c-teal'],['env','Enviado','c-ok']];
+const SM = Object.fromEntries(ST.map(s => [s[0], s]));
+const OD = [
+  {id:1, n:'Dr. Martín Sosa', c:'Tandil', tr:'Transporte Sierras'},
+  {id:2, n:'Dra. Laura Benítez', c:'Mar del Plata', tr:'Retira en el laboratorio'},
+  {id:3, n:'Clínica Dental Sur', c:'Bahía Blanca', tr:'Expreso Atlántico'},
+  {id:4, n:'Dra. Paula Ríos', c:'Córdoba', tr:'Transporte Centro'},
+  {id:5, n:'Dr. Andrés Vega', c:'Mendoza', tr:'Transporte Centro'},
+  {id:6, n:'Odontología Integral Norte', c:'Rosario', tr:'Expreso Atlántico'},
+  {id:7, n:'Dr. Diego Paz', c:'Neuquén', tr:'Transporte Patagonia'},
+  {id:8, n:'Dra. Carla Ruiz', c:'Necochea', tr:'Expreso Atlántico'},
+  {id:9, n:'Centro Odontológico Patagonia', c:'Comodoro Rivadavia', tr:'Transporte Patagonia'},
+];
+const OM = Object.fromEntries(OD.map(o => [o.id, o]));
+const ME = OM[1];
+let nro = 2318;
+const UNITS = c => c.teeth.length;
+const mk = (od, type, teeth, st, ago, extra={}) => {
+  const rec = addD(TODAY, -ago);
+  return {nro:nro++, od, type, teeth, st, rec, due:addWork(rec, 3), pac: extra.pac || 'Paciente ' + String.fromCharCode(65 + nro % 20) + '.' + String.fromCharCode(66 + nro % 17) + '.', files: extra.files || ['maxilar_superior.stl','antagonista.stl','registro_mordida.stl'], note: extra.note || '', guia: extra.guia || '', change: extra.change || '', isNew: !!extra.isNew,
+    hist: extra.hist || [[rec, 'Caso recibido con 3 archivos']]};
+};
+const C = [
+  mk(3,'pue',[14,15,16],'env',4,{guia:'EA-77410'}),
+  mk(5,'est',[36],'env',4,{guia:'TC-30218'}),
+  mk(6,'bar',[32,33,34,42,43,44],'ter',3),
+  mk(9,'ppr',[46,47,36,37],'ter',3),
+  mk(1,'est',[26],'pro',2),
+  mk(4,'pue',[11,12,21],'pro',2),
+  mk(7,'est',[46],'pro',2),
+  mk(8,'pue',[24,25,26],'apr',1,{change:''}),
+  mk(1,'pue',[44,45,46],'apr',1),
+  mk(2,'est',[16],'dis',1),
+  mk(3,'bar',[12,13,14,22,23,24],'dis',0),
+  mk(6,'est',[21],'rec',0,{isNew:true}),
+  mk(4,'pro',[11,21],'rec',0,{isNew:true}),
+];
+C.forEach(c => {
+  const i = ST.findIndex(s => s[0] === c.st), labels = ['Caso recibido con 3 archivos','Diseño en curso','Diseño subido para aprobar','Diseño aprobado · a producción','Terminación y control','Enviado'];
+  c.hist = []; for (let k = 0; k <= i; k++) c.hist.push([addD(c.rec, Math.min(k, 3)), labels[k] + (k === 5 && c.guia ? ` · guía ${c.guia}` : '')]);
+});
+
+function showTab(id){ $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === id)); $$('main > section').forEach(s => s.hidden = s.id !== id); if (id === 'cs') renderCS(); if (id === 'pr') renderPR(); if (id === 'od') renderOD(); scrollTo({top: Math.min(scrollY, $('.tabbar').offsetTop), behavior:'smooth'}); }
+$$('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+function badge(){ const n = C.filter(c => c.st === 'rec').length; $('#bdg').textContent = n; $('#bdg').hidden = !n; const p = C.filter(c => c.od === ME.id && c.st === 'apr').length; $('#pend').innerHTML = p ? `<span class="chip c-warn" style="padding:0 7px;margin-left:3px">${p}</span>` : ''; }
+
+/* render del diseño */
+function renderSVG(c){
+  const n = Math.min(Math.max(c.teeth.length, 1), 6), w = 300, unit = Math.min(64, (w - 40) / n);
+  let g = '', x0 = (w - unit*n)/2;
+  for (let i = 0; i < n; i++){
+    const x = x0 + i*unit;
+    g += `<path d="M${x+6} 120 Q${x+4} 70 ${x+unit*0.5} 58 Q${x+unit-4} 70 ${x+unit-6} 120 Q${x+unit*0.5} 132 ${x+6} 120Z" fill="url(#mt)" stroke="#9fb3c2" stroke-width="1"/>`;
+    g += `<path d="M${x+unit*0.25} 74 Q${x+unit*0.5} 64 ${x+unit*0.75} 74" stroke="#ffffff" stroke-opacity=".5" stroke-width="3" fill="none"/>`;
+    if (i < n-1 && (c.type === 'pue' || c.type === 'bar')) g += `<rect x="${x+unit-10}" y="98" width="20" height="14" rx="5" fill="url(#mt)"/>`;
+  }
+  if (c.type === 'bar') g += `<rect x="${x0}" y="122" width="${unit*n}" height="10" rx="5" fill="#8fa3b3"/>`;
+  return `<svg viewBox="0 0 ${w} 160"><defs><linearGradient id="mt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9eef2"/><stop offset=".5" stop-color="#b8c5d0"/><stop offset="1" stop-color="#7d8f9e"/></linearGradient></defs><ellipse cx="150" cy="140" rx="${unit*n/2+20}" ry="10" fill="#000" opacity=".25"/>${g}</svg>`;
+}
+
+/* ---------- portal ---------- */
+let pv = 'nuevo', step = 'form', form = {type:'pue', teeth:[], files:[], env:'tra'}, sel = null, lastNro = null;
+$$('[data-pv]').forEach(b => b.onclick = () => { pv = b.dataset.pv; step = pv === 'nuevo' ? 'form' : 'list'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderPT(); });
+const UP = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28], LO = [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+function odoHTML(sel){ const row = arr => `<div class="row">${arr.map((t,i) => `<button type="button" class="${i===8?'mid':''}" data-t="${t}" aria-pressed="${sel.includes(t)}" aria-label="Pieza ${t}">${t}</button>`).join('')}</div>`; return `<div class="odo"><div class="lbl"><span>Derecha</span><span>Superior</span><span>Izquierda</span></div>${row(UP)}${row(LO)}<div class="lbl" style="margin-top:4px;margin-bottom:0"><span></span><span>Inferior</span><span></span></div></div>`; }
+function renderPT(){
+  const b = $('#pBody');
+  if (pv === 'nuevo' && step === 'form'){
+    const ok = form.teeth.length && form.files.length;
+    b.innerHTML = `<div class="h3" style="margin:2px 2px 8px">Nuevo caso</div>
+    <label class="f" style="margin-top:0">Paciente (iniciales o código)</label><input id="fPac" value="${esc(form.pac || '')}" placeholder="Ej.: J.P. o ficha 0458">
+    <label class="f">Tipo de trabajo</label><div class="types">${TYPES.map(t => `<button type="button" data-ty="${t.id}" aria-pressed="${form.type===t.id}">${t.n}<span>${t.d}</span></button>`).join('')}</div>
+    <label class="f">Piezas · tocá las que van</label>${odoHTML(form.teeth)}
+    <div class="note" style="margin:5px 2px 0">${form.teeth.length ? `Seleccionadas: <b>${form.teeth.slice().sort((a,b)=>a-b).join(', ')}</b>` : 'Ninguna pieza seleccionada'}</div>
+    <label class="f">Archivos del escaneo</label><div class="files">${form.files.map(f => `<div class="file"><i>STL</i><span>${esc(f)}</span><span class="note">✓</span></div>`).join('')}<button type="button" class="drop" id="add">${form.files.length ? '+ Agregar otro archivo' : '📎 Adjuntar archivos (STL, fotos, PDF)'}</button></div>
+    <label class="f">¿Cómo lo recibís?</label><div class="opts"><label><input type="radio" name="env" value="tra" ${form.env==='tra'?'checked':''}><span><b>Envío por transporte</b>${esc(ME.tr)} · a ${esc(ME.c)}</span></label><label><input type="radio" name="env" value="ret" ${form.env==='ret'?'checked':''}><span><b>Retiro en el laboratorio</b>Mar del Plata</span></label></div>
+    <label class="f">Nota para el laboratorio (opcional)</label><textarea id="fNote" rows="2" placeholder="Ej.: espacio para cerámica 1,5 mm">${esc(form.note || '')}</textarea>
+    <div class="note" style="margin:10px 2px">Entrega estimada: <b>${fd(addWork(TODAY,3))}</b> (3 días hábiles)</div>
+    <button class="btn teal" id="send" style="width:100%;padding:13px" ${ok?'':'disabled'}>Enviar caso al laboratorio</button>
+    ${ok ? '' : '<div class="note" style="text-align:center;margin-top:6px">Marcá al menos una pieza y adjuntá los archivos</div>'}`;
+    const keep = () => { form.pac = $('#fPac').value; form.note = $('#fNote').value; };
+    $$('#pBody [data-ty]').forEach(x => x.onclick = () => { keep(); form.type = x.dataset.ty; renderPT(); });
+    $$('#pBody [data-t]').forEach(x => x.onclick = () => { keep(); const t = +x.dataset.t; form.teeth = form.teeth.includes(t) ? form.teeth.filter(y => y !== t) : [...form.teeth, t]; renderPT(); });
+    $('#add').onclick = () => { keep(); const pool = ['maxilar_superior.stl','maxilar_inferior.stl','registro_mordida.stl','foto_color.jpg']; const f = pool.find(p => !form.files.includes(p)); if (f) form.files.push(f); if (form.files.length === 1){ form.files.push('antagonista.stl'); } renderPT(); };
+    $$('input[name=env]').forEach(r => r.onchange = () => form.env = r.value);
+    $('#send').onclick = () => {
+      keep();
+      const c = {nro:nro++, od:ME.id, type:form.type, teeth:form.teeth.slice().sort((a,b)=>a-b), st:'rec', rec:TODAY, due:addWork(TODAY,3), pac: form.pac.trim() || 'Paciente nuevo', files:form.files.slice(), note:form.note, guia:'', change:'', isNew:true, env:form.env, hist:[[TODAY, `Caso recibido con ${form.files.length} archivos`]]};
+      C.push(c); lastNro = c.nro; selC = c.nro; form = {type:'pue', teeth:[], files:[], env:'tra'}; step = 'done'; renderPT(); badge();
+      toast(`Caso #${c.nro} recibido en Crolab3D`);
+    };
+    return;
+  }
+  if (step === 'done'){
+    b.innerHTML = `<div class="done"><div class="ck"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg></div><h3 class="h2">¡Caso enviado!</h3><p class="note" style="font-size:14.5px">Caso <b>#${lastNro}</b>. Te avisamos por WhatsApp cuando el diseño esté listo para aprobar.</p><button class="btn dark" id="goMis">Ver mis casos</button></div><div class="note" style="background:var(--teal-soft);color:var(--teal-2);border-radius:12px;padding:10px 12px;font-weight:600">👀 Mirá la pestaña <b>Casos</b>: tu caso aparece en “Recibido”.</div>`;
+    $('#goMis').onclick = () => { pv = 'mis'; step = 'list'; $$('[data-pv]').forEach(x => x.setAttribute('aria-pressed', x.dataset.pv === 'mis')); renderPT(); };
+    return;
+  }
+  if (step === 'approve'){
+    const c = C.find(c => c.nro === sel);
+    b.innerHTML = `<button class="btn sm" id="back">← Mis casos</button><div class="h3" style="margin:12px 2px 4px">Diseño del caso #${c.nro}</div><div class="note" style="margin:0 2px 10px">${esc(TM[c.type].n)} · piezas ${c.teeth.join(', ')} · ${esc(c.pac)}</div>
+    <div class="render">${renderSVG(c)}<small>Vista del diseño · en el sistema real se ve el render que sube el laboratorio, con zoom y giro</small></div>
+    <div class="note" style="margin:10px 2px">Espesor mínimo 0,4 mm · conectores 9 mm² · espacio para cerámica 1,5 mm</div>
+    <button class="btn teal" id="ok" style="width:100%;padding:13px">Aprobar diseño</button>
+    <label class="f">¿Querés pedir un cambio?</label><textarea id="chg" rows="2" placeholder="Ej.: aumentar el conector entre 45 y 46"></textarea>
+    <button class="btn" id="ch" style="width:100%;margin-top:8px">Pedir cambios</button>`;
+    $('#back').onclick = () => { step = 'list'; renderPT(); };
+    $('#ok').onclick = () => { c.st = 'pro'; c.hist.push([TODAY, 'Diseño aprobado por el odontólogo · a producción']); step = 'list'; renderPT(); badge(); toast(`Diseño del caso #${c.nro} aprobado. Pasa a producción.`); };
+    $('#ch').onclick = () => { const t = $('#chg').value.trim() || 'Ajustar conectores'; c.st = 'dis'; c.change = t; c.hist.push([TODAY, `Pidió cambios: “${t}”`]); step = 'list'; renderPT(); badge(); toast('Pedido de cambio enviado al laboratorio'); };
+    return;
+  }
+  // lista
+  const mine = C.filter(c => c.od === ME.id).sort((a,b) => (b.st === 'apr') - (a.st === 'apr') || b.nro - a.nro);
+  b.innerHTML = `<div class="h3" style="margin:2px 2px 10px">Mis casos</div>` + mine.map(c => { const i = ST.findIndex(s => s[0] === c.st); return `<div class="cs"><div class="top"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div><div class="note">${esc(c.pac)} · piezas ${c.teeth.join(', ')}</div><div class="track">${ST.map((s,k) => `<i class="${k<=i?'on':''}"></i>`).join('')}</div><div class="note" style="margin-top:6px">${c.st === 'env' ? `Enviado · guía <b>${c.guia}</b>` : `Entrega estimada ${fd(c.due)}`}</div>${c.st === 'apr' ? `<button class="btn teal sm" data-ap="${c.nro}" style="margin-top:8px;width:100%">Ver y aprobar el diseño</button>` : ''}</div>`; }).join('') +
+  `<div class="cs"><div class="top"><b>#2290 · Puente sinterizado</b><span class="chip c-ok">Enviado</span></div><div class="note">Paciente R.L. · piezas 34, 35, 36 · guía TS-11982</div></div>`;
+  $$('#pBody [data-ap]').forEach(x => x.onclick = () => { sel = +x.dataset.ap; step = 'approve'; renderPT(); });
+}
+
+/* ---------- casos (laboratorio) ---------- */
+let selC = null;
+function renderCS(){
+  const act = C.filter(c => c.st !== 'env');
+  const late = act.filter(c => c.due < TODAY).length;
+  const units = C.filter(c => c.st === 'pro').reduce((a,c) => a + UNITS(c), 0);
+  $('#kpis').innerHTML = `<div class="kpi"><small>Casos en curso</small><b>${act.length}</b></div><div class="kpi"><small>Nuevos para revisar</small><b>${C.filter(c=>c.st==='rec').length}</b></div><div class="kpi"><small>Esperando aprobación</small><b>${C.filter(c=>c.st==='apr').length}</b></div><div class="kpi"><small>Unidades en producción</small><b>${units}</b></div>`;
+  $('#board').innerHTML = ST.map(([k,l]) => { const L = C.filter(c => c.st === k).sort((a,b) => a.due - b.due); return `<div class="col"><h4>${l}<span>${L.length}</span></h4>${L.map(c => { const o = OM[c.od], dueTxt = c.st === 'env' ? `Guía ${c.guia}` : `Entrega ${fd(c.due)}`; const urg = c.st !== 'env' && c.due <= addD(TODAY,1); return `<button class="kc ${c.isNew?'new':''}" data-n="${c.nro}" aria-current="${c.nro===selC}"><b>#${c.nro} · ${esc(TM[c.type].n)}</b><div class="m">${esc(o.n)} · ${esc(o.c)}</div><div class="f"><span class="chip ${urg?'c-warn':'c-gray'}">${dueTxt}</span><span class="note">${UNITS(c)} ${UNITS(c)===1?'pieza':'piezas'}</span></div>${c.change ? `<div class="chip c-bad" style="margin-top:6px">Cambio pedido</div>` : ''}</button>`; }).join('') || '<div class="note" style="padding:6px">Sin casos</div>'}</div>`; }).join('');
+  $$('#board .kc').forEach(x => x.onclick = () => { selC = +x.dataset.n; renderCS(); $('#det').scrollIntoView({behavior:'smooth', block:'start'}); });
+  renderDet();
+}
+const NEXT = {rec:['dis','Empezar diseño'], dis:['apr','Subir diseño para aprobar'], apr:null, pro:['ter','Pasar a terminación'], ter:['env','Marcar como enviado']};
+function renderDet(){
+  const c = C.find(c => c.nro === selC) || C.find(c => c.st === 'rec') || C[0]; selC = c.nro;
+  const o = OM[c.od], nx = NEXT[c.st];
+  $('#det').innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap"><div><h3 class="h2" style="font-size:22px">Caso #${c.nro} · ${esc(TM[c.type].n)}</h3><div class="note">${esc(o.n)} · ${esc(o.c)} · ${esc(c.pac)}</div></div><span class="chip ${SM[c.st][2]}">${SM[c.st][1]}</span></div>
+    <label class="f">Piezas</label><div class="mini-odo">${[...UP,...LO].map(t => `<i class="${c.teeth.includes(t)?'on':''}">${t}</i>`).join('')}</div>
+    <label class="f">Archivos</label><div class="files">${c.files.map(f => `<div class="file"><i>${f.endsWith('.jpg')?'JPG':'STL'}</i><span>${esc(f)}</span><button class="btn sm" data-dl>Descargar</button></div>`).join('')}</div>
+    ${c.note ? `<label class="f">Nota del odontólogo</label><div class="note" style="font-size:14px;color:var(--text)">${esc(c.note)}</div>` : ''}
+    ${c.change ? `<div class="chip c-bad" style="margin-top:12px;white-space:normal;padding:8px 10px;border-radius:10px">Cambio pedido: ${esc(c.change)}</div>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">${nx ? `<button class="btn teal" id="adv">${nx[1]}</button>` : `<span class="chip c-warn" style="padding:8px 12px">Esperando que el odontólogo apruebe</span><button class="btn" id="rem">Recordarle</button>`}<button class="btn" id="wa">Escribirle</button></div>
+    <p class="note" style="margin:10px 0 0">Cada cambio de etapa le avisa al odontólogo por WhatsApp.</p></div>
+  <div class="card"><div class="h3">Historial</div><ul class="hist">${c.hist.map(([d,t]) => `<li><span>${fd(d)}</span><span>${esc(t)}</span></li>`).join('')}</ul>
+    <div class="note" style="margin-top:12px">Entrega comprometida: <b>${fd(c.due)}</b> · ${c.env === 'ret' ? 'Retira en el laboratorio' : 'Envío por ' + esc(o.tr)}</div>
+    ${['apr','pro','ter','env'].includes(c.st) ? `<div class="render" style="margin-top:12px">${renderSVG(c)}<small>Diseño enviado al odontólogo</small></div>` : ''}</div>`;
+  $$('#det [data-dl]').forEach(x => x.onclick = () => toast('Archivo descargado para abrir en el programa de diseño'));
+  $('#wa').onclick = () => toast(`Se abre el chat con ${o.n}`);
+  const rem = $('#rem'); if (rem) rem.onclick = () => toast(`Recordatorio enviado a ${o.n}: “Tenés un diseño para aprobar”`);
+  const adv = $('#adv'); if (adv) adv.onclick = () => {
+    const labels = {dis:'Diseño en curso', apr:'Diseño subido para aprobar', ter:'Terminación y control', env:'Enviado'};
+    c.st = nx[0]; c.isNew = false; c.change = '';
+    if (c.st === 'env') c.guia = (o.tr.startsWith('Retira') ? 'RET-' : 'TS-') + (12000 + c.nro);
+    c.hist.push([TODAY, labels[c.st] + (c.st === 'env' && c.guia ? ` · guía ${c.guia}` : '')]);
+    toast(c.st === 'apr' ? `${o.n} recibió el diseño para aprobar` : c.st === 'env' ? `${o.n} recibió la guía ${c.guia}` : `Caso #${c.nro}: ${SM[c.st][1]}. Se le avisó a ${o.n}.`);
+    badge(); renderCS(); renderPT();
+  };
+}
+
+/* ---------- producción y envíos ---------- */
+function renderPR(){
+  const P = C.filter(c => c.st === 'pro'), u = P.reduce((a,c) => a + UNITS(c), 0), cap = 24;
+  $('#tanda').innerHTML = `<div class="h3">Próxima tanda de sinterizado</div><div class="note">Mañana 8:00 · capacidad de ejemplo: ${cap} unidades</div><div class="cap"><i style="width:${Math.min(100,u/cap*100)}%"></i></div><div class="note" style="margin-bottom:10px"><b>${u}</b> de ${cap} unidades · ${cap-u > 0 ? `quedan ${cap-u} lugares` : 'completa'}</div>
+  <div class="tw"><table class="t"><thead><tr><th>Caso</th><th>Trabajo</th><th class="hm">Odontólogo</th><th class="r">Unid.</th><th class="r">Entrega</th></tr></thead><tbody>${P.sort((a,b)=>a.due-b.due).map(c => `<tr><td>#${c.nro}</td><td>${esc(TM[c.type].n)}</td><td class="hm">${esc(OM[c.od].n)}</td><td class="r">${UNITS(c)}</td><td class="r">${fd(c.due)}</td></tr>`).join('') || '<tr><td colspan="5" class="note">Sin casos en producción</td></tr>'}</tbody></table></div>`;
+  const out = C.filter(c => c.st === 'ter' || (c.st === 'env' && (TODAY - c.rec)/864e5 < 6)), g = {};
+  out.forEach(c => { const k = c.env === 'ret' ? 'Retira en el laboratorio' : OM[c.od].tr; (g[k] = g[k] || []).push(c); });
+  $('#envios').innerHTML = `<h3 class="h3" style="margin-left:4px">Envíos</h3>` + Object.entries(g).map(([k,L]) => `<div class="disp"><h4>${esc(k)} <span class="chip c-gray">${L.length} ${L.length===1?'caja':'cajas'}</span></h4><ul>${L.map(c => `<li>#${c.nro} · ${esc(OM[c.od].n)} (${esc(OM[c.od].c)}) <span class="chip ${SM[c.st][2]}">${c.st==='env' ? 'Guía ' + c.guia : 'Listo para despachar'}</span></li>`).join('')}</ul><button class="btn sm" style="margin-top:8px" data-g="${esc(k)}">Imprimir etiquetas y remitos</button></div>`).join('');
+  $$('#envios [data-g]').forEach(x => x.onclick = () => toast(`Etiquetas y remitos de ${x.dataset.g} listos para imprimir`));
+}
+
+/* ---------- odontólogos ---------- */
+function renderOD(){
+  $('#odT').innerHTML = `<thead><tr><th>Odontólogo</th><th>Ciudad</th><th class="r">Casos del mes</th><th class="r hm">En curso</th><th></th></tr></thead><tbody>` + OD.map(o => { const L = C.filter(c => c.od === o.id); return `<tr><td><b>${esc(o.n)}</b></td><td>${esc(o.c)}</td><td class="r">${L.length + (o.id*3)%7}</td><td class="r hm">${L.filter(c=>c.st!=='env').length}</td><td class="r"><button class="btn sm" data-l="${o.id}">Enviar link</button></td></tr>`; }).join('') + '</tbody>';
+  $$('#odT [data-l]').forEach(x => x.onclick = () => toast(`Link del portal enviado a ${OM[x.dataset.l].n} por WhatsApp`));
+}
+$('#inv').onclick = () => toast('Se genera un link personal para el odontólogo y se le manda por WhatsApp');
+
+renderPT(); badge();
+})();
+</script>
+</body>
+</html>
