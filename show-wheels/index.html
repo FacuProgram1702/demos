@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Show Wheels · Turnos, trabajos y stock</title>
+<meta name="description" content="Demo para Gomería Show Wheels: turnos online por servicio con recordatorio, órdenes de trabajo de llantas con aviso de listo, stock de neumáticos por medida con cotizador e historial por patente.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ink:#121417;--ink-2:#1d2126;--amber:#f5a512;--amber-2:#d98c00;--amber-soft:#fff3d9;
+  --ok:#16865a;--ok-soft:#e0f4ea;--warn:#b5650b;--warn-soft:#fdeedb;--bad:#c4382f;--bad-soft:#fbe4e2;--blu:#2c68cf;--blu-soft:#e5edfb;--pur:#7443c6;--pur-soft:#efe7fb;
+  --paper:#f3f3f1;--surface:#fff;--text:#16181c;--muted:#68707a;--line:#e3e3df;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;--body:"Inter","Segoe UI",Arial,sans-serif;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 10px 26px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.hero{background:radial-gradient(900px 380px at 85% 0%,rgba(245,165,18,.22),transparent 60%),linear-gradient(160deg,#121417,#1f2328);color:#fff;padding:22px 0 30px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:50%;background:conic-gradient(var(--amber) 0 25%,#2a2e34 0 50%,var(--amber) 0 75%,#2a2e34 0);display:grid;place-items:center;flex:none}
+.logo span{width:24px;height:24px;border-radius:50%;background:#121417;border:3px solid #fff}
+.brand b{display:block;font-family:var(--display);font-size:26px;letter-spacing:.5px;line-height:1}
+.brand small{color:#b7bcc4;font-size:13px}
+.pill{border:1px solid rgba(255,255,255,.28);border-radius:30px;padding:6px 14px;font-size:13px;font-weight:600;color:#f3f3f1}
+.hero h1{font-family:var(--display);font-size:clamp(34px,6vw,58px);line-height:1;margin:26px 0 12px;max-width:820px;text-transform:uppercase;letter-spacing:.5px}
+.hero h1 em{color:var(--amber);font-style:normal}
+.hero p{color:#cfd3d9;max-width:720px;margin:0;font-size:16px}
+nav.tabs{position:sticky;top:0;z-index:20;background:rgba(243,243,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:10px;padding-bottom:10px;scrollbar-width:none}
+nav.tabs button{border:0;background:transparent;padding:9px 14px;border-radius:10px;font-weight:600;color:#4b525b;white-space:nowrap;display:flex;align-items:center;gap:6px}
+nav.tabs button.on{background:var(--ink);color:#fff}
+.badge{background:var(--amber);color:#121417;border-radius:20px;font-size:11px;font-weight:800;padding:1px 7px}
+main{padding:26px 0 60px}
+.sec{display:none}.sec.on{display:block}
+.h2{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.h2 h2{font-family:var(--display);font-size:32px;margin:0;line-height:1;text-transform:uppercase;letter-spacing:.3px}
+.h2 p{margin:4px 0 0;color:var(--muted)}
+.card{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:24px;align-items:start}.grid2>*{min-width:0}.screen,.ph-body{min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px 16px}
+.kpi small{color:var(--muted);font-weight:600;font-size:12.5px}.kpi b{display:block;font-family:var(--display);font-size:32px;line-height:1.05}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:30px;padding:6px 12px;font-weight:600;font-size:13px;color:#3b4148}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:700;background:var(--ink);color:#fff}
+.btn.amber{background:var(--amber);color:#121417}.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.sm{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.tag{display:inline-block;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700}
+.t-ok{background:var(--ok-soft);color:var(--ok)}.t-warn{background:var(--warn-soft);color:var(--warn)}.t-bad{background:var(--bad-soft);color:var(--bad)}.t-blu{background:var(--blu-soft);color:var(--blu)}.t-pur{background:var(--pur-soft);color:var(--pur)}.t-gr{background:#ececea;color:#555}
+label.f{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:14px 0 6px}
+input.in,select.in{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+/* phone */
+.phone{width:100%;background:#121417;border-radius:34px;padding:12px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-width:400px}
+.screen{background:#f6f6f4;border-radius:24px;overflow:hidden;min-height:640px}
+.ph-head{background:var(--ink);color:#fff;padding:18px 18px 16px}
+.ph-head small{color:#aab0b8}.ph-head b{display:block;font-family:var(--display);font-size:24px;text-transform:uppercase}
+.ph-body{padding:16px}
+.svc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.svc button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;line-height:1.25}
+.svc button b{display:block;font-size:13.5px}.svc button span{font-size:12px;color:var(--muted)}
+.svc button.on{border-color:var(--amber);background:var(--amber-soft);box-shadow:inset 0 0 0 1px var(--amber)}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.days button{flex:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;text-align:center;min-width:56px;line-height:1.15}
+.days button small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase}
+.days button b{font-size:17px}
+.days button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.days button.on small{color:#c7ccd2}
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.slots button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;font-weight:600;font-size:13px}
+.slots button.on{background:var(--amber);border-color:var(--amber)}
+.slots button:disabled{background:#ecece9;color:#b2b2ae;text-decoration:line-through;cursor:not-allowed}
+.note{font-size:12.5px;color:var(--muted);margin-top:8px}
+.steps{display:grid;gap:14px;margin-top:6px}
+.step{display:flex;gap:12px}.step i{font-style:normal;flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--amber);display:grid;place-items:center;font-weight:800}
+.step b{display:block}.step span{color:var(--muted);font-size:14px}
+/* whatsapp */
+.wa{background:#e7ddd3;border-radius:14px;padding:12px;margin-top:14px}
+.wa .bub{background:#fff;border-radius:10px 10px 10px 2px;padding:9px 11px;font-size:13.5px;box-shadow:0 1px 1px rgba(0,0,0,.08);max-width:92%;white-space:pre-line}
+.wa .bub.me{background:#d9fdd3;margin-left:auto;border-radius:10px 10px 2px 10px}
+.wa .row{display:flex;margin-top:6px}
+.wa .acts{display:flex;gap:6px;margin-top:6px}
+.wa .acts span{background:#fff;border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;color:#127e6d}
+.wa-h{font-size:12px;color:#5d5a55;font-weight:700;margin-bottom:6px}
+/* agenda */
+.ag{display:grid;grid-template-columns:64px repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.ag div{border-bottom:1px solid #efefec;border-right:1px solid #efefec;padding:6px 8px;min-height:44px;font-size:13px}
+.ag .hd{background:var(--ink);color:#fff;font-weight:700;min-height:0;font-size:12.5px}
+.ag .hr{color:var(--muted);font-weight:600;font-size:12px}
+.ev{border-radius:8px;padding:5px 7px;line-height:1.25;cursor:pointer}
+.ev b{display:block;font-size:12.5px}.ev span{font-size:11.5px}
+.ev.al{background:var(--amber-soft);border-left:3px solid var(--amber)}.ev.tr{background:var(--blu-soft);border-left:3px solid var(--blu)}.ev.ne{background:var(--ok-soft);border-left:3px solid var(--ok)}.ev.ll{background:var(--pur-soft);border-left:3px solid var(--pur)}
+.ev.done{opacity:.5}
+.agwrap{overflow-x:auto}
+.agwrap .ag{min-width:640px}
+/* kanban */
+.kb{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:#e9e9e6;border-radius:14px;padding:10px;min-height:200px}
+.col h4{margin:2px 4px 10px;font-size:13px;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between}
+.job{background:#fff;border-radius:12px;padding:11px;box-shadow:0 1px 2px rgba(0,0,0,.06);margin-bottom:8px;font-size:13px}
+.job b{font-size:14px}.job .m{color:var(--muted);font-size:12.5px;margin:3px 0 8px}
+.job .row{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.job.late{box-shadow:inset 0 0 0 2px var(--bad)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:4px;border:1px solid rgba(0,0,0,.2)}
+/* table */
+table.t{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.t th{background:var(--ink);color:#fff;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px}
+.t td{padding:10px 12px;border-bottom:1px solid #efefec;font-size:14px;vertical-align:middle}
+.t tr:last-child td{border-bottom:0}
+.tscroll{overflow-x:auto;border-radius:14px}
+.tscroll table{min-width:620px}
+.num{text-align:right;white-space:nowrap}
+.qty{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.qty button{border:0;background:#fff;width:30px;font-weight:800}.qty span{width:30px;text-align:center;line-height:30px;font-weight:700}
+.quote{white-space:pre-line;font-size:13.5px}
+.hist li{margin-bottom:8px}
+.veh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.plate{font-family:var(--display);font-size:28px;letter-spacing:2px;background:#fff;border:2px solid var(--ink);border-radius:8px;padding:2px 12px;display:inline-block}
+.alert{border-left:4px solid var(--amber);background:var(--amber-soft);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;border-radius:12px;padding:12px 18px;font-weight:600;transition:.3s;z-index:50;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 20px 40px}
+@media(max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.phone{margin:0 auto}}
+@media(max-width:520px){.wrap{padding:0 14px}.slots{grid-template-columns:repeat(3,minmax(0,1fr))}.h2 h2{font-size:27px}.screen{min-height:0}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><div class="logo"><span></span></div><div><b>SHOW WHEELS</b><small>Gomería · Av. Peralta Ramos 421 · Mar del Plata</small></div></div>
+      <div class="pill">Demo hecha por ELETEK para Show Wheels</div>
+    </div>
+    <h1>Turnos, llantas y stock, <em>sin perseguir el WhatsApp</em></h1>
+    <p>El cliente saca su turno solo y recibe el recordatorio. Cada trabajo de llantas tiene su estado y avisa cuando está listo. El stock se busca por medida y la cotización sale armada para mandar.</p>
+  </div>
+</header>
+<nav class="tabs"><div class="wrap">
+  <button data-tab="cl" class="on">📱 Turno del cliente</button>
+  <button data-tab="ag">Agenda de hoy <span class="badge" id="bAg">0</span></button>
+  <button data-tab="ll">Trabajos de llantas <span class="badge" id="bLl">0</span></button>
+  <button data-tab="st">Stock y cotizador</button>
+  <button data-tab="pa">Clientes y patentes</button>
+</div></nav>
+<main><div class="wrap">
+
+<section class="sec on" id="s-cl">
+  <div class="grid2">
+    <div class="phone"><div class="screen">
+      <div class="ph-head"><small>Show Wheels · Turnos online</small><b>Sacá tu turno</b></div>
+      <div class="ph-body">
+        <label class="f" style="margin-top:0">¿Qué necesitás?</label>
+        <div class="svc" id="svc"></div>
+        <label class="f">Día</label>
+        <div class="days" id="days"></div>
+        <label class="f">Horario</label>
+        <div class="slots" id="slots"></div>
+        <div class="note" id="slotNote"></div>
+        <label class="f">Tu nombre</label>
+        <input class="in" id="cName" placeholder="Ej.: Martín Gómez">
+        <label class="f">Patente y vehículo</label>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px"><input class="in" id="cPlate" placeholder="AB123CD" maxlength="9"><input class="in" id="cCar" placeholder="Ej.: Peugeot 208"></div>
+        <button class="btn amber" id="book" style="width:100%;margin-top:14px">Confirmar turno</button>
+        <div id="waConf"></div>
+      </div>
+    </div></div>
+    <div>
+      <div class="h2"><div><h2>Así lo usa el cliente</h2><p>Desde un link en la bio o en el WhatsApp, a cualquier hora.</p></div></div>
+      <div class="card"><div class="steps">
+        <div class="step"><i>1</i><div><b>Elige el servicio</b><span>Cada servicio ocupa su tiempo y su lugar: la alineadora, el elevador o el box.</span></div></div>
+        <div class="step"><i>2</i><div><b>Ve solo los horarios libres</b><span>Respeta lunes a viernes de 9 a 20 y sábados de 9 a 14. No hay superposiciones.</span></div></div>
+        <div class="step"><i>3</i><div><b>Recibe la confirmación por WhatsApp</b><span>Y un recordatorio el día anterior con botones para confirmar o reprogramar.</span></div></div>
+        <div class="step"><i>4</i><div><b>El turno aparece en la agenda del taller</b><span>Probalo: sacá un turno para hoy y mirá la pestaña "Agenda de hoy".</span></div></div>
+      </div></div>
+      <div class="alert" style="margin-top:16px"><b>Para la pintura y la reparación de llantas</b> el cliente deja las llantas: el sistema le da fecha estimada y lo avisa cuando están listas. Mirá "Trabajos de llantas".</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s-ag">
+  <div class="h2"><div><h2>Agenda de hoy</h2><p id="agDate"></p></div><div class="chips" id="agChips"></div></div>
+  <div class="kpis">
+    <div class="kpi"><small>Turnos de hoy</small><b id="kT">0</b></div>
+    <div class="kpi"><small>Confirmados por WhatsApp</small><b id="kC">0</b></div>
+    <div class="kpi"><small>Atendidos</small><b id="kA">0</b></div>
+    <div class="kpi"><small>Llantas para retirar hoy</small><b id="kL">0</b></div>
+  </div>
+  <div class="agwrap"><div class="ag" id="ag"></div></div>
+  <div class="card" id="evDet" style="margin-top:16px"><b>Tocá un turno</b> para ver el detalle, marcarlo como atendido o mandar el recordatorio.</div>
+</section>
+
+<section class="sec" id="s-ll">
+  <div class="h2"><div><h2>Trabajos de llantas</h2><p>Reparación, enderezado, pintura y diamantado: cada juego con su estado y su fecha prometida.</p></div><button class="btn amber" id="newJob">+ Nuevo trabajo</button></div>
+  <div class="kb" id="kb"></div>
+  <div id="jobWa"></div>
+</section>
+
+<section class="sec" id="s-st">
+  <div class="h2"><div><h2>Stock y cotizador</h2><p>Buscá una medida y armá la cotización para mandar por WhatsApp en segundos.</p></div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end">
+      <div><label class="f" style="margin-top:0">Medida</label><input class="in" id="q" placeholder="Ej.: 185/65 R14 o 18565 14"></div>
+      <button class="btn" id="qBtn">Buscar</button>
+    </div>
+    <div class="chips" id="qChips" style="margin-top:10px"></div>
+  </div>
+  <div class="tscroll"><table class="t"><thead><tr><th>Neumático</th><th>Medida</th><th>Línea</th><th class="num">Stock</th><th class="num">Efectivo</th><th class="num">Lista / 3 cuotas</th><th>Cotizar</th></tr></thead><tbody id="stRows"></tbody></table></div>
+  <div class="grid2" style="margin-top:16px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+    <div class="card"><b>Cotización</b>
+      <div id="qSel" class="note">Elegí un neumático de la tabla.</div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <span>Cantidad</span><div class="qty"><button id="qm">−</button><span id="qn">4</span><button id="qp">+</button></div>
+        <label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="qAl" checked> Alineación y balanceo</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" id="qVa" checked> Válvulas</label>
+      </div>
+      <button class="btn amber" id="qCopy" style="margin-top:14px" disabled>Copiar para WhatsApp</button>
+    </div>
+    <div class="card"><b>Vista previa del mensaje</b><div class="wa"><div class="row"><div class="bub me quote" id="qText">—</div></div></div></div>
+  </div>
+  <div class="alert" id="lowStock" style="margin-top:16px"></div>
+</section>
+
+<section class="sec" id="s-pa">
+  <div class="h2"><div><h2>Clientes y patentes</h2><p>Todo lo que se le hizo a cada vehículo, y los avisos para que vuelva.</p></div></div>
+  <div class="card" style="margin-bottom:14px"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end">
+    <div><label class="f" style="margin-top:0">Buscar patente o nombre</label><input class="in" id="pq" placeholder="Ej.: AE512KD"></div><button class="btn" id="pBtn">Buscar</button></div>
+    <div class="chips" id="pChips" style="margin-top:10px"></div>
+  </div>
+  <div id="pDet"></div>
+  <h3 style="font-family:var(--display);font-size:24px;text-transform:uppercase;margin:24px 0 10px">Avisos para esta semana</h3>
+  <div class="tscroll"><table class="t"><thead><tr><th>Cliente</th><th>Vehículo</th><th>Motivo</th><th>Último servicio</th><th></th></tr></thead><tbody id="remRows"></tbody></table></div>
+</section>
+
+</div></main>
+<footer>Demo con datos de ejemplo. El sistema final se adapta a los servicios, precios, horarios y forma de trabajar de Show Wheels.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const money=n=>'$ '+Math.round(n).toLocaleString('es-AR');
+const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const today=new Date(); today.setHours(0,0,0,0);
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const key=d=>d.toISOString().slice(0,10);
+const fmt=d=>d.getDate()+'/'+(d.getMonth()+1);
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2600)}
+
+/* ---------- servicios y recursos ---------- */
+const SVC=[
+ {id:'al',n:'Alineación y balanceo',d:'40 min',min:40,res:'Alineadora',cls:'al'},
+ {id:'tr',n:'Tren delantero',d:'Revisión · 60 min',min:60,res:'Elevador',cls:'tr'},
+ {id:'ne',n:'Cambio de neumáticos',d:'Colocación · 40 min',min:40,res:'Box gomería',cls:'ne'},
+ {id:'ll',n:'Llantas: reparación o pintura',d:'Dejás las llantas',min:20,res:'Box gomería',cls:'ll'}
+];
+const RES=['Alineadora','Elevador','Box gomería'];
+function hoursFor(d){const w=d.getDay();if(w===0)return null;return w===6?[9,14]:[9,20]}
+function slotsFor(d){const h=hoursFor(d);if(!h)return[];const out=[];for(let m=h[0]*60;m<h[1]*60;m+=30)out.push(m);return out}
+const hm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+
+/* turnos de ejemplo */
+let TURNS=[];
+(function seed(){
+ const names=[['Lucía Fernández','AE512KD','Fiat Cronos'],['Carlos Ibáñez','AC774PL','Toyota Hilux'],['Romina Sosa','OKT219','VW Gol Trend'],['Diego Pereyra','AF093RS','Peugeot 208'],['Marcos Ledesma','AD661QW','Ford Ranger'],['Valeria Ruiz','NJH472','Chevrolet Onix'],['Pablo Acosta','AB338TT','Renault Kangoo'],['Sofía Romero','AG127MK','Toyota Corolla']];
+ const plan=[['al',9*60,'c'],['tr',10*60,'c'],['ne',10*60+30,'c'],['al',11*60,'p'],['ll',12*60,'c'],['al',15*60,'c'],['tr',16*60,'p'],['ne',17*60+30,'c']];
+ const d=today.getDay()===0?addD(today,1):today;
+ plan.forEach((p,i)=>{const s=SVC.find(x=>x.id===p[0]);TURNS.push({id:i+1,date:key(d),start:p[1],svc:s.id,name:names[i][0],plate:names[i][1],car:names[i][2],st:p[2]==='c'?'conf':'pend',done:i<2&&new Date().getHours()>=12})});
+ const d2=addD(d,1).getDay()===0?addD(d,2):addD(d,1);
+ [['al',9*60],['al',9*60+30],['tr',11*60],['ne',15*60]].forEach((p,i)=>TURNS.push({id:100+i,date:key(d2),start:p[1],svc:p[0],name:'Cliente '+(i+1),plate:'AA'+(100+i)+'XX',car:'—',st:'conf'}));
+})();
+const busy=(dateK,res,start,len)=>TURNS.some(t=>{if(t.date!==dateK)return false;const s=SVC.find(x=>x.id===t.svc);if(s.res!==res)return false;return start<t.start+s.min&&t.start<start+len});
+
+/* ---------- vista cliente ---------- */
+let selSvc='al', selDay=null, selSlot=null;
+function renderSvc(){$('#svc').innerHTML=SVC.map(s=>`<button class="${s.id===selSvc?'on':''}" data-s="${s.id}"><b>${s.n}</b><span>${s.d}</span></button>`).join('');$$('#svc button').forEach(b=>b.onclick=()=>{selSvc=b.dataset.s;selSlot=null;renderSvc();renderSlots()})}
+function freeCount(dk){const d=new Date(dk+'T00:00:00'),s=SVC.find(x=>x.id===selSvc),now=new Date(),nm=now.getHours()*60+now.getMinutes();return slotsFor(d).filter(m=>m+s.min<=hoursFor(d)[1]*60&&!busy(dk,s.res,m,s.min)&&!(dk===key(today)&&m<=nm)).length}
+function renderDays(){let out='',d=today,c=0;while(c<7){if(hoursFor(d)){if(!selDay&&freeCount(key(d))>=4)selDay=key(d);out+=`<button class="${key(d)===selDay?'on':''}" data-d="${key(d)}"><small>${c===0&&key(d)===key(today)?'Hoy':DAYS[d.getDay()]}</small><b>${d.getDate()}</b></button>`;c++}d=addD(d,1)}if(!selDay){let x=today;while(!hoursFor(x))x=addD(x,1);selDay=key(x);return renderDays()}$('#days').innerHTML=out;$$('#days button').forEach(b=>b.onclick=()=>{selDay=b.dataset.d;selSlot=null;renderDays();renderSlots()})}
+function renderSlots(){const d=new Date(selDay+'T00:00:00');const s=SVC.find(x=>x.id===selSvc);const now=new Date();const nowM=now.getHours()*60+now.getMinutes();const isToday=selDay===key(today);
+ const sl=slotsFor(d).filter(m=>m+s.min<=hoursFor(d)[1]*60);
+ $('#slots').innerHTML=sl.map(m=>{const dis=busy(selDay,s.res,m,s.min)||(isToday&&m<=nowM);return `<button data-m="${m}" ${dis?'disabled':''} class="${selSlot===m?'on':''}">${hm(m)}</button>`}).join('')||'<span class="note">Sin horarios este día.</span>';
+ $$('#slots button:not(:disabled)').forEach(b=>b.onclick=()=>{selSlot=+b.dataset.m;renderSlots()});
+ $('#slotNote').textContent=s.id==='ll'?'Traés las llantas en ese horario y te damos fecha estimada de entrega.':`Usa la ${s.res.toLowerCase()} durante ${s.min} minutos. Los tachados ya están ocupados.`}
+$('#book').onclick=()=>{const n=$('#cName').value.trim()||'Martín Gómez',p=($('#cPlate').value.trim()||'AF451ZX').toUpperCase(),c=$('#cCar').value.trim()||'Peugeot 208';
+ if(selSlot===null){toast('Elegí un horario');return}
+ const s=SVC.find(x=>x.id===selSvc);TURNS.push({id:Date.now(),date:selDay,start:selSlot,svc:selSvc,name:n,plate:p,car:c,st:'conf',isNew:true});
+ const d=new Date(selDay+'T00:00:00');
+ $('#waConf').innerHTML=`<div class="wa"><div class="wa-h">WhatsApp automático a ${n.split(' ')[0]}</div><div class="row"><div class="bub">✅ Turno confirmado en Show Wheels
+${s.n} · ${DAYS[d.getDay()]} ${fmt(d)} a las ${hm(selSlot)}
+Patente ${p} · ${c}
+📍 Av. Peralta Ramos 421
+Te recordamos el día anterior.</div></div><div class="acts"><span>Confirmar</span><span>Reprogramar</span></div></div>`;
+ selSlot=null;renderSlots();renderAg();toast('Turno guardado: ya figura en la agenda')};
+
+/* ---------- agenda ---------- */
+let agDay=key(today.getDay()===0?addD(today,1):today);
+function renderAg(){const d=new Date(agDay+'T00:00:00');
+ $('#agDate').textContent=(agDay===key(today)?'Hoy, ':'')+DAYS[d.getDay()]+' '+fmt(d)+' · '+(d.getDay()===6?'9 a 14 hs':'9 a 20 hs');
+ let ch='',x=today,c=0;while(c<4){if(hoursFor(x)){ch+=`<button class="chip ${key(x)===agDay?'on':''}" data-d="${key(x)}">${key(x)===key(today)?'Hoy':DAYS[x.getDay()]+' '+fmt(x)}</button>`;c++}x=addD(x,1)}
+ $('#agChips').innerHTML=ch;$$('#agChips .chip').forEach(b=>b.onclick=()=>{agDay=b.dataset.d;renderAg()});
+ const ts=TURNS.filter(t=>t.date===agDay);
+ let g='<div class="hd">Hora</div>'+RES.map(r=>`<div class="hd">${r}</div>`).join('');
+ slotsFor(d).forEach(m=>{g+=`<div class="hr">${hm(m)}</div>`;RES.forEach(r=>{const t=ts.find(t=>t.start===m&&SVC.find(s=>s.id===t.svc).res===r);g+='<div>'+(t?`<div class="ev ${SVC.find(s=>s.id===t.svc).cls} ${t.done?'done':''}" data-id="${t.id}"><b>${t.name}${t.isNew?' 🆕':''}</b><span>${SVC.find(s=>s.id===t.svc).n} · ${t.plate}</span></div>`:'')+'</div>'})});
+ $('#ag').innerHTML=g;$$('#ag .ev').forEach(e=>e.onclick=()=>showEv(+e.dataset.id));
+ const tod=TURNS.filter(t=>t.date===agDay);$('#kT').textContent=tod.length;$('#kC').textContent=tod.filter(t=>t.st==='conf').length;$('#kA').textContent=tod.filter(t=>t.done).length;
+ $('#bAg').textContent=TURNS.filter(t=>t.date===key(today)&&!t.done).length;}
+function showEv(id){const t=TURNS.find(x=>x.id===id),s=SVC.find(x=>x.id===t.svc);
+ $('#evDet').innerHTML=`<div class="veh"><div><b style="font-size:18px">${t.name}</b><div class="note" style="margin:2px 0 0">${s.n} · ${hm(t.start)} · ${s.res}</div></div><span class="plate">${t.plate}</span></div>
+ <p style="margin:12px 0">${t.car} · ${t.st==='conf'?'<span class="tag t-ok">Confirmó por WhatsApp</span>':'<span class="tag t-warn">Sin confirmar</span>'} ${t.done?'<span class="tag t-gr">Atendido</span>':''}</p>
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="evDone" ${t.done?'disabled':''}>Marcar atendido</button><button class="btn sm ghost" id="evRem">Enviar recordatorio</button><button class="btn sm ghost" id="evHist">Ver historial de la patente</button></div><div id="evWa"></div>`;
+ $('#evDone').onclick=()=>{t.done=true;addHist(t.plate,t.name,t.car,s.n);renderAg();showEv(id);toast('Atendido: se sumó al historial de '+t.plate)};
+ $('#evRem').onclick=()=>{$('#evWa').innerHTML=`<div class="wa"><div class="row"><div class="bub">Hola ${t.name.split(' ')[0]} 👋 Te recordamos tu turno en Show Wheels para ${s.n.toLowerCase()} a las ${hm(t.start)}. ¿Venís?</div></div><div class="acts"><span>Sí, voy</span><span>Reprogramar</span></div></div>`;t.st='conf';renderAg()};
+ $('#evHist').onclick=()=>{go('pa');showPlate(t.plate)}}
+
+/* ---------- trabajos de llantas ---------- */
+const COLS=[['rec','Recibidas'],['rep','Reparación / enderezado'],['pin','Pintura / diamantado'],['lis','Listas para retirar'],['ent','Entregadas']];
+let JOBS=[
+ {id:301,name:'Lucas Moreno',plate:'AD552HJ',car:'VW Amarok',what:'4 llantas R18 · pintura negro mate',color:'#1d1d1d',st:'pin',due:1,sena:40000,total:160000},
+ {id:302,name:'Gabriela Torres',plate:'AE908LM',car:'Fiat Toro',what:'1 llanta R17 · enderezado',color:'#c9c9c9',st:'rep',due:0,sena:0,total:38000},
+ {id:303,name:'Nicolás Vera',plate:'AF210BN',car:'Audi A3',what:'4 llantas R17 · diamantado',color:'#9aa3ad',st:'pin',due:-1,sena:60000,total:190000},
+ {id:304,name:'Julieta Paz',plate:'AC118KT',car:'Toyota Etios',what:'2 llantas R15 · reparación de fisura',color:'#c9c9c9',st:'rec',due:2,sena:0,total:52000},
+ {id:305,name:'Federico Gil',plate:'OPQ771',car:'Ford Focus',what:'4 llantas R16 · pintura grafito',color:'#4a4f55',st:'lis',due:0,sena:50000,total:150000},
+ {id:306,name:'Andrea Luna',plate:'AB590DS',car:'Renault Duster',what:'1 llanta R16 · enderezado',color:'#c9c9c9',st:'ent',due:-2,sena:0,total:35000}
+];
+function renderKb(){$('#kb').innerHTML=COLS.map(([k,n])=>{const js=JOBS.filter(j=>j.st===k);return `<div class="col"><h4><span>${n}</span><span>${js.length}</span></h4>${js.map(j=>{const dd=addD(today,j.due);const late=j.due<0&&k!=='ent'&&k!=='lis';return `<div class="job ${late?'late':''}"><b>${j.name}</b><div class="m">${j.car} · ${j.plate}<br><span class="sw" style="background:${j.color}"></span>${j.what}</div>
+ <div class="row"><span class="tag ${late?'t-bad':k==='lis'?'t-ok':'t-gr'}">${k==='ent'?'Entregado '+fmt(dd):late?'Atrasado · prometido '+fmt(dd):'Para el '+fmt(dd)}</span>${k!=='ent'?`<button class="btn sm" data-j="${j.id}">${k==='lis'?'Entregar':'Avanzar →'}</button>`:''}</div>
+ <div class="m" style="margin:8px 0 0">Total ${money(j.total)} · Seña ${money(j.sena)} · <b>Saldo ${money(j.total-j.sena)}</b></div></div>`}).join('')}</div>`}).join('');
+ $$('#kb button[data-j]').forEach(b=>b.onclick=()=>advance(+b.dataset.j));
+ $('#bLl').textContent=JOBS.filter(j=>j.st!=='ent').length;$('#kL').textContent=JOBS.filter(j=>j.st==='lis').length;}
+function advance(id){const j=JOBS.find(x=>x.id===id);const i=COLS.findIndex(c=>c[0]===j.st);j.st=COLS[i+1][0];
+ if(j.st==='lis'){$('#jobWa').innerHTML=`<div class="card" style="margin-top:14px;max-width:520px"><b>Aviso automático al cliente</b><div class="wa"><div class="row"><div class="bub">Hola ${j.name.split(' ')[0]} 🛞 ¡Tus llantas ya están listas! (${j.what.split('·')[0].trim()} del ${j.car})
+Saldo a abonar: ${money(j.total-j.sena)}
+Podés retirarlas de lunes a viernes de 9 a 20 y sábados de 9 a 14 en Av. Peralta Ramos 421.</div></div></div></div>`;toast('Se le avisó a '+j.name+' por WhatsApp')}
+ else if(j.st==='ent'){addHist(j.plate,j.name,j.car,'Llantas: '+j.what.split('·')[1].trim());toast('Entregado y guardado en el historial');$('#jobWa').innerHTML=''}
+ else toast('Trabajo actualizado');renderKb();renderAg()}
+$('#newJob').onclick=()=>{JOBS.unshift({id:Date.now(),name:'Nuevo cliente',plate:'AF777QQ',car:'Chevrolet Cruze',what:'4 llantas R17 · pintura plata',color:'#cfd3d8',st:'rec',due:4,sena:45000,total:150000});renderKb();toast('Trabajo cargado con seña y fecha prometida')};
+
+/* ---------- stock ---------- */
+const LINES=[['Premium','t-pur',1.32],['Estándar','t-blu',1],['Económica','t-gr',.82]];
+const BASE={'165/70 R13':78000,'175/70 R13':82000,'175/65 R14':88000,'185/65 R14':94000,'185/60 R14':96000,'185/60 R15':104000,'195/55 R15':112000,'195/70 R14':118000,'205/55 R16':139000,'215/65 R16':168000,'225/60 R17':205000,'265/65 R17':262000};
+let STOCK=[];let sid=1;
+Object.entries(BASE).forEach(([m,p],i)=>LINES.forEach((l,k)=>STOCK.push({id:sid++,m,line:l[0],cls:l[1],name:['Modelo Touring','Modelo City','Modelo Eco'][k]+(m.includes('17')?' SUV':''),stock:[8,2,12,4,0,6,16,3,10,1,7,5][(i+k*5)%12],cash:Math.round(p*l[2]/100)*100})));
+let selSt=null,qn=4;
+const norm=s=>{const d=s.replace(/\D/g,'');return d.length>=7?d.slice(0,3)+'/'+d.slice(3,5)+' R'+d.slice(5,7):null};
+function renderSt(q){const n=q?norm(q):null;const rows=STOCK.filter(s=>!n||s.m===n);
+ $('#stRows').innerHTML=rows.map(s=>`<tr><td><b>${s.name}</b></td><td>${s.m}</td><td><span class="tag ${s.cls}">${s.line}</span></td><td class="num">${s.stock===0?'<span class="tag t-bad">Sin stock</span>':s.stock<=2?'<span class="tag t-warn">'+s.stock+'</span>':s.stock}</td><td class="num"><b>${money(s.cash)}</b></td><td class="num">${money(s.cash*1.18)}<br><span class="note">3 × ${money(s.cash*1.18/3)}</span></td><td><button class="btn sm ${selSt===s.id?'amber':'ghost'}" data-s="${s.id}" ${s.stock===0?'disabled':''}>Elegir</button></td></tr>`).join('')||`<tr><td colspan="7">No hay esa medida cargada. Probá con 185/65 R14.</td></tr>`;
+ $$('#stRows button').forEach(b=>b.onclick=()=>{selSt=+b.dataset.s;renderSt($('#q').value);quote()})}
+function quote(){const s=STOCK.find(x=>x.id===selSt);if(!s){$('#qCopy').disabled=true;return}
+ if(qn>s.stock){qn=s.stock}$('#qn').textContent=qn;$('#qSel').textContent=s.name+' '+s.m+' · línea '+s.line+' · stock '+s.stock;
+ let tot=s.cash*qn,lines=[`${qn} × ${s.name} ${s.m} (${s.line}) ${money(s.cash*qn)}`];
+ if($('#qAl').checked){lines.push('Alineación y balanceo '+money(28000));tot+=28000}
+ if($('#qVa').checked){lines.push(`${qn} válvulas ${money(2500*qn)}`);tot+=2500*qn}
+ $('#qText').textContent=`Hola! Te paso la cotización de Show Wheels 🛞\n${lines.join('\n')}\n\nTotal en efectivo: ${money(tot)}\nCon tarjeta: ${money(tot*1.18)} o 3 cuotas de ${money(tot*1.18/3)}\n\n¿Te reservo un turno para la colocación?`;$('#qCopy').disabled=false}
+$('#qm').onclick=()=>{qn=Math.max(1,qn-1);quote()};$('#qp').onclick=()=>{const s=STOCK.find(x=>x.id===selSt);qn=Math.min(s?s.stock:8,qn+1);quote()};
+$('#qAl').onchange=quote;$('#qVa').onchange=quote;
+$('#qCopy').onclick=()=>{try{navigator.clipboard.writeText($('#qText').textContent)}catch(e){}toast('Cotización copiada: pegala en el WhatsApp del cliente')};
+$('#qBtn').onclick=()=>renderSt($('#q').value);$('#q').onkeydown=e=>{if(e.key==='Enter')renderSt($('#q').value)};
+$('#qChips').innerHTML=['165/70 R13','175/65 R14','185/65 R14','185/60 R15','195/55 R15','Todas'].map(m=>`<button class="chip" data-m="${m}">${m}</button>`).join('');
+$$('#qChips .chip').forEach(b=>b.onclick=()=>{$('#q').value=b.dataset.m==='Todas'?'':b.dataset.m;renderSt($('#q').value)});
+function renderLow(){const low=STOCK.filter(s=>s.stock<=2);$('#lowStock').innerHTML=`<b>Para reponer:</b> ${low.length} productos con 2 unidades o menos, por ejemplo ${low.slice(0,3).map(s=>s.m+' '+s.line).join(', ')}. El sistema los marca solos.`}
+
+/* ---------- patentes ---------- */
+let VEH={
+ 'AE512KD':{name:'Lucía Fernández',car:'Fiat Cronos 2021',tel:'223 5•• ••12',h:[[-190,'4 neumáticos 185/60 R15 Estándar · 32.000 km'],[-190,'Alineación y balanceo'],[-20,'Rotación de neumáticos · 41.500 km']]},
+ 'AC774PL':{name:'Carlos Ibáñez',car:'Toyota Hilux 2019',tel:'223 6•• ••40',h:[[-400,'Tren delantero: bujes y extremos'],[-182,'Alineación y balanceo']]},
+ 'AF210BN':{name:'Nicolás Vera',car:'Audi A3 2018',tel:'223 4•• ••77',h:[[-300,'Reparación de llanta R17'],[-5,'Ingresaron 4 llantas para diamantado']]},
+ 'OKT219':{name:'Romina Sosa',car:'VW Gol Trend 2014',tel:'223 5•• ••03',h:[[-210,'2 neumáticos 175/70 R13 Económica'],[-210,'Balanceo']]}
+};
+function addHist(p,name,car,txt){if(!VEH[p])VEH[p]={name,car,tel:'—',h:[]};VEH[p].h.push([0,txt])}
+function showPlate(p){p=(p||'').toUpperCase().replace(/\s/g,'');let k=Object.keys(VEH).find(x=>x===p)||Object.keys(VEH).find(x=>VEH[x].name.toLowerCase().includes(p.toLowerCase()));
+ if(!k){$('#pDet').innerHTML='<div class="card">No encontramos esa patente. Probá con AE512KD.</div>';return}
+ const v=VEH[k];const last=[...v.h].sort((a,b)=>b[0]-a[0]);const lastAl=last.find(x=>/Alineación/.test(x[1]));const days=lastAl?-lastAl[0]:999;
+ $('#pDet').innerHTML=`<div class="card"><div class="veh"><div><b style="font-size:20px">${v.name}</b><div class="note" style="margin:2px 0 0">${v.car} · ${v.tel}</div></div><span class="plate">${k}</span></div>
+ ${days>=170?`<div class="alert">Hace ${days} días de la última alineación: <b>le toca volver</b>. <button class="btn sm" id="pRem" style="margin-left:6px">Avisar por WhatsApp</button></div>`:''}
+ <ul class="hist" style="margin:14px 0 0;padding-left:18px">${last.map(([d,t])=>`<li><b>${fmt(addD(today,d))}</b> · ${t}</li>`).join('')}</ul><div id="pWa"></div></div>`;
+ const r=$('#pRem');if(r)r.onclick=()=>{$('#pWa').innerHTML=`<div class="wa"><div class="row"><div class="bub">Hola ${v.name.split(' ')[0]} 👋 Ya pasaron 6 meses desde la última alineación de tu ${v.car.split(' ').slice(0,2).join(' ')}. ¿Te reservamos un turno en Show Wheels?</div></div><div class="acts"><span>Sacar turno</span></div></div>`;toast('Aviso enviado')}}
+$('#pBtn').onclick=()=>showPlate($('#pq').value);$('#pq').onkeydown=e=>{if(e.key==='Enter')showPlate($('#pq').value)};
+function renderPChips(){$('#pChips').innerHTML=Object.keys(VEH).slice(0,4).map(p=>`<button class="chip" data-p="${p}">${p}</button>`).join('');$$('#pChips .chip').forEach(b=>b.onclick=()=>{$('#pq').value=b.dataset.p;showPlate(b.dataset.p)})}
+function renderRem(){const rows=[['Lucía Fernández','Fiat Cronos · AE512KD','Alineación: pasaron 6 meses','Hace 190 días'],['Carlos Ibáñez','Toyota Hilux · AC774PL','Alineación: pasaron 6 meses','Hace 182 días'],['Romina Sosa','VW Gol Trend · OKT219','Rotación: ~10.000 km estimados','Hace 210 días']];
+ $('#remRows').innerHTML=rows.map((r,i)=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><button class="btn sm ghost" data-r="${i}">Avisar</button></td></tr>`).join('');
+ $$('#remRows button').forEach(b=>b.onclick=()=>{b.textContent='Avisado ✓';b.disabled=true;toast('Recordatorio enviado por WhatsApp')})}
+
+/* ---------- navegación ---------- */
+function go(t){$$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));$$('.sec').forEach(s=>s.classList.toggle('on',s.id==='s-'+t));window.scrollTo({top:document.querySelector('nav.tabs').offsetTop,behavior:'smooth'})}
+$$('nav.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+
+renderSvc();renderDays();renderSlots();renderAg();renderKb();renderSt('');renderLow();renderPChips();renderRem();showPlate('AE512KD');
+})();
+</script>
+</body>
+</html>
